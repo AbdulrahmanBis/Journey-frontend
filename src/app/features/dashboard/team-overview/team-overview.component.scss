@@ -1,0 +1,60 @@
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tree-row {
+  padding: 6px;
+  overflow: hidden;
+}
+
+.tree-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 12px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+}
+.tree-head:hover { background: var(--bg); }
+
+.chevron {
+  font-size: 18px;
+  color: var(--text-faint);
+  transition: transform 0.18s ease;
+  width: 14px;
+  flex-shrink: 0;
+}
+.chevron.open { transform: rotate(90deg); color: var(--brand); }
+
+.tree-head-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tree-head-name { font-weight: 600; font-size: 14.5px; }
+
+.tree-children {
+  padding: 4px 10px 14px 34px;
+  animation: riseIn 0.16s ease;
+}
+
+.tree-subrow {
+  border-top: 1px dashed var(--border);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+.tree-subrow:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+
+.journey-grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}

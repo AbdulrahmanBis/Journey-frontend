@@ -1,0 +1,23 @@
+<div class="note-thread">
+  <div class="note-list" *ngIf="notes.length; else noNotes">
+    <div class="note" *ngFor="let n of notes" [class.mine]="n.actorId === currentUserId">
+      <div class="note-avatar">{{ n.actorName.charAt(0) }}</div>
+      <div class="note-body">
+        <div class="note-head">
+          <span class="note-author">{{ n.actorName }}</span>
+          <span class="role-chip" [class]="'role-' + n.actorRole">{{ roleLabel[n.actorRole] }}</span>
+          <span class="note-time faint">{{ relativeTime(n.timestamp) }}</span>
+        </div>
+        <p class="note-message">{{ n.message }}</p>
+      </div>
+    </div>
+  </div>
+  <ng-template #noNotes>
+    <p class="faint note-empty">No notes yet — leave one for whoever picks this up next.</p>
+  </ng-template>
+
+  <form class="note-form" (submit)="$event.preventDefault(); submit()">
+    <input class="input" placeholder="Add a note…" [(ngModel)]="draft" name="draft" />
+    <button class="btn btn-ghost btn-sm" type="submit" [disabled]="!draft.trim()">Add</button>
+  </form>
+</div>

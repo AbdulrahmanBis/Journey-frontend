@@ -1,0 +1,64 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">Admin</span>
+    <h1 class="page-title">Users</h1>
+    <p class="page-sub">Manage accounts and assign learners to the right senior.</p>
+  </div>
+  <a routerLink="/admin/users/new" class="btn btn-primary">+ Add user</a>
+</div>
+
+<p class="muted" *ngIf="loading">Loading users…</p>
+
+<div class="card" *ngIf="!loading">
+  <table class="user-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Senior</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>
+          <div class="flex items-center gap-12">
+            <div class="user-avatar sm">{{ u.name.charAt(0) }}</div>
+            <span>{{ u.name }}</span>
+          </div>
+        </td>
+        <td class="mono faint">{{ u.email }}</td>
+        <td><span class="role-chip" [class]="'role-' + u.role">{{ roleLabel[u.role] }}</span></td>
+        <td>
+          <select
+            *ngIf="u.role === UserRole.Learner"
+            class="select select-sm"
+            [ngModel]="u.seniorId ?? ''"
+            (ngModelChange)="reassignSenior(u, $event)"
+          >
+            <option value="" disabled>Unassigned</option>
+            <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
+          </select>
+          <span class="faint" *ngIf="u.role !== UserRole.Learner">—</span>
+        </td>
+        <td>
+          <div class="flex gap-8">
+            <button class="btn btn-ghost btn-sm" (click)="edit(u)">Edit</button>
+            <button class="btn btn-danger btn-sm btn-icon" title="Delete" (click)="askDelete(u)">✕</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deletingUser"
+  title="Remove this user?"
+  [message]="'This permanently removes ' + (deletingUser?.name ?? '') + '\'s account.'"
+  confirmLabel="Remove user"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deletingUser = null"
+></app-confirm-dialog>

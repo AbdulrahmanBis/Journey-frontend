@@ -1,0 +1,53 @@
+<div class="auth-screen">
+  <section class="auth-brand">
+    <div class="brand-mark lg">J</div>
+    <h1>Start your journey</h1>
+    <p>Create your account and your assigned senior will set you up with your first quest log.</p>
+
+    <div class="rail-demo">
+      <div class="rail-line"></div>
+      <div class="rail-node current"></div>
+      <div class="rail-node"></div>
+      <div class="rail-node"></div>
+      <div class="rail-node"></div>
+      <div class="rail-node"></div>
+    </div>
+  </section>
+
+  <section class="auth-panel">
+    <div class="card card-pad auth-card">
+      <span class="page-eyebrow">Sign up</span>
+      <h2 class="page-title">Create your account</h2>
+      <p class="muted" style="margin-top: 6px; margin-bottom: 22px;">
+        New employee? You'll join as a Learner — your senior assigns your first journey.
+      </p>
+
+      <form (submit)="$event.preventDefault(); submit()">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" class="input" type="text" [(ngModel)]="name" name="name" placeholder="Jane Doe" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" class="input" type="email" [(ngModel)]="email" name="email" placeholder="you@company.io" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" class="input" type="password" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+        </div>
+        <div class="field">
+          <label for="confirm">Confirm password</label>
+          <input id="confirm" class="input" type="password" [(ngModel)]="confirmPassword" name="confirm" placeholder="••••••••" required />
+        </div>
+        <p class="field-error" *ngIf="error">{{ error }}</p>
+        <button class="btn btn-primary btn-block" type="submit" [disabled]="loading">
+          {{ loading ? 'Creating account…' : 'Create account' }}
+        </button>
+      </form>
+
+      <p class="muted" style="margin-top: 18px; font-size: 13.5px;">
+        Already have an account? <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
+  </section>
+</div>

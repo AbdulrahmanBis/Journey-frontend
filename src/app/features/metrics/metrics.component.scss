@@ -1,0 +1,43 @@
+.selector-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.selector-bar .field { min-width: 200px; }
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.chart-card {
+  margin-bottom: 18px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  padding: 7px 0;
+}
+
+.pass-text { color: var(--status-completed); font-weight: 600; }
+.fail-text { color: var(--status-cancelled); font-weight: 600; }
+
+@media (max-width: 760px) {
+  .two-col { grid-template-columns: 1fr; }
+}

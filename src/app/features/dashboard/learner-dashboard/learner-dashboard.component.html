@@ -1,0 +1,56 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">Your journeys</span>
+    <h1 class="page-title">Hey {{ user.name.split(' ')[0] }}, here's where you're at</h1>
+    <p class="page-sub">Pick up a journey below and keep working through its quest log.</p>
+  </div>
+</div>
+
+<div class="stat-strip" *ngIf="!loading">
+  <div class="card card-pad stat">
+    <span class="stat-num">{{ activeCount }}</span>
+    <span class="stat-label">In progress</span>
+  </div>
+  <div class="card card-pad stat">
+    <span class="stat-num">{{ completedCount }}</span>
+    <span class="stat-label">Completed</span>
+  </div>
+  <div class="card card-pad stat">
+    <span class="stat-num">{{ totalHours }}h</span>
+    <span class="stat-label">Time logged</span>
+  </div>
+</div>
+
+<div class="journey-grid" *ngIf="!loading; else loadingState">
+  <div class="card card-pad card-hover journey-card" *ngFor="let j of journeys" (click)="open(j)">
+    <div class="flex justify-between items-center">
+      <span class="tag">{{ j.journey.techTag }}</span>
+      <app-status-badge [status]="j.status"></app-status-badge>
+    </div>
+    <h3 class="journey-title">{{ j.journey.title }}</h3>
+    <p class="muted journey-desc">{{ j.journey.description }}</p>
+    <app-exam-grade-badge
+      *ngIf="j.exam"
+      [exam]="j.exam"
+      [attempt]="j.examAttempt"
+      [percentComplete]="j.percentComplete"
+      style="margin-bottom: 4px;"
+    ></app-exam-grade-badge>
+    <div class="journey-foot">
+      <app-progress-ring [percent]="j.percentComplete" [size]="48" [stroke]="5"></app-progress-ring>
+      <div class="journey-foot-meta">
+        <span class="mono faint">{{ j.totalTimeSpentHours }}h logged</span>
+        <span class="faint">Assigned by {{ j.assignedByName }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state card" *ngIf="!journeys.length">
+    <h3>No journeys yet</h3>
+    <p>Your assigned senior will set up your first quest log soon.</p>
+  </div>
+</div>
+
+<ng-template #loadingState>
+  <p class="muted">Loading your journeys…</p>
+</ng-template>

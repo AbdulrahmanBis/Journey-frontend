@@ -1,0 +1,92 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">{{ isManagerScope ? 'Org overview' : 'Your team' }}</span>
+    <h1 class="page-title">{{ isManagerScope ? 'Seniors & their learners' : 'Learners assigned to you' }}</h1>
+    <p class="page-sub">
+      {{ isManagerScope ? 'Expand a senior to see their learners, then a learner to see their journeys.' : 'Expand a learner to see their journey progress.' }}
+    </p>
+  </div>
+</div>
+
+<p class="muted" *ngIf="loading">Loading team overview…</p>
+
+<!-- ============================== Senior scope ============================== -->
+<div class="tree" *ngIf="!loading && !isManagerScope">
+  <div class="empty-state card" *ngIf="!learners.length">
+    <h3>No learners assigned yet</h3>
+    <p>Your manager will assign new hires to you when they're ready to start.</p>
+  </div>
+
+  <div class="tree-row card" *ngFor="let learner of learners">
+    <ng-container *ngTemplateOutlet="learnerRow; context: { learner: learner }"></ng-container>
+  </div>
+</div>
+
+<!-- ============================== Manager scope ============================== -->
+<div class="tree" *ngIf="!loading && isManagerScope">
+  <div class="empty-state card" *ngIf="!seniors.length">
+    <h3>No seniors yet</h3>
+    <p>Add senior accounts from User Management to start building teams.</p>
+  </div>
+
+  <div class="tree-row card" *ngFor="let senior of seniors">
+    <button class="tree-head" (click)="toggleSenior(senior.id)">
+      <span class="chevron" [class.open]="expandedSeniors.has(senior.id)">›</span>
+      <div class="user-avatar">{{ senior.name.charAt(0) }}</div>
+      <div class="tree-head-meta">
+        <span class="tree-head-name">{{ senior.name }}</span>
+        <span class="faint mono">{{ senior.learners.length }} learner{{ senior.learners.length === 1 ? '' : 's' }}</span>
+      </div>
+      <span class="role-chip role-senior">Senior</span>
+    </button>
+
+    <div class="tree-children" *ngIf="expandedSeniors.has(senior.id)">
+      <div class="tree-subrow" *ngFor="let learner of senior.learners">
+        <ng-container *ngTemplateOutlet="learnerRow; context: { learner: learner }"></ng-container>
+      </div>
+      <p class="faint" style="padding: 10px 4px;" *ngIf="!senior.learners.length">No learners assigned to this senior yet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Reusable learner row + its journeys, used in both scopes above -->
+<ng-template #learnerRow let-learner="learner">
+  <button class="tree-head" (click)="toggleLearner(learner.id)">
+    <span class="chevron" [class.open]="expandedLearners.has(learner.id)">›</span>
+    <div class="user-avatar">{{ learner.name.charAt(0) }}</div>
+    <div class="tree-head-meta">
+      <span class="tree-head-name">{{ learner.name }}</span>
+      <span class="faint mono">{{ activeJourneyCount(learner.journeys) }} active · avg {{ avgProgress(learner.journeys) }}%</span>
+    </div>
+    <span class="role-chip role-learner">Learner</span>
+  </button>
+
+  <div class="tree-children" *ngIf="expandedLearners.has(learner.id)">
+    <div class="journey-grid compact" *ngIf="learner.journeys.length; else noJourneys">
+      <div class="card card-pad card-hover journey-card" *ngFor="let j of learner.journeys" (click)="openJourney(j)">
+        <div class="flex justify-between items-center">
+          <span class="tag">{{ j.journey.techTag }}</span>
+          <app-status-badge [status]="j.status"></app-status-badge>
+        </div>
+        <h3 class="journey-title">{{ j.journey.title }}</h3>
+        <app-exam-grade-badge
+          *ngIf="j.exam"
+          [exam]="j.exam"
+          [attempt]="j.examAttempt"
+          [percentComplete]="j.percentComplete"
+          style="margin-bottom: 4px; display: inline-block;"
+        ></app-exam-grade-badge>
+        <div class="journey-foot">
+          <app-progress-ring [percent]="j.percentComplete" [size]="42" [stroke]="5"></app-progress-ring>
+          <div class="journey-foot-meta">
+            <span class="mono faint">{{ j.totalTimeSpentHours }}h logged</span>
+            <span class="faint">Assigned by {{ j.assignedByName }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #noJourneys>
+      <p class="faint" style="padding: 10px 4px;">No journeys assigned yet.</p>
+    </ng-template>
+  </div>
+</ng-template>

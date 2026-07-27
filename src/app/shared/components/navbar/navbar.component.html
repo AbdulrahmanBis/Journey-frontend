@@ -1,0 +1,35 @@
+<aside class="nav">
+  <div class="nav-brand">
+    <div class="brand-mark">J</div>
+    <div>
+      <div class="brand-name">Journey</div>
+      <div class="brand-sub">Onboarding quest log</div>
+    </div>
+  </div>
+
+  <nav class="nav-links">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+      <span class="nav-dot"></span> Dashboard
+    </a>
+    <a routerLink="/metrics" routerLinkActive="active" class="nav-link">
+      <span class="nav-dot"></span> Metrics
+    </a>
+    <a *ngIf="canManageJourneys" routerLink="/journeys" routerLinkActive="active" class="nav-link">
+      <span class="nav-dot"></span> Journeys
+    </a>
+    <a *ngIf="canManageUsers" routerLink="/admin/users" routerLinkActive="active" class="nav-link">
+      <span class="nav-dot"></span> Users
+    </a>
+  </nav>
+
+  <div class="nav-user">
+    <div class="user-card">
+      <div class="user-avatar">{{ user.name.charAt(0) }}</div>
+      <div class="user-meta">
+        <div class="user-name">{{ user.name }}</div>
+        <span class="role-chip" [class]="'role-' + user.role">{{ roleLabel[user.role] }}</span>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm w-full" (click)="logout()">Log out</button>
+  </div>
+</aside>

@@ -1,0 +1,98 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">{{ isEdit ? 'Edit exam' : 'New exam' }} · {{ journey?.title }}</span>
+    <h1 class="page-title">{{ isEdit ? 'Update checkpoint exam' : 'Create a checkpoint exam' }}</h1>
+    <p class="page-sub">Learners unlock this once every quest item is complete. Keep it short.</p>
+  </div>
+  <a routerLink="/journeys" class="btn btn-ghost">← Back to journeys</a>
+</div>
+
+<div *ngIf="!loading" class="form-layout">
+  <div class="card card-pad">
+    <h3 style="margin-bottom: 16px;">Exam details</h3>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <input id="title" class="input" [(ngModel)]="title" name="title" />
+    </div>
+
+    <div class="field">
+      <label for="pass">Passing score (%)</label>
+      <input id="pass" class="input" type="number" min="0" max="100" [(ngModel)]="passingScorePercent" name="pass" />
+      <span class="hint">Used as the default pass/fail line when your senior grades it — they can still override.</span>
+    </div>
+
+    <button *ngIf="isEdit" type="button" class="btn btn-danger btn-sm" (click)="showDeleteConfirm = true">Remove exam from this journey</button>
+  </div>
+
+  <div class="card card-pad">
+    <div class="flex justify-between items-center" style="margin-bottom: 16px;">
+      <h3>Questions</h3>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="addQuestion()">+ Add question</button>
+    </div>
+
+    <div class="item-draft" *ngFor="let q of questions; let i = index">
+      <div class="item-draft-head">
+        <span class="mono faint">Q{{ i + 1 }}</span>
+        <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeQuestion(i)" title="Remove question">✕</button>
+      </div>
+
+      <div class="field">
+        <label>Question type</label>
+        <select class="select" [(ngModel)]="q.type" [name]="'type-' + i" (ngModelChange)="onTypeChange(q)">
+          <option *ngFor="let t of questionTypes" [value]="t">{{ typeLabel[t] }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <textarea class="textarea" [(ngModel)]="q.prompt" [name]="'prompt-' + i" placeholder="Question prompt" rows="2"></textarea>
+      </div>
+
+      <!-- Multiple choice options -->
+      <div *ngIf="q.type === 'multiple_choice'" class="options-block">
+        <span class="hint" style="display:block; margin-bottom: 8px;">Pick the correct option:</span>
+        <div class="option-row" *ngFor="let opt of q.options; let oi = index">
+          <input type="radio" [name]="'correct-' + i" [checked]="q.correctOptionIndex === oi" (change)="q.correctOptionIndex = oi" />
+          <input class="input" [(ngModel)]="q.options[oi]" [name]="'opt-' + i + '-' + oi" placeholder="Option text" />
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="q.options.length <= 2" (click)="removeOption(q, oi)" title="Remove option">✕</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="addOption(q)">+ Add option</button>
+      </div>
+
+      <!-- Yes / No -->
+      <div *ngIf="q.type === 'yes_no'" class="options-block">
+        <span class="hint" style="display:block; margin-bottom: 8px;">Correct answer:</span>
+        <div class="flex gap-12">
+          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === true" style="--pill-color: var(--status-completed)" (click)="q.correctBoolAnswer = true">Yes</button>
+          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === false" style="--pill-color: var(--status-cancelled)" (click)="q.correctBoolAnswer = false">No</button>
+        </div>
+      </div>
+
+      <!-- Open question -->
+      <p class="faint" style="font-size: 12.5px; margin-top: 8px;" *ngIf="q.type === 'open'">
+        No correct answer to set — your reviewer marks this correct or incorrect when grading.
+      </p>
+    </div>
+
+    <p class="faint" *ngIf="!questions.length" style="padding: 8px 0;">No questions yet — add the first one.</p>
+  </div>
+</div>
+
+<p class="field-error" style="margin-top: 16px;" *ngIf="error">{{ error }}</p>
+
+<div class="flex gap-12" style="margin-top: 20px;" *ngIf="!loading">
+  <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
+    {{ saving ? 'Saving…' : isEdit ? 'Save exam' : 'Create exam' }}
+  </button>
+  <a routerLink="/journeys" class="btn btn-ghost">Cancel</a>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteConfirm"
+  title="Remove this exam?"
+  message="Learners will no longer see an exam step for this journey. Past graded attempts are kept."
+  confirmLabel="Remove exam"
+  [danger]="true"
+  (confirmed)="confirmDeleteExam()"
+  (cancelled)="showDeleteConfirm = false"
+></app-confirm-dialog>

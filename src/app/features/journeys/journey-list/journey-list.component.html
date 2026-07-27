@@ -1,0 +1,64 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">Journey templates</span>
+    <h1 class="page-title">Journeys</h1>
+    <p class="page-sub">Reusable quest logs your team can assign to new hires.</p>
+  </div>
+  <a routerLink="/journeys/new" class="btn btn-primary">+ New journey</a>
+</div>
+
+<p class="muted" *ngIf="loading">Loading journeys…</p>
+
+<div class="journey-grid" *ngIf="!loading">
+  <div class="card card-pad journey-card" *ngFor="let j of journeys">
+    <span class="tag">{{ j.techTag }}</span>
+    <h3 class="journey-title">{{ j.title }}</h3>
+    <p class="muted journey-desc">{{ j.description }}</p>
+    <p class="faint mono" style="font-size: 12px;">by {{ j.createdByName }}</p>
+    <div class="journey-actions">
+      <button class="btn btn-primary btn-sm" (click)="openAssign(j)">Assign</button>
+      <button class="btn btn-ghost btn-sm" (click)="edit(j)">Edit</button>
+      <a [routerLink]="['/journeys', j.id, 'exam']" class="btn btn-ghost btn-sm">{{ hasExam(j.id) ? 'Exam' : '+ Exam' }}</a>
+      <button class="btn btn-danger btn-sm btn-icon" title="Delete" (click)="askDelete(j)">✕</button>
+    </div>
+  </div>
+
+  <div class="empty-state card" *ngIf="!journeys.length">
+    <h3>No journeys yet</h3>
+    <p>Create your first journey template to start onboarding new hires.</p>
+  </div>
+</div>
+
+<!-- Assign modal -->
+<div class="modal-backdrop" *ngIf="assigningJourney" (click)="closeAssign()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3>Assign "{{ assigningJourney.title }}"</h3>
+    <p class="muted" style="margin: 8px 0 18px; font-size: 13.5px;">Choose who should start this journey.</p>
+
+    <div class="field">
+      <label>Learner</label>
+      <select class="select" [(ngModel)]="selectedLearnerId">
+        <option value="" disabled>Select a learner…</option>
+        <option *ngFor="let l of availableLearners" [value]="l.id">{{ l.name }}</option>
+      </select>
+      <p class="hint" *ngIf="!availableLearners.length">No learners available to assign yet.</p>
+    </div>
+
+    <div class="flex gap-12 justify-between" style="margin-top: 8px;">
+      <button class="btn btn-ghost w-full" (click)="closeAssign()">Cancel</button>
+      <button class="btn btn-primary w-full" [disabled]="!selectedLearnerId || assigning" (click)="confirmAssign()">
+        {{ assigning ? 'Assigning…' : 'Assign journey' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="!!deletingJourney"
+  title="Delete this journey?"
+  [message]="'This removes &quot;' + (deletingJourney?.title ?? '') + '&quot; and all its quest items. Learners already on it keep their progress, but it can no longer be assigned.'"
+  confirmLabel="Delete journey"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deletingJourney = null"
+></app-confirm-dialog>

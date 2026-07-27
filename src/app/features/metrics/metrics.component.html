@@ -1,0 +1,142 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">Metrics</span>
+    <h1 class="page-title">{{ isLearner ? 'Your progress' : 'Training metrics' }}</h1>
+    <p class="page-sub" *ngIf="!isLearner">{{ scopeLabel }} — hours, completion and exam results.</p>
+    <p class="page-sub" *ngIf="isLearner">Hours, journeys and exam results across everything you've been assigned.</p>
+  </div>
+</div>
+
+<!-- Selectors: Manager/Admin get senior + learner, Senior gets learner only -->
+<div class="selector-bar" *ngIf="!isLearner">
+  <div class="field" style="margin-bottom: 0;" *ngIf="isManagerOrAdmin">
+    <label>Senior</label>
+    <select class="select select-sm" [(ngModel)]="selectedSeniorId" (ngModelChange)="onSeniorChange()">
+      <option value="">All seniors</option>
+      <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
+    </select>
+  </div>
+  <div class="field" style="margin-bottom: 0;">
+    <label>Learner</label>
+    <select class="select select-sm" [(ngModel)]="selectedLearnerId" (ngModelChange)="onLearnerChange()">
+      <option value="">All learners</option>
+      <option *ngFor="let l of learnersInScope" [value]="l.id">{{ l.name }}</option>
+    </select>
+  </div>
+</div>
+
+<p class="muted" *ngIf="loading">Loading metrics…</p>
+
+<ng-container *ngIf="!loading">
+  <!-- ============================== Stat strip ============================== -->
+  <div class="metric-strip" *ngIf="viewKind === 'learner' && learnerMetrics as m">
+    <div class="card card-pad stat"><span class="stat-num">{{ m.totalJourneys }}</span><span class="stat-label">Journeys</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.completedJourneys }}</span><span class="stat-label">Completed</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.totalHours }}h</span><span class="stat-label">Total hours</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.itemCompletionPercent }}%</span><span class="stat-label">Items done</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.exams.passed }}/{{ m.exams.graded }}</span><span class="stat-label">Exams passed</span></div>
+  </div>
+
+  <div class="metric-strip" *ngIf="(viewKind === 'group' || viewKind === 'org') && (groupMetrics ?? orgMetrics) as m">
+    <div class="card card-pad stat"><span class="stat-num">{{ m.learnerCount }}</span><span class="stat-label">Learners</span></div>
+    <div class="card card-pad stat" *ngIf="orgMetrics && viewKind === 'org'"><span class="stat-num">{{ orgMetrics.seniorCount }}</span><span class="stat-label">Seniors</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.activeJourneys }}</span><span class="stat-label">Active journeys</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.totalHours }}h</span><span class="stat-label">Total hours</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.avgCompletionPercent }}%</span><span class="stat-label">Avg completion</span></div>
+    <div class="card card-pad stat"><span class="stat-num">{{ m.exams.passed }}/{{ m.exams.graded }}</span><span class="stat-label">Exams passed</span></div>
+  </div>
+
+  <!-- ============================== Hours chart ============================== -->
+  <div class="card card-pad chart-card">
+    <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+      <h3>Hours logged</h3>
+      <div class="flex gap-8">
+        <button class="pill" [class.active]="granularity === 'day'" style="--pill-color: var(--brand)" (click)="granularity = 'day'">Day</button>
+        <button class="pill" [class.active]="granularity === 'month'" style="--pill-color: var(--brand)" (click)="granularity = 'month'">Month</button>
+        <button class="pill" [class.active]="granularity === 'quarter'" style="--pill-color: var(--brand)" (click)="granularity = 'quarter'">3 Months</button>
+      </div>
+    </div>
+    <app-bar-chart [buckets]="activeBuckets" [height]="140"></app-bar-chart>
+  </div>
+
+  <!-- ============================== Learner-only extras ============================== -->
+  <div class="two-col" *ngIf="viewKind === 'learner' && learnerMetrics as m">
+    <div class="card card-pad">
+      <h3 style="margin-bottom: 14px;">Journey breakdown</h3>
+      <div class="kv-row"><span class="faint">Active</span><span>{{ m.activeJourneys }}</span></div>
+      <div class="kv-row"><span class="faint">Completed</span><span>{{ m.completedJourneys }}</span></div>
+      <div class="kv-row"><span class="faint">Cancelled</span><span>{{ m.cancelledJourneys }}</span></div>
+      <hr class="divider" />
+      <div class="kv-row"><span class="faint">Quest items completed</span><span>{{ m.completedItems }} / {{ m.totalItems }}</span></div>
+      <div class="kv-row"><span class="faint">Avg hours / item</span><span>{{ m.avgHoursPerCompletedItem ?? '—' }}</span></div>
+    </div>
+
+    <div class="card card-pad">
+      <h3 style="margin-bottom: 14px;">Exams</h3>
+      <div class="kv-row"><span class="faint">Configured</span><span>{{ m.exams.configured }}</span></div>
+      <div class="kv-row"><span class="faint">Submitted</span><span>{{ m.exams.taken }}</span></div>
+      <div class="kv-row"><span class="faint">Under review</span><span>{{ m.exams.underReview }}</span></div>
+      <hr class="divider" />
+      <div class="kv-row"><span class="faint">Passed</span><span class="pass-text">{{ m.exams.passed }}</span></div>
+      <div class="kv-row"><span class="faint">Failed</span><span class="fail-text">{{ m.exams.failed }}</span></div>
+      <div class="kv-row"><span class="faint">Avg score</span><span>{{ m.exams.avgScorePercent !== null ? m.exams.avgScorePercent + '%' : '—' }}</span></div>
+    </div>
+  </div>
+
+  <!-- ============================== Group exam stats ============================== -->
+  <div class="two-col" *ngIf="(viewKind === 'group' || viewKind === 'org') && (groupMetrics ?? orgMetrics) as m">
+    <div class="card card-pad">
+      <h3 style="margin-bottom: 14px;">Journeys</h3>
+      <div class="kv-row"><span class="faint">Total assigned</span><span>{{ m.totalJourneys }}</span></div>
+      <div class="kv-row"><span class="faint">Active</span><span>{{ m.activeJourneys }}</span></div>
+      <div class="kv-row"><span class="faint">Completed</span><span>{{ m.completedJourneys }}</span></div>
+    </div>
+
+    <div class="card card-pad">
+      <h3 style="margin-bottom: 14px;">Exams</h3>
+      <div class="kv-row"><span class="faint">Configured</span><span>{{ m.exams.configured }}</span></div>
+      <div class="kv-row"><span class="faint">Under review</span><span>{{ m.exams.underReview }}</span></div>
+      <hr class="divider" />
+      <div class="kv-row"><span class="faint">Passed</span><span class="pass-text">{{ m.exams.passed }}</span></div>
+      <div class="kv-row"><span class="faint">Failed</span><span class="fail-text">{{ m.exams.failed }}</span></div>
+      <div class="kv-row"><span class="faint">Avg score</span><span>{{ m.exams.avgScorePercent !== null ? m.exams.avgScorePercent + '%' : '—' }}</span></div>
+    </div>
+  </div>
+
+  <!-- ============================== Per-senior rollup (org view only) ============================== -->
+  <div class="card" style="margin-top: 18px;" *ngIf="viewKind === 'org' && orgMetrics as om">
+    <div class="card-pad" style="padding-bottom: 0;"><h3>By senior</h3></div>
+    <table class="user-table">
+      <thead><tr><th>Senior</th><th>Learners</th><th>Hours</th><th>Avg completion</th><th>Exams passed</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let s of om.perSenior">
+          <td>{{ s.seniorName }}</td>
+          <td>{{ s.learnerCount }}</td>
+          <td class="mono">{{ s.totalHours }}h</td>
+          <td class="mono">{{ s.avgCompletionPercent }}%</td>
+          <td class="mono">{{ s.examsPassed }} / {{ s.examsPassed + s.examsFailed }}</td>
+        </tr>
+        <tr *ngIf="!om.perSenior.length"><td colspan="5" class="faint" style="padding: 18px;">No seniors yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================== Per-learner rollup (group + org views) ============================== -->
+  <div class="card" style="margin-top: 18px;" *ngIf="(viewKind === 'group' || viewKind === 'org') && (groupMetrics ?? orgMetrics) as m">
+    <div class="card-pad" style="padding-bottom: 0;"><h3>By learner</h3></div>
+    <table class="user-table">
+      <thead><tr><th>Learner</th><th>Active</th><th>Completed</th><th>Hours</th><th>Avg completion</th><th>Exams passed</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let l of m.perLearner">
+          <td>{{ l.learnerName }}</td>
+          <td class="mono">{{ l.activeJourneys }}</td>
+          <td class="mono">{{ l.completedJourneys }}</td>
+          <td class="mono">{{ l.totalHours }}h</td>
+          <td class="mono">{{ l.avgCompletionPercent }}%</td>
+          <td class="mono">{{ l.examsPassed }} / {{ l.examsPassed + l.examsFailed }}</td>
+        </tr>
+        <tr *ngIf="!m.perLearner.length"><td colspan="6" class="faint" style="padding: 18px;">No learners in this scope yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</ng-container>

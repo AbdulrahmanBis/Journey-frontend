@@ -1,0 +1,49 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">{{ isEdit ? 'Edit user' : 'New user' }}</span>
+    <h1 class="page-title">{{ isEdit ? 'Update user' : 'Add a user' }}</h1>
+  </div>
+  <a routerLink="/admin/users" class="btn btn-ghost">← Back to users</a>
+</div>
+
+<div class="card card-pad form-card" *ngIf="!loading">
+  <div class="field">
+    <label for="name">Full name</label>
+    <input id="name" class="input" [(ngModel)]="name" name="name" placeholder="Jane Doe" />
+  </div>
+
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" class="input" type="email" [(ngModel)]="email" name="email" placeholder="jane@company.io" />
+  </div>
+
+  <div class="field">
+    <label for="password">{{ isEdit ? 'New password (leave blank to keep current)' : 'Password' }}</label>
+    <input id="password" class="input" type="password" [(ngModel)]="password" name="password" placeholder="••••••••" />
+  </div>
+
+  <div class="field">
+    <label for="role">Role</label>
+    <select id="role" class="select" [(ngModel)]="role" name="role">
+      <option *ngFor="let r of roles" [value]="r">{{ roleLabel[r] }}</option>
+    </select>
+  </div>
+
+  <div class="field" *ngIf="role === 'learner'">
+    <label for="senior">Assigned senior</label>
+    <select id="senior" class="select" [(ngModel)]="seniorId" name="senior">
+      <option value="">Unassigned</option>
+      <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
+    </select>
+    <span class="hint">This senior will manage their journeys.</span>
+  </div>
+
+  <p class="field-error" *ngIf="error">{{ error }}</p>
+
+  <div class="flex gap-12" style="margin-top: 8px;">
+    <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
+      {{ saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create user' }}
+    </button>
+    <a routerLink="/admin/users" class="btn btn-ghost">Cancel</a>
+  </div>
+</div>

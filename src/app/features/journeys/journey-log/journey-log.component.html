@@ -1,0 +1,149 @@
+<div *ngIf="loading"><p class="muted">Loading quest log…</p></div>
+
+<div class="empty-state card" *ngIf="!loading && notAllowed">
+  <h3>You don't have access to this quest log</h3>
+  <p>It belongs to a learner outside your team.</p>
+  <a routerLink="/dashboard" class="btn btn-ghost" style="margin-top: 14px;">← Back to dashboard</a>
+</div>
+
+<ng-container *ngIf="!loading && view">
+  <div class="flex justify-between items-center" style="margin-bottom: 8px;">
+    <a routerLink="/dashboard" class="back-link" style="margin-bottom: 0;">← Back</a>
+    <a *ngIf="examCtaLabel" [routerLink]="['/exam', view.id]" class="btn btn-primary btn-sm">{{ examCtaLabel }} →</a>
+    <a
+      *ngIf="!examCtaLabel && canManageExam && view.percentComplete >= 100 && !view.exam"
+      [routerLink]="['/journeys', view.journeyId, 'exam']"
+      class="btn btn-ghost btn-sm"
+    >
+      + Set up exam
+    </a>
+  </div>
+
+  <div class="log-header card card-pad">
+    <div class="log-header-top">
+      <div class="log-header-info">
+        <span class="page-eyebrow">{{ view.journey.techTag }}</span>
+        <h1 class="page-title">{{ view.journey.title }}</h1>
+        <p class="muted" style="margin-top: 6px; max-width: 560px;">{{ view.journey.description }}</p>
+
+        <div class="flex items-center gap-12" style="margin-top: 14px;" *ngIf="learner && !isOwnView">
+          <div class="user-avatar sm">{{ learner.name.charAt(0) }}</div>
+          <span class="mono faint">{{ learner.name }}</span>
+        </div>
+      </div>
+
+      <div class="log-header-progress">
+        <app-progress-ring [percent]="view.percentComplete" [size]="76" [stroke]="7"></app-progress-ring>
+        <span class="mono faint" style="margin-top: 8px;">{{ view.totalTimeSpentHours }}h logged</span>
+      </div>
+    </div>
+
+    <div class="log-header-meta">
+      <div class="meta-block">
+        <span class="faint">Status</span>
+        <app-status-badge [status]="view.status"></app-status-badge>
+      </div>
+      <div class="meta-block">
+        <span class="faint">Assigned by</span>
+        <span>{{ view.assignedByName }}</span>
+      </div>
+      <div class="meta-block">
+        <span class="faint">Items completed</span>
+        <span>{{ completedCount }} / {{ view.items.length }}</span>
+      </div>
+      <div class="meta-block" *ngIf="view.exam && (view.percentComplete >= 100 || view.examAttempt)">
+        <span class="faint">Exam</span>
+        <app-exam-grade-badge [exam]="view.exam" [attempt]="view.examAttempt" [percentComplete]="view.percentComplete"></app-exam-grade-badge>
+      </div>
+    </div>
+
+    <div class="status-override" *ngIf="canOverrideJourneyStatus">
+      <span class="faint" style="margin-right: 8px;">Override journey status:</span>
+      <button
+        class="pill"
+        *ngFor="let s of STATUS_ORDER"
+        [class.active]="s === view.status"
+        [style.--pill-color]="'var(--status-' + s + ')'"
+        (click)="setJourneyStatus(s)"
+      >
+        {{ STATUS_LABEL[s] }}
+      </button>
+    </div>
+  </div>
+
+  <div class="rail">
+    <div class="rail-line-vertical"></div>
+
+    <div class="rail-item" *ngFor="let item of view.items; let i = index">
+      <div class="rail-node-vertical" [class]="'status-' + item.progress.status">
+        <span *ngIf="item.progress.status === Status.Completed">✓</span>
+        <span *ngIf="item.progress.status !== Status.Completed">{{ i + 1 }}</span>
+      </div>
+
+      <div class="card card-pad quest-card">
+        <div class="flex justify-between items-center">
+          <h3 class="quest-title">{{ item.title }}</h3>
+          <app-status-badge [status]="item.progress.status"></app-status-badge>
+        </div>
+
+        <ul class="quest-desc">
+          <li *ngFor="let line of item.description.split('\n')">{{ line }}</li>
+        </ul>
+
+        <p class="mono faint" *ngIf="item.progress.timeSpentHours">⏱ {{ item.progress.timeSpentHours }}h logged</p>
+
+        <div class="status-override">
+          <button
+            class="pill"
+            *ngFor="let s of STATUS_ORDER"
+            [class.active]="s === item.progress.status"
+            [style.--pill-color]="'var(--status-' + s + ')'"
+            (click)="setItemStatus(item, s)"
+          >
+            {{ STATUS_LABEL[s] }}
+          </button>
+        </div>
+
+        <button class="notes-toggle" (click)="toggleNotes(item.progress.id)">
+          {{ expandedNotes.has(item.progress.id) ? 'Hide notes' : 'Notes' }} ({{ item.progress.notes.length }})
+        </button>
+
+        <div class="notes-panel" *ngIf="expandedNotes.has(item.progress.id)">
+          <app-note-thread
+            [notes]="item.progress.notes"
+            [currentUserId]="currentUser.id"
+            (noteAdded)="addNote(item, $event)"
+          ></app-note-thread>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Completion-time modal -->
+<div class="modal-backdrop" *ngIf="completingItem" (click)="cancelCompletionModal()">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <h3>Mark "{{ completingItem.title }}" complete</h3>
+    <p class="muted" style="margin: 8px 0 18px; font-size: 13.5px;">How long did this quest item take?</p>
+    <div class="field">
+      <label for="hours">Time spent (hours)</label>
+      <input id="hours" class="input" type="number" min="0.25" step="0.25" [(ngModel)]="completingHours" name="hours" placeholder="e.g. 2.5" />
+    </div>
+    <div class="flex gap-12 justify-between">
+      <button class="btn btn-ghost w-full" (click)="cancelCompletionModal()">Cancel</button>
+      <button class="btn btn-primary w-full" [disabled]="!completingHours || completingHours <= 0" (click)="confirmCompletion()">
+        Mark complete
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="showCancelConfirm"
+  title="Cancel this journey?"
+  message="The learner's progress on individual items is kept, but the journey will be marked cancelled."
+  confirmLabel="Cancel journey"
+  [danger]="true"
+  (confirmed)="confirmCancelJourney()"
+  (cancelled)="showCancelConfirm = false"
+></app-confirm-dialog>

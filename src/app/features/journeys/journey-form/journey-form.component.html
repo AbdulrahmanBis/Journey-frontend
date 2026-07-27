@@ -1,0 +1,70 @@
+<div class="page-head">
+  <div>
+    <span class="page-eyebrow">{{ isEdit ? 'Edit journey' : 'New journey' }}</span>
+    <h1 class="page-title">{{ isEdit ? 'Update journey' : 'Create a journey' }}</h1>
+    <p class="page-sub">Define the journey, then lay out each quest item learners will work through in order.</p>
+  </div>
+  <a routerLink="/journeys" class="btn btn-ghost">← Back to journeys</a>
+</div>
+
+<p class="hint" style="display:block; margin: -8px 0 18px;" *ngIf="!isEdit">Save the journey first, then you can add a checkpoint exam.</p>
+<a *ngIf="isEdit" [routerLink]="['/journeys', journeyId, 'exam']" class="btn btn-ghost" style="margin-bottom: 18px; display: inline-block;">🎓 Manage exam</a>
+
+<div *ngIf="!loading" class="form-layout">
+  <div class="card card-pad">
+    <h3 style="margin-bottom: 16px;">Journey details</h3>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <input id="title" class="input" [(ngModel)]="title" name="title" placeholder="e.g. AWS DevOps Fundamentals" />
+    </div>
+
+    <div class="field">
+      <label for="tag">Tech / solution</label>
+      <select id="tag" class="select" [(ngModel)]="techTag" name="tag">
+        <option *ngFor="let t of techTags" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="desc">Description</label>
+      <textarea id="desc" class="textarea" [(ngModel)]="description" name="desc" placeholder="What will the learner be able to do after this journey?"></textarea>
+    </div>
+  </div>
+
+  <div class="card card-pad">
+    <div class="flex justify-between items-center" style="margin-bottom: 16px;">
+      <h3>Quest items</h3>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="addItem()">+ Add item</button>
+    </div>
+
+    <div class="item-draft" *ngFor="let item of items; let i = index; let first = first; let last = last">
+      <div class="item-draft-head">
+        <span class="mono faint">#{{ i + 1 }}</span>
+        <div class="item-draft-controls">
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="first" (click)="moveItem(i, -1)" title="Move up">↑</button>
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="last" (click)="moveItem(i, 1)" title="Move down">↓</button>
+          <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeItem(i)" title="Remove">✕</button>
+        </div>
+      </div>
+      <div class="field">
+        <input class="input" [(ngModel)]="item.title" [name]="'item-title-' + i" placeholder="Quest item title" />
+      </div>
+      <div class="field" style="margin-bottom: 8px;">
+        <textarea class="textarea" [(ngModel)]="item.description" [name]="'item-desc-' + i" placeholder="Detailed description — one line per bullet point" rows="3"></textarea>
+        <span class="hint">Tip: put each bullet on its own line.</span>
+      </div>
+    </div>
+
+    <p class="faint" *ngIf="!items.length" style="padding: 8px 0;">No quest items yet — add the first one.</p>
+  </div>
+</div>
+
+<p class="field-error" style="margin-top: 16px;" *ngIf="error">{{ error }}</p>
+
+<div class="flex gap-12" style="margin-top: 20px;" *ngIf="!loading">
+  <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
+    {{ saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create journey' }}
+  </button>
+  <a routerLink="/journeys" class="btn btn-ghost">Cancel</a>
+</div>

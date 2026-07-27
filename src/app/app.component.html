@@ -1,0 +1,7 @@
+<div class="app-shell" [class.no-nav]="!(auth.currentUser$ | async)">
+  <app-navbar *ngIf="auth.currentUser$ | async"></app-navbar>
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+<app-toast-container></app-toast-container>

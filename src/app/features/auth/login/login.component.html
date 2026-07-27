@@ -1,0 +1,43 @@
+<div class="auth-screen">
+  <section class="auth-brand">
+    <div class="brand-mark lg">J</div>
+    <h1>Journey</h1>
+    <p>The quest log for new hires learning AWS, Angular &amp; Express, and our ops tooling — one step at a time.</p>
+
+    <div class="rail-demo">
+      <div class="rail-line"></div>
+      <div class="rail-node done"><span>✓</span></div>
+      <div class="rail-node done"><span>✓</span></div>
+      <div class="rail-node current"></div>
+      <div class="rail-node"></div>
+      <div class="rail-node"></div>
+    </div>
+  </section>
+
+  <section class="auth-panel">
+    <div class="card card-pad auth-card">
+      <span class="page-eyebrow">Sign in</span>
+      <h2 class="page-title">Welcome back</h2>
+      <p class="muted" style="margin-top: 6px; margin-bottom: 22px;">Log in to pick up where your journey left off.</p>
+
+      <form (submit)="$event.preventDefault(); submit()">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" class="input" type="email" [(ngModel)]="email" name="email" placeholder="you@company.io" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" class="input" type="password" [(ngModel)]="password" name="password" placeholder="••••••••" required />
+        </div>
+        <p class="field-error" *ngIf="error">{{ error }}</p>
+        <button class="btn btn-primary btn-block" type="submit" [disabled]="loading">
+          {{ loading ? 'Signing in…' : 'Sign in' }}
+        </button>
+      </form>
+
+      <p class="muted" style="margin-top: 18px; font-size: 13.5px;">
+        New here? <a routerLink="/signup">Create a learner account</a>
+      </p>
+    </div>
+  </section>
+</div>

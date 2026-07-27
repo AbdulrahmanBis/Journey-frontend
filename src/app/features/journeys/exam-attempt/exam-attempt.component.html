@@ -1,0 +1,134 @@
+<div *ngIf="loading"><p class="muted">Loading exam…</p></div>
+
+<div class="empty-state card" *ngIf="!loading && notAllowed">
+  <h3>You don't have access to this exam</h3>
+  <a routerLink="/dashboard" class="btn btn-ghost" style="margin-top: 14px;">← Back to dashboard</a>
+</div>
+
+<ng-container *ngIf="!loading && view">
+  <a [routerLink]="['/journey-log', view.id]" class="back-link">← Back to quest log</a>
+
+  <div class="page-head">
+    <div>
+      <span class="page-eyebrow">{{ view.journey.title }}</span>
+      <h1 class="page-title">{{ exam?.title ?? 'Checkpoint exam' }}</h1>
+      <p class="page-sub" *ngIf="learner && isReviewer">For {{ learner.name }}</p>
+    </div>
+  </div>
+
+  <!-- Locked -->
+  <div class="empty-state card" *ngIf="mode === 'locked'">
+    <h3>Not unlocked yet</h3>
+    <p>This exam opens once every quest item in the journey is marked complete ({{ view.percentComplete }}% so far).</p>
+  </div>
+
+  <!-- No exam configured -->
+  <div class="empty-state card" *ngIf="mode === 'no-exam'">
+    <h3>No exam on this journey</h3>
+    <p>This journey doesn't have a checkpoint exam configured.</p>
+    <a *ngIf="isReviewer" [routerLink]="['/journeys', view.journeyId, 'exam']" class="btn btn-primary" style="margin-top: 14px;">+ Set up exam</a>
+  </div>
+
+  <!-- Reviewer waiting on the learner -->
+  <div class="empty-state card" *ngIf="mode === 'awaiting'">
+    <h3>Waiting on the learner</h3>
+    <p>{{ learner?.name }} hasn't taken this exam yet — check back once they submit.</p>
+  </div>
+
+  <!-- Learner taking the exam -->
+  <div class="card card-pad exam-card" *ngIf="mode === 'take'">
+    <p class="muted" style="margin-bottom: 18px;">Answer every question, then submit. You can't edit it after submitting.</p>
+
+    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
+      <p class="question-prompt"><span class="mono faint">Q{{ i + 1 }}.</span> {{ q.prompt }}</p>
+
+      <div *ngIf="q.type === 'multiple_choice'" class="answer-options">
+        <label class="answer-option" *ngFor="let opt of q.options; let oi = index">
+          <input type="radio" [name]="'take-' + q.id" [checked]="answerFor(q.id).selectedOptionIndex === oi" (change)="answerFor(q.id).selectedOptionIndex = oi" />
+          {{ opt }}
+        </label>
+      </div>
+
+      <div *ngIf="q.type === 'yes_no'" class="flex gap-12">
+        <button type="button" class="pill" [class.active]="answerFor(q.id).boolAnswer === true" style="--pill-color: var(--brand)" (click)="answerFor(q.id).boolAnswer = true">Yes</button>
+        <button type="button" class="pill" [class.active]="answerFor(q.id).boolAnswer === false" style="--pill-color: var(--brand)" (click)="answerFor(q.id).boolAnswer = false">No</button>
+      </div>
+
+      <textarea *ngIf="q.type === 'open'" class="textarea" rows="3" placeholder="Your answer…" [(ngModel)]="answerFor(q.id).openText" [name]="'open-' + q.id"></textarea>
+    </div>
+
+    <button class="btn btn-primary" [disabled]="!allAnswered || submitting" (click)="submitExam()">
+      {{ submitting ? 'Submitting…' : 'Submit exam' }}
+    </button>
+  </div>
+
+  <!-- Learner: submitted, awaiting grade -->
+  <div class="card card-pad exam-card" *ngIf="mode === 'under-review'">
+    <span class="badge exam-badge pending" style="margin-bottom: 18px;">⏳ Submitted — under review</span>
+
+    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
+      <p class="question-prompt"><span class="mono faint">Q{{ i + 1 }}.</span> {{ q.prompt }}</p>
+      <p class="answer-readout">
+        <ng-container *ngIf="q.type === 'multiple_choice'">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
+        <ng-container *ngIf="q.type === 'yes_no'">{{ answerOf(q)?.boolAnswer ? 'Yes' : 'No' }}</ng-container>
+        <ng-container *ngIf="q.type === 'open'">{{ answerOf(q)?.openText }}</ng-container>
+      </p>
+    </div>
+  </div>
+
+  <!-- Reviewer grading -->
+  <div class="card card-pad exam-card" *ngIf="mode === 'grading'">
+    <p class="muted" style="margin-bottom: 18px;">Mark each answer, then submit the grade.</p>
+
+    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
+      <p class="question-prompt"><span class="mono faint">Q{{ i + 1 }}.</span> {{ q.prompt }}</p>
+      <p class="answer-readout">
+        <ng-container *ngIf="q.type === 'multiple_choice'">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
+        <ng-container *ngIf="q.type === 'yes_no'">{{ answerOf(q)?.boolAnswer ? 'Yes' : 'No' }}</ng-container>
+        <ng-container *ngIf="q.type === 'open'">{{ answerOf(q)?.openText }}</ng-container>
+      </p>
+
+      <div class="flex gap-12" style="margin-top: 8px;">
+        <button type="button" class="pill" [class.active]="marks[q.id] === true" style="--pill-color: var(--status-completed)" (click)="setMark(q.id, true)">✓ Correct</button>
+        <button type="button" class="pill" [class.active]="marks[q.id] === false" style="--pill-color: var(--status-cancelled)" (click)="setMark(q.id, false)">✕ Incorrect</button>
+      </div>
+    </div>
+
+    <div class="grading-summary">
+      <div>
+        <span class="faint">Computed score</span>
+        <p class="stat-num" style="font-size: 22px;">{{ liveScorePercent }}%</p>
+        <span class="faint mono">Pass line: {{ exam!.passingScorePercent }}%</span>
+      </div>
+      <div class="flex gap-12">
+        <button type="button" class="pill" [class.active]="passDecision === true" style="--pill-color: var(--status-completed)" (click)="passDecision = true">Pass</button>
+        <button type="button" class="pill" [class.active]="passDecision === false" style="--pill-color: var(--status-cancelled)" (click)="passDecision = false">Fail</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top: 18px;" [disabled]="!allMarked || grading" (click)="submitGrade()">
+      {{ grading ? 'Submitting…' : 'Submit grade' }}
+    </button>
+  </div>
+
+  <!-- Graded result -->
+  <div class="card card-pad exam-card" *ngIf="mode === 'result'">
+    <div class="result-banner" [class.pass]="attempt!.passed" [class.fail]="!attempt!.passed">
+      <span class="result-score">{{ attempt!.scorePercent }}%</span>
+      <span class="result-label">{{ attempt!.passed ? 'Passed' : 'Failed' }}</span>
+    </div>
+    <p class="faint mono" style="margin-bottom: 18px;">Graded by {{ attempt!.gradedByName }}</p>
+
+    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
+      <p class="question-prompt">
+        <span class="mono faint">Q{{ i + 1 }}.</span> {{ q.prompt }}
+        <span [class]="answerOf(q)?.markedCorrect ? 'result-icon pass' : 'result-icon fail'">{{ answerOf(q)?.markedCorrect ? '✓' : '✕' }}</span>
+      </p>
+      <p class="answer-readout">
+        <ng-container *ngIf="q.type === 'multiple_choice'">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
+        <ng-container *ngIf="q.type === 'yes_no'">{{ answerOf(q)?.boolAnswer ? 'Yes' : 'No' }}</ng-container>
+        <ng-container *ngIf="q.type === 'open'">{{ answerOf(q)?.openText }}</ng-container>
+      </p>
+    </div>
+  </div>
+</ng-container>

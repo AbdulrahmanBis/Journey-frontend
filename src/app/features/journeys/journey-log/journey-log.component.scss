@@ -1,0 +1,121 @@
+.back-link {
+  display: inline-block;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.back-link:hover { color: var(--brand); }
+
+.log-header { margin-bottom: 30px; }
+
+.log-header-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.log-header-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.log-header-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13.5px;
+}
+
+/* ------------------------- The journey rail ------------------------- */
+
+.rail {
+  position: relative;
+  padding-left: 4px;
+}
+
+.rail-line-vertical {
+  position: absolute;
+  left: 19px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--border-strong);
+  z-index: 0;
+}
+
+.rail-item {
+  display: flex;
+  gap: 18px;
+  position: relative;
+  padding-bottom: 22px;
+}
+.rail-item:last-child { padding-bottom: 0; }
+
+.rail-node-vertical {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--status-new);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--status-new);
+  flex-shrink: 0;
+  z-index: 1;
+}
+.rail-node-vertical.status-new { border-color: var(--status-new); color: var(--status-new); }
+.rail-node-vertical.status-reflect { border-color: var(--status-reflect); color: var(--status-reflect); }
+.rail-node-vertical.status-response { border-color: var(--status-response); color: var(--status-response); }
+.rail-node-vertical.status-completed { border-color: var(--status-completed); background: var(--status-completed); color: #fff; }
+.rail-node-vertical.status-cancelled { border-color: var(--status-cancelled); color: var(--status-cancelled); }
+
+.quest-card { flex: 1; min-width: 0; }
+.quest-title { font-size: 15.5px; }
+
+.quest-desc {
+  margin: 10px 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.quest-desc li { margin-bottom: 4px; }
+
+.notes-toggle {
+  background: none;
+  border: none;
+  color: var(--brand);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+  margin-top: 6px;
+}
+.notes-toggle:hover { text-decoration: underline; }
+
+.notes-panel {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 600px) {
+  .log-header-top { flex-direction: column; }
+  .log-header-progress { align-self: flex-start; }
+}
