@@ -59,6 +59,9 @@ export class AuthService {
 
   private persist(res: AuthResponse): void {
     TokenStore.set(res.token);
+    console.log(res.user);
+    //convert first letter to lowercase in role from the type USERROLE:
+    res.user.role = (res.user.role.charAt(0).toLowerCase() + res.user.role.slice(1)) as UserRole;
     this.currentUserSubject.next(res.user);
     try { localStorage.setItem(USER_KEY, JSON.stringify(res.user)); } catch { /* ignore */ }
   }
