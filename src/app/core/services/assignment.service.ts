@@ -30,8 +30,10 @@ export class AssignmentService {
     return this.http.get<LearnerSummary[]>(`${API_BASE}/dashboard/senior/${seniorId}`);
   }
 
-  getManagerOverview(): Observable<SeniorSummary[]> {
-    return this.http.get<SeniorSummary[]>(`${API_BASE}/dashboard/manager`);
+  /** Managers are always pinned to their own department; HR/Admin may pass one, or omit it for all. */
+  getManagerOverview(departmentId?: string | null): Observable<SeniorSummary[]> {
+    const params: Record<string, string> = departmentId ? { departmentId } : {};
+    return this.http.get<SeniorSummary[]>(`${API_BASE}/dashboard/manager`, { params });
   }
 
   // ----------------------------- Mutations -----------------------------

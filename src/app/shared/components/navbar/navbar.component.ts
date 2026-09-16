@@ -5,7 +5,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
-import { RoleCode, roleChipClass } from '../../../core/models/enums';
+import { ORG_WIDE_ROLES, STAFF_ROLES, USER_ADMIN_ROLES, roleChipClass } from '../../../core/models/enums';
 
 @Component({
   selector: 'app-navbar',
@@ -43,11 +43,15 @@ export class NavbarComponent {
   }
 
   get canManageJourneys(): boolean {
-    return this.auth.hasRole(RoleCode.Senior, RoleCode.Manager, RoleCode.Admin);
+    return this.auth.hasRole(...STAFF_ROLES);
   }
 
   get canManageUsers(): boolean {
-    return this.auth.hasRole(RoleCode.Manager, RoleCode.Admin);
+    return this.auth.hasRole(...USER_ADMIN_ROLES);
+  }
+
+  get canManageDepartments(): boolean {
+    return this.auth.hasRole(...ORG_WIDE_ROLES);
   }
 
   logout(): void {

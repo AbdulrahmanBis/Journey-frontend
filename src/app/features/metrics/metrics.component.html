@@ -5,8 +5,18 @@
   <p class="text-body-secondary mt-1" *ngIf="isLearner">{{ 'METRICS.LEARNER_SUB' | translate }}</p>
 </div>
 
-<!-- Selectors: Manager/Admin get senior + learner, Senior gets learner only -->
+<!-- Selectors: HR/Admin also get department; Manager gets senior + learner; Senior gets learner only -->
 <div class="card card-body flex-row flex-wrap gap-3 py-3 mb-4" *ngIf="!isLearner">
+  <div class="metric-selector" *ngIf="isOrgWide">
+    <app-department-picker
+      inputId="metric-department"
+      [label]="'DEPARTMENT.LABEL' | translate"
+      [small]="true"
+      [value]="selectedDepartmentId"
+      (valueChange)="onDepartmentChange($event)"
+      (loaded)="departments = $event"
+    ></app-department-picker>
+  </div>
   <div class="metric-selector" *ngIf="isManagerOrAdmin">
     <label for="metric-senior" class="form-label">{{ 'METRICS.SENIOR' | translate }}</label>
     <select id="metric-senior" class="form-select form-select-sm" [(ngModel)]="selectedSeniorId" (ngModelChange)="onSeniorChange()">

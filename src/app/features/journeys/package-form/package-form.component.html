@@ -1,0 +1,85 @@
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ (isEdit ? 'PACKAGE.EDIT_EYEBROW' : 'PACKAGE.NEW_EYEBROW') | translate }}</span>
+    <h1 class="page-title">{{ (isEdit ? 'PACKAGE.UPDATE_TITLE' : 'PACKAGE.CREATE_TITLE') | translate }}</h1>
+    <p class="text-body-secondary mt-1">{{ 'PACKAGE.FORM_SUB' | translate }}</p>
+  </div>
+  <a routerLink="/journeys/packages" class="btn btn-outline-secondary">{{ 'PACKAGE.BACK' | translate }}</a>
+</div>
+
+<div class="alert alert-info small" *ngIf="hasAssignments">{{ 'PACKAGE.FUTURE_ONLY' | translate }}</div>
+
+<div *ngIf="!loading" class="row g-3 align-items-start">
+  <!-- Details -->
+  <div class="col-lg-5">
+    <div class="card card-body">
+      <h3 class="h5 mb-3">{{ 'PACKAGE.DETAILS' | translate }}</h3>
+      <div class="mb-3">
+        <label for="pkg-title" class="form-label">{{ 'JOURNEY.FIELD_TITLE' | translate }}</label>
+        <input id="pkg-title" class="form-control" maxlength="255" [(ngModel)]="title" name="title" [placeholder]="'PACKAGE.TITLE_PLACEHOLDER' | translate" />
+      </div>
+      <div>
+        <label for="pkg-desc" class="form-label">{{ 'JOURNEY.DESCRIPTION' | translate }}</label>
+        <textarea id="pkg-desc" class="form-control" rows="4" [(ngModel)]="description" name="desc" [placeholder]="'PACKAGE.DESCRIPTION_PLACEHOLDER' | translate"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Journeys -->
+  <div class="col-lg-7 d-flex flex-column gap-3">
+    <div class="card card-body">
+      <h3 class="h5 mb-1">{{ 'PACKAGE.IN_PACKAGE' | translate: { count: selected.length } }}</h3>
+      <p class="small text-body-secondary mb-3">{{ 'PACKAGE.ORDER_HINT' | translate }}</p>
+
+      <ol class="list-group list-group-numbered" *ngIf="selected.length; else emptySelection">
+        <li class="list-group-item d-flex align-items-center gap-2" *ngFor="let j of selected; let i = index; let first = first; let last = last">
+          <div class="flex-grow-1 overflow-hidden ms-1">
+            <div class="fw-semibold text-truncate user-content">{{ j.title }}</div>
+            <div class="small text-body-tertiary">{{ j.techTag }}</div>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="first" [title]="'JOURNEY.MOVE_UP' | translate" (click)="move(i, -1)">↑</button>
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="last" [title]="'JOURNEY.MOVE_DOWN' | translate" (click)="move(i, 1)">↓</button>
+          <button class="btn btn-sm btn-outline-danger" [title]="'COMMON.REMOVE' | translate" (click)="remove(i)">✕</button>
+        </li>
+      </ol>
+      <ng-template #emptySelection>
+        <p class="small text-body-tertiary mb-0">{{ 'PACKAGE.NONE_SELECTED' | translate }}</p>
+      </ng-template>
+    </div>
+
+    <div class="card card-body">
+      <h3 class="h5 mb-3">{{ 'PACKAGE.ADD_JOURNEYS' | translate }}</h3>
+      <input
+        type="search"
+        class="form-control mb-3"
+        [(ngModel)]="search"
+        name="search"
+        [placeholder]="'PACKAGE.SEARCH_JOURNEYS' | translate"
+        [attr.aria-label]="'PACKAGE.SEARCH_JOURNEYS' | translate"
+      />
+      <div class="list-group">
+        <button
+          type="button"
+          class="list-group-item list-group-item-action d-flex align-items-center gap-2"
+          *ngFor="let j of available"
+          (click)="add(j)"
+        >
+          <div class="flex-grow-1 overflow-hidden">
+            <div class="text-truncate user-content">{{ j.title }}</div>
+            <div class="small text-body-tertiary">{{ j.techTag }}</div>
+          </div>
+          <span class="text-primary fw-semibold">+</span>
+        </button>
+      </div>
+      <p class="small text-body-tertiary mb-0" *ngIf="!available.length">{{ 'PACKAGE.NO_MORE_JOURNEYS' | translate }}</p>
+    </div>
+
+    <p class="invalid-feedback d-block mb-0" *ngIf="error">{{ error }}</p>
+    <div class="d-flex gap-3">
+      <button class="btn btn-primary" [disabled]="saving" (click)="save()">
+        {{ (saving ? 'COMMON.SAVING' : (isEdit ? 'COMMON.SAVE' : 'PACKAGE.CREATE')) | translate }}
+      </button>
+      <a routerLink="/journeys/packages" class="btn btn-outline-secondary">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </div>
+</div>

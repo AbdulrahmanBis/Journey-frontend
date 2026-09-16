@@ -2,11 +2,12 @@
   <app-navbar *ngIf="auth.currentUser$ | async"></app-navbar>
   <main class="app-main flex-grow-1" [class.app-main-bare]="!(auth.currentUser$ | async)">
     <!--
-      Bar exists only to hold the bell. It aligns to the inline end, so the bell is top-right in
-      English and top-left in Arabic without any direction check in code.
+      Search sits at the inline start and the bell at the inline end, so in Arabic they swap sides
+      without any direction check in code.
     -->
-    <header class="d-flex justify-content-end align-items-center gap-2 mb-2" *ngIf="auth.currentUser$ | async">
-      <app-notification-bell></app-notification-bell>
+    <header class="d-flex align-items-center gap-3 mb-3" *ngIf="auth.currentUser$ | async">
+      <app-global-search></app-global-search>
+      <app-notification-bell class="ms-auto"></app-notification-bell>
     </header>
     <router-outlet></router-outlet>
   </main>

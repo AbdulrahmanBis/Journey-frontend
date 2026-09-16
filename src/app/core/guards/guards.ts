@@ -10,7 +10,7 @@ export const authGuard: CanActivateFn = () => {
 };
 
 /** `allowed` is a list of role codes (see RoleCode in core/models/enums). */
-export function roleGuard(allowed: number[]): CanActivateFn {
+export function roleGuard(allowed: readonly number[]): CanActivateFn {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);

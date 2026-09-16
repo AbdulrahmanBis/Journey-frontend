@@ -88,10 +88,11 @@ export class LanguageService {
   }
 
   /**
-   * Picks the right side of an API enum triple for the active language. Enum wording comes from
-   * the server, so it is deliberately NOT duplicated into the i18n JSON files.
+   * Picks the right side of an API enum triple (or any english/arabic pair, e.g. a department) for
+   * the active language. That wording comes from the server, so it is deliberately NOT duplicated
+   * into the i18n JSON files.
    */
-  label(value: EnumValue | null | undefined): string {
+  label(value: Pick<EnumValue, 'english' | 'arabic'> | null | undefined): string {
     if (!value) return '';
     return this.current() === 'arabic' ? value.arabic : value.english;
   }

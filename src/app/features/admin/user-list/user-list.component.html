@@ -4,7 +4,17 @@
     <h1 class="page-title">{{ 'USER.TITLE' | translate }}</h1>
     <p class="text-body-secondary mt-1">{{ 'USER.SUB' | translate }}</p>
   </div>
-  <a routerLink="/admin/users/new" class="btn btn-primary">{{ 'USER.ADD_USER' | translate }}</a>
+  <div class="d-flex flex-wrap align-items-end gap-2">
+    <div class="page-filter" *ngIf="isOrgWide">
+      <app-department-picker
+        inputId="user-department"
+        [label]="'DEPARTMENT.LABEL' | translate"
+        [value]="departmentId"
+        (valueChange)="onDepartmentChange($event)"
+      ></app-department-picker>
+    </div>
+    <a routerLink="/admin/users/new" class="btn btn-primary">{{ 'USER.ADD_USER' | translate }}</a>
+  </div>
 </div>
 
 <p class="text-body-secondary" *ngIf="loading">{{ 'USER.LOADING' | translate }}</p>
@@ -17,6 +27,7 @@
           <th class="small text-uppercase text-body-tertiary">{{ 'USER.NAME_COL' | translate }}</th>
           <th class="small text-uppercase text-body-tertiary">{{ 'USER.EMAIL' | translate }}</th>
           <th class="small text-uppercase text-body-tertiary">{{ 'USER.ROLE' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'DEPARTMENT.LABEL' | translate }}</th>
           <th class="small text-uppercase text-body-tertiary">{{ 'USER.SENIOR' | translate }}</th>
           <th></th>
         </tr>
@@ -31,22 +42,24 @@
           </td>
           <td class="text-body-tertiary"><span class="ltr-data">{{ u.email }}</span></td>
           <td><span class="badge rounded-pill" [ngClass]="roleChipClass(u.role)">{{ roleLabel(u) }}</span></td>
+          <td class="text-nowrap">{{ departmentLabel(u) }}</td>
           <td>
             <select
               *ngIf="isLearner(u)"
+              [disabled]="!canManage(u)"
               class="form-select form-select-sm w-auto"
               [ngModel]="u.seniorId ?? ''"
               (ngModelChange)="reassignSenior(u, $event)"
             >
               <option value="" disabled>{{ 'USER.UNASSIGNED' | translate }}</option>
-              <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
+              <option *ngFor="let s of seniorsFor(u)" [value]="s.id">{{ s.name }}</option>
             </select>
             <span class="text-body-tertiary" *ngIf="!isLearner(u)">{{ 'COMMON.NONE' | translate }}</span>
           </td>
           <td>
-            <div class="d-flex gap-2 justify-content-end">
+            <div class="d-flex gap-2 justify-content-end" *ngIf="canManage(u)">
               <button class="btn btn-outline-secondary btn-sm" (click)="edit(u)">{{ 'COMMON.EDIT' | translate }}</button>
-              <button class="btn btn-outline-danger btn-sm" [title]="'COMMON.DELETE' | translate" (click)="askDelete(u)">✕</button>
+              <button *ngIf="!isSelf(u)" class="btn btn-outline-danger btn-sm" [title]="'COMMON.DELETE' | translate" (click)="askDelete(u)">✕</button>
             </div>
           </td>
         </tr>

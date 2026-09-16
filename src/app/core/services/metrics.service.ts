@@ -20,9 +20,10 @@ export class MetricsService {
   }
 
   // GET /api/metrics/org → OrgMetrics
-  // optional ?seniorId= to scope to one senior's team (returns GroupMetrics shape)
-  getOrgMetrics(): Observable<OrgMetrics> {
-    return this.http.get<OrgMetrics>(`${API_BASE}/metrics/org`);
+  // optional ?departmentId= (HR/Admin only; managers are pinned to their own department)
+  getOrgMetrics(departmentId?: string | null): Observable<OrgMetrics> {
+    const params: Record<string, string> = departmentId ? { departmentId } : {};
+    return this.http.get<OrgMetrics>(`${API_BASE}/metrics/org`, { params });
   }
 
   // GET /api/metrics/senior/:id  — reused for manager "pick a senior" drill-down

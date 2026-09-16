@@ -7,6 +7,8 @@
   <a routerLink="/journeys/new" class="btn btn-primary">{{ 'JOURNEY.NEW_JOURNEY' | translate }}</a>
 </div>
 
+<app-journeys-tabs></app-journeys-tabs>
+
 <p class="text-body-secondary" *ngIf="loading">{{ 'JOURNEY.LOADING' | translate }}</p>
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" *ngIf="!loading">
@@ -27,7 +29,7 @@
     </div>
   </div>
 
-  <div class="col-12" *ngIf="!journeys.length">
+  <div class="col-12 w-100" *ngIf="!journeys.length">
     <div class="card text-center text-body-secondary py-5 px-4">
       <h3 class="h5 text-body mb-2">{{ 'JOURNEY.NONE_YET_TITLE' | translate }}</h3>
       <p>{{ 'JOURNEY.NONE_YET_SUB' | translate }}</p>
@@ -35,26 +37,14 @@
   </div>
 </div>
 
-<app-modal [open]="!!assigningJourney" (dismissed)="closeAssign()">
-  <ng-container *ngIf="assigningJourney">
-    <h3 class="h5 mb-2">{{ 'JOURNEY.ASSIGN_TITLE' | translate: { title: assigningJourney.title } }}</h3>
-    <p class="small text-body-secondary mb-3">{{ 'JOURNEY.ASSIGN_SUB' | translate }}</p>
-
-    <label for="assign-learner" class="form-label">{{ 'JOURNEY.LEARNER' | translate }}</label>
-    <select id="assign-learner" class="form-select" [(ngModel)]="selectedLearnerId">
-      <option value="" disabled>{{ 'JOURNEY.SELECT_LEARNER' | translate }}</option>
-      <option *ngFor="let l of availableLearners" [value]="l.id">{{ l.name }}</option>
-    </select>
-    <p class="form-text" *ngIf="!availableLearners.length">{{ 'JOURNEY.NO_LEARNERS' | translate }}</p>
-  </ng-container>
-
-  <div modal-actions>
-    <button class="btn btn-outline-secondary flex-fill" (click)="closeAssign()">{{ 'COMMON.CANCEL' | translate }}</button>
-    <button class="btn btn-primary flex-fill" [disabled]="!selectedLearnerId || assigning" (click)="confirmAssign()">
-      {{ (assigning ? 'JOURNEY.ASSIGNING' : 'JOURNEY.ASSIGN_JOURNEY') | translate }}
-    </button>
-  </div>
-</app-modal>
+<app-assign-learner-modal
+  [open]="!!assigningJourney"
+  [title]="'JOURNEY.ASSIGN_TITLE' | translate: { title: assigningJourney?.title ?? '' }"
+  [subtitle]="'JOURNEY.ASSIGN_SUB' | translate"
+  [busy]="assigning"
+  (confirmed)="confirmAssign($event)"
+  (dismissed)="closeAssign()"
+></app-assign-learner-modal>
 
 <app-confirm-dialog
   [open]="!!deletingJourney"

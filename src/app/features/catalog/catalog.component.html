@@ -1,0 +1,112 @@
+<div class="mb-3">
+  <span class="page-eyebrow">{{ 'CATALOG.EYEBROW' | translate }}</span>
+  <h1 class="page-title">{{ 'CATALOG.TITLE' | translate }}</h1>
+  <p class="text-body-secondary mt-1">{{ (isLearner ? 'CATALOG.SUB_LEARNER' : 'CATALOG.SUB_STAFF') | translate }}</p>
+</div>
+
+<input
+  type="search"
+  class="form-control form-control-lg mb-3"
+  [(ngModel)]="searchText"
+  (ngModelChange)="onType($event)"
+  [placeholder]="'CATALOG.SEARCH_PLACEHOLDER' | translate"
+  [attr.aria-label]="'CATALOG.SEARCH_PLACEHOLDER' | translate"
+/>
+
+<!-- Learner: where I stand, as tabs -->
+<nav class="nav nav-pills flex-nowrap overflow-auto gap-1 mb-3" *ngIf="isLearner && page" [attr.aria-label]="'CATALOG.MY_STATUS' | translate">
+  <button type="button" class="nav-link text-nowrap" [class.active]="!query.status" (click)="setStatus(null)">
+    {{ 'CATALOG.ALL' | translate }} <span class="opacity-75">({{ allStatusCount }})</span>
+  </button>
+  <button
+    type="button"
+    class="nav-link text-nowrap"
+    *ngFor="let s of page.statuses"
+    [class.active]="isActive(s, query.status)"
+    (click)="setStatus(s.value)"
+  >
+    {{ lang.label(s.label) }} <span class="opacity-75">({{ s.count }})</span>
+  </button>
+</nav>
+
+<div class="row g-3 align-items-start">
+  <!-- Filters -->
+  <aside class="col-xl-3" *ngIf="page">
+    <div class="card card-body gap-3">
+      <div>
+        <h2 class="h6 text-uppercase small text-body-tertiary mb-2">{{ 'CATALOG.TYPE' | translate }}</h2>
+        <div class="list-group list-group-flush">
+          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between px-2" [class.active]="!query.type" (click)="setType(null)">
+            <span>{{ 'CATALOG.ALL' | translate }}</span><span class="small">{{ allTypeCount }}</span>
+          </button>
+          <button
+            type="button"
+            class="list-group-item list-group-item-action d-flex justify-content-between px-2"
+            *ngFor="let t of page.types"
+            [class.active]="isActive(t, query.type)"
+            [disabled]="!t.count && !isActive(t, query.type)"
+            (click)="setType(t.value)"
+          >
+            <span>{{ lang.label(t.label) }}</span><span class="small">{{ t.count }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="page.tags.length">
+        <h2 class="h6 text-uppercase small text-body-tertiary mb-2">{{ 'CATALOG.TAGS' | translate }}</h2>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill"
+            *ngFor="let t of page.tags"
+            [class.btn-primary]="query.tag === t.value"
+            [class.btn-outline-secondary]="query.tag !== t.value"
+            [disabled]="!t.count && query.tag !== t.value"
+            [attr.aria-pressed]="query.tag === t.value"
+            (click)="setTag(t.value)"
+          >
+            {{ t.value }} <span class="opacity-75">{{ t.count }}</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-sm btn-outline-secondary align-self-start" *ngIf="hasFilters" (click)="clear()">
+        {{ 'CATALOG.CLEAR' | translate }}
+      </button>
+    </div>
+  </aside>
+
+  <!-- Results -->
+  <section class="col-xl-9">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3" *ngIf="page">
+      <p class="mb-0 text-body-secondary" dir="auto">
+        <ng-container *ngIf="query.q; else countOnly">
+          {{ 'CATALOG.RESULTS_FOR' | translate: { count: page.total } }} <bdi class="fw-semibold text-body">"{{ query.q }}"</bdi>
+        </ng-container>
+        <ng-template #countOnly>{{ 'CATALOG.RESULTS' | translate: { count: page.total } }}</ng-template>
+      </p>
+      <div class="d-flex align-items-center gap-2">
+        <label for="catalog-sort" class="small text-body-tertiary text-nowrap">{{ 'CATALOG.SORT' | translate }}</label>
+        <select id="catalog-sort" class="form-select form-select-sm w-auto" [ngModel]="effectiveSort" (ngModelChange)="setSort($event)">
+          <option *ngFor="let s of sorts" [value]="s" [disabled]="s === 'relevance' && !query.q">{{ 'CATALOG.SORT_' + s.toUpperCase() | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="alert alert-warning small" *ngIf="isLearner && page && !page.reviewerName">{{ 'CATALOG.NO_REVIEWER' | translate }}</div>
+
+    <p class="text-body-secondary" *ngIf="loading && !page">{{ 'CATALOG.LOADING' | translate }}</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3" *ngIf="page" [class.opacity-50]="loading">
+      <div class="col" *ngFor="let e of page.entries; trackBy: trackEntry">
+        <app-catalog-card [entry]="e" [reviewerName]="page.reviewerName" (changed)="refresh()"></app-catalog-card>
+      </div>
+    </div>
+
+    <div class="card text-center text-body-secondary py-5 px-4" *ngIf="page && !page.entries.length && !loading">
+      <h3 class="h5 text-body mb-2">{{ 'CATALOG.EMPTY_TITLE' | translate }}</h3>
+      <p class="mb-3">{{ 'CATALOG.EMPTY_SUB' | translate }}</p>
+      <div *ngIf="hasFilters"><button type="button" class="btn btn-outline-secondary" (click)="clear()">{{ 'CATALOG.CLEAR' | translate }}</button></div>
+    </div>
+  </section>
+</div>

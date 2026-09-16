@@ -1,0 +1,69 @@
+<a routerLink="/catalog" class="link-secondary small d-inline-block mb-2">{{ 'CATALOG.BACK' | translate }}</a>
+
+<p class="text-body-secondary" *ngIf="loading && !detail">{{ 'CATALOG.LOADING' | translate }}</p>
+
+<div class="row g-3 align-items-start" *ngIf="detail as d">
+  <!-- Overview -->
+  <div class="col-lg-8 d-flex flex-column gap-3">
+    <div class="card card-body gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <span class="badge rounded-pill" [ngClass]="isPackage ? 'bg-navy text-white' : 'bg-navy-subtle text-navy'">{{ lang.label(d.entry.type) }}</span>
+        <span class="badge rounded-pill bg-light text-body-secondary" *ngFor="let tag of d.entry.tags">{{ tag }}</span>
+      </div>
+      <h1 class="page-title user-content mb-0">{{ d.entry.title }}</h1>
+      <p class="text-body-secondary user-content mb-0" *ngIf="d.entry.description">{{ d.entry.description }}</p>
+      <div class="d-flex flex-wrap gap-3 small text-body-tertiary mt-1" dir="auto">
+        <span>{{ (isPackage ? 'CATALOG.JOURNEY_COUNT' : 'CATALOG.ITEM_COUNT') | translate: { count: d.entry.itemCount } }}</span>
+        <span *ngIf="d.entry.hasExam">🎓 {{ (isPackage ? 'CATALOG.HAS_EXAMS' : 'CATALOG.HAS_EXAM') | translate }}</span>
+        <span>{{ 'CATALOG.LEARNER_COUNT' | translate: { count: d.entry.learnerCount } }}</span>
+        <span *ngIf="d.entry.createdByName">{{ 'JOURNEY.BY_AUTHOR' | translate: { name: d.entry.createdByName } }}</span>
+      </div>
+    </div>
+
+    <div class="card card-body">
+      <h2 class="h5 mb-3">{{ (isPackage ? 'CATALOG.JOURNEYS_INCLUDED' : 'CATALOG.WHAT_YOU_DO') | translate }}</h2>
+      <ol class="list-group list-group-numbered">
+        <li class="list-group-item d-flex gap-2" *ngFor="let s of d.syllabus">
+          <div class="ms-1 flex-grow-1 overflow-hidden">
+            <ng-container *ngIf="s.journeyId; else itemTitle">
+              <a class="fw-semibold user-content" [routerLink]="['/catalog/journeys', s.journeyId]">{{ s.title }}</a>
+            </ng-container>
+            <ng-template #itemTitle><div class="fw-semibold user-content">{{ s.title }}</div></ng-template>
+            <div class="small text-body-secondary text-truncate user-content" *ngIf="firstLine(s.description)">{{ firstLine(s.description) }}</div>
+          </div>
+          <div class="text-end small text-body-tertiary flex-shrink-0" *ngIf="s.journeyId">
+            <div>{{ s.tag }}</div>
+            <div dir="auto">{{ 'CATALOG.ITEM_COUNT' | translate: { count: s.itemCount } }}</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Action panel -->
+  <aside class="col-lg-4">
+    <div class="card card-body gap-3">
+      <ng-container *ngIf="d.entry.mine as mine">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small text-body-tertiary">{{ 'CATALOG.MY_STATUS' | translate }}</span>
+          <span class="badge rounded-pill" [ngClass]="statusClass">{{ lang.label(mine.status) }}</span>
+        </div>
+        <div *ngIf="started">
+          <div class="d-flex justify-content-between small text-body-secondary mb-1">
+            <span>{{ 'CATALOG.PROGRESS' | translate }}</span><span class="fw-semibold">{{ mine.percentComplete }}%</span>
+          </div>
+          <div class="progress" role="progressbar" [attr.aria-valuenow]="mine.percentComplete" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" [style.width.%]="mine.percentComplete"></div>
+          </div>
+        </div>
+        <p class="small text-body-secondary mb-0" *ngIf="d.reviewerName" dir="auto">
+          {{ 'CATALOG.REVIEWER_NOTE' | translate: { reviewer: d.reviewerName } }}
+        </p>
+        <p class="small text-warning-emphasis mb-0" *ngIf="!d.reviewerName">{{ 'CATALOG.NO_REVIEWER' | translate }}</p>
+      </ng-container>
+      <p class="small text-body-secondary mb-0" *ngIf="!d.entry.mine">{{ 'CATALOG.STAFF_NOTE' | translate }}</p>
+
+      <app-catalog-action [entry]="d.entry" [reviewerName]="d.reviewerName" (changed)="load()"></app-catalog-action>
+    </div>
+  </aside>
+</div>

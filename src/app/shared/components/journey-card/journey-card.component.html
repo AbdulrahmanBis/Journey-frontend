@@ -25,7 +25,8 @@
     <app-progress-ring [percent]="view.percentComplete" [size]="compact ? 42 : 48" [stroke]="5"></app-progress-ring>
     <div class="d-flex flex-column gap-1 small text-body-tertiary">
       <span dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: view.totalTimeSpentHours } }}</span>
-      <span>{{ 'QUEST_LOG.ASSIGNED_BY' | translate }} {{ view.assignedByName }}</span>
+      <span *ngIf="!view.selfEnrolled">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }} {{ view.assignedByName }}</span>
+      <span *ngIf="view.selfEnrolled" dir="auto">{{ 'CATALOG.SELF_ENROLLED_REVIEWER' | translate: { reviewer: view.assignedByName } }}</span>
     </div>
   </div>
 </div>

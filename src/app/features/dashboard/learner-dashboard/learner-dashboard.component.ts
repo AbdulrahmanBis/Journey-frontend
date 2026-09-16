@@ -7,20 +7,25 @@ import { AssignmentService } from '../../../core/services/assignment.service';
 import { LearnerJourneyView } from '../../../core/models/models';
 import { StatusCode, isStatus } from '../../../core/models/enums';
 import { JourneyCardComponent } from '../../../shared/components/journey-card/journey-card.component';
+import { JourneyGroups, PackageGroupComponent, groupByPackage } from '../../../shared/components/package-group/package-group.component';
+import { PackageService } from '../../../core/services/package.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
-  imports: [CommonModule, JourneyCardComponent, TranslatePipe],
+  imports: [CommonModule, JourneyCardComponent, PackageGroupComponent, TranslatePipe],
   templateUrl: './learner-dashboard.component.html',
   styleUrl: './learner-dashboard.component.scss',
 })
 export class LearnerDashboardComponent implements OnInit {
   private auth = inject(AuthService);
   private assignments = inject(AssignmentService);
+  private packageService = inject(PackageService);
   private router = inject(Router);
 
   journeys: LearnerJourneyView[] = [];
+  groups: JourneyGroups = { packages: [], standalone: [] };
   loading = true;
 
   get user() {
@@ -42,8 +47,12 @@ export class LearnerDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.assignments.getLearnerJourneyViews(this.user.id).subscribe((views) => {
+    forkJoin({
+      views: this.assignments.getLearnerJourneyViews(this.user.id),
+      packages: this.packageService.assignmentsFor(this.user.id),
+    }).subscribe(({ views, packages }) => {
       this.journeys = views;
+      this.groups = groupByPackage(views, packages);
       this.loading = false;
     });
   }

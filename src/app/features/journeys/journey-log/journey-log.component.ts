@@ -8,11 +8,14 @@ import { AssignmentService } from '../../../core/services/assignment.service';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
-import { JourneyItemView, LearnerJourneyView, User } from '../../../core/models/models';
+import { JourneyItemView, LearnerJourneyView, PackageContext, User } from '../../../core/models/models';
+import { PackageService } from '../../../core/services/package.service';
 import {
   AttemptStatusCode,
   EnumValue,
+  ORG_VIEW_ROLES,
   RoleCode,
+  STAFF_ROLES,
   STATUS_ORDER,
   StatusCode,
   codeOf,
@@ -44,6 +47,7 @@ export class JourneyLogComponent implements OnInit {
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
   private lang = inject(LanguageService);
+  private packageService = inject(PackageService);
 
   STATUS_ORDER = STATUS_ORDER;
   StatusCode = StatusCode;
@@ -51,6 +55,8 @@ export class JourneyLogComponent implements OnInit {
   toggleButtonClass = toggleButtonClass;
 
   view: LearnerJourneyView | null = null;
+  /** The live packages this journey belongs to — drives the "next journey" strip. */
+  packages: PackageContext[] = [];
   learner: User | null = null;
   loading = true;
   notAllowed = false;
@@ -74,11 +80,11 @@ export class JourneyLogComponent implements OnInit {
   get isOwnView(): boolean { return this.auth.hasRole(RoleCode.Learner); }
 
   get canOverrideJourneyStatus(): boolean {
-    return this.auth.hasRole(RoleCode.Manager, RoleCode.Admin);
+    return this.auth.hasRole(...ORG_VIEW_ROLES);
   }
 
   get canManageExam(): boolean {
-    return this.auth.hasRole(RoleCode.Senior, RoleCode.Manager, RoleCode.Admin);
+    return this.auth.hasRole(...STAFF_ROLES);
   }
 
   get isReviewer(): boolean { return !this.auth.hasRole(RoleCode.Learner); }
@@ -119,11 +125,19 @@ export class JourneyLogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
+    // Subscribed, not a snapshot: "Next journey" navigates to this same route with another id.
+    this.route.paramMap.subscribe((params) => this.load(params.get('id')!));
+  }
+
+  private load(id: string): void {
+    this.loading = true;
+    this.packages = [];
+    this.expandedNotes.clear();
     this.assignments.getLearnerJourneyView(id).subscribe({
       next: (view) => {
         this.view = view;
         this.userService.getById(view.learnerId).subscribe((u) => (this.learner = u));
+        this.loadPackages();
         this.loading = false;
       },
       error: () => {
@@ -135,7 +149,25 @@ export class JourneyLogComponent implements OnInit {
 
   private refresh(): void {
     if (!this.view) return;
-    this.assignments.getLearnerJourneyView(this.view.id).subscribe((view) => { this.view = view; });
+    this.assignments.getLearnerJourneyView(this.view.id).subscribe((view) => {
+      this.view = view;
+      this.loadPackages();
+    });
+  }
+
+  private loadPackages(): void {
+    if (!this.view) return;
+    const id = this.view.id;
+    this.packageService.contextFor(id).subscribe({
+      next: (contexts) => { if (this.view?.id === id) this.packages = contexts; },
+      error: () => (this.packages = []),
+    });
+  }
+
+  get finished(): boolean { return (this.view?.percentComplete ?? 0) >= 100; }
+
+  openNext(context: PackageContext): void {
+    if (context.nextLearnerJourneyId) this.router.navigate(['/journey-log', context.nextLearnerJourneyId]);
   }
 
   toggleNotes(itemId: string): void {

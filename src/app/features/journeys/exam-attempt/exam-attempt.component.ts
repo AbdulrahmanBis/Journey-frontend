@@ -9,7 +9,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ExamService, AnswerDraft } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Exam, ExamQuestion, LearnerJourneyView, User } from '../../../core/models/models';
-import { AttemptStatusCode, QuestionTypeCode, RoleCode, codeOf, optionCodeFor, optionIndexOf, toggleButtonClass } from '../../../core/models/enums';
+import { AttemptStatusCode, ORG_VIEW_ROLES, QuestionTypeCode, RoleCode, codeOf, optionCodeFor, optionIndexOf, toggleButtonClass } from '../../../core/models/enums';
 
 interface DraftAnswer {
   selectedOptionIndex?: number;
@@ -108,7 +108,7 @@ export class ExamAttemptComponent implements OnInit {
   }
 
   private authorize(view: LearnerJourneyView): boolean {
-    if (this.auth.hasRole(RoleCode.Admin, RoleCode.Manager)) return true;
+    if (this.auth.hasRole(...ORG_VIEW_ROLES)) return true;
     if (this.auth.hasRole(RoleCode.Learner)) return view.learnerId === this.currentUser.id;
     // For Senior: the backend only returns accessible views, so trust its authorization.
     return true;

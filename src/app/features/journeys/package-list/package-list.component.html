@@ -1,0 +1,75 @@
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ 'JOURNEY.TEMPLATES_EYEBROW' | translate }}</span>
+    <h1 class="page-title">{{ 'PACKAGE.TITLE' | translate }}</h1>
+    <p class="text-body-secondary mt-1">{{ 'PACKAGE.SUB' | translate }}</p>
+  </div>
+  <a routerLink="/journeys/packages/new" class="btn btn-primary">{{ 'PACKAGE.NEW' | translate }}</a>
+</div>
+
+<app-journeys-tabs></app-journeys-tabs>
+
+<p class="text-body-secondary" *ngIf="loading">{{ 'PACKAGE.LOADING' | translate }}</p>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" *ngIf="!loading">
+  <div class="col" *ngFor="let p of packages">
+    <div class="card card-body h-100 gap-3">
+      <div class="d-flex justify-content-between align-items-center gap-2">
+        <span class="badge rounded-pill bg-navy-subtle text-navy">
+          {{ 'PACKAGE.JOURNEY_COUNT' | translate: { count: p.journeys.length } }}
+        </span>
+        <span class="small text-body-tertiary" *ngIf="p.activeAssignments" dir="auto">
+          {{ 'PACKAGE.ACTIVE_ASSIGNMENTS' | translate: { count: p.activeAssignments } }}
+        </span>
+      </div>
+      <h3 class="fs-5 mb-0 user-content">{{ p.title }}</h3>
+      <p class="text-body-secondary text-clamp-2 user-content mb-0" *ngIf="p.description">{{ p.description }}</p>
+
+      <ol class="small mb-0 ps-3 d-flex flex-column gap-1">
+        <li *ngFor="let j of p.journeys | slice: 0 : previewCount" class="user-content">{{ j.title }}</li>
+        <li *ngIf="p.journeys.length > previewCount" class="list-unstyled text-body-tertiary">
+          {{ 'PACKAGE.MORE' | translate: { count: p.journeys.length - previewCount } }}
+        </li>
+      </ol>
+
+      <p class="small text-body-tertiary mb-0" dir="auto">{{ 'JOURNEY.BY_AUTHOR' | translate: { name: p.createdByName } }}</p>
+
+      <div class="d-flex flex-wrap align-items-center gap-2 mt-auto pt-2 border-top">
+        <button class="btn btn-primary btn-sm" (click)="assigning = p">{{ 'COMMON.ASSIGN' | translate }}</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="edit(p)">{{ 'COMMON.EDIT' | translate }}</button>
+        <button
+          class="btn btn-outline-danger btn-sm ms-auto"
+          [disabled]="!p.deletable"
+          [title]="(p.deletable ? 'COMMON.DELETE' : 'PACKAGE.CANNOT_DELETE') | translate"
+          (click)="deleting = p"
+        >✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 w-100" *ngIf="!packages.length">
+    <div class="card text-center text-body-secondary py-5 px-4">
+      <h3 class="h5 text-body mb-2">{{ 'PACKAGE.NONE_YET_TITLE' | translate }}</h3>
+      <p>{{ 'PACKAGE.NONE_YET_SUB' | translate }}</p>
+    </div>
+  </div>
+</div>
+
+<app-assign-learner-modal
+  [open]="!!assigning"
+  [title]="'PACKAGE.ASSIGN_TITLE' | translate: { title: assigning?.title ?? '' }"
+  [subtitle]="'PACKAGE.ASSIGN_SUB' | translate"
+  [busy]="saving"
+  (confirmed)="assign($event)"
+  (dismissed)="assigning = null"
+></app-assign-learner-modal>
+
+<app-confirm-dialog
+  [open]="!!deleting"
+  [title]="'PACKAGE.DELETE_TITLE' | translate"
+  [message]="deleteMessage"
+  [confirmLabel]="'COMMON.DELETE' | translate"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleting = null"
+></app-confirm-dialog>

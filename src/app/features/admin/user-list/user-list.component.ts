@@ -7,13 +7,15 @@ import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { User } from '../../../core/models/models';
-import { RoleCode, roleChipClass } from '../../../core/models/enums';
+import { ORG_WIDE_ROLES, RoleCode, roleChipClass } from '../../../core/models/enums';
+import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DepartmentPickerComponent } from '../../../shared/components/department-picker/department-picker.component';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, DepartmentPickerComponent, TranslatePipe],
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent implements OnInit {
@@ -22,6 +24,7 @@ export class UserListComponent implements OnInit {
   private router = inject(Router);
   private translate = inject(TranslateService);
   private lang = inject(LanguageService);
+  private auth = inject(AuthService);
 
   RoleCode = RoleCode;
   roleChipClass = roleChipClass;
@@ -29,8 +32,29 @@ export class UserListComponent implements OnInit {
   users: User[] = [];
   loading = true;
   deletingUser: User | null = null;
+  /** HR/Admin only; null = every department. A Manager only ever gets their own. */
+  departmentId: string | null = null;
 
-  get seniors(): User[] { return this.users.filter((u) => u.role?.code === RoleCode.Senior); }
+  get isOrgWide(): boolean { return this.auth.hasRole(...ORG_WIDE_ROLES); }
+
+  /** A learner's senior must be in the learner's department (the server enforces it too). */
+  seniorsFor(learner: User): User[] {
+    return this.users.filter(
+      (u) => u.role?.code === RoleCode.Senior && u.department?.id === learner.department?.id,
+    );
+  }
+
+  /** Mirrors AccessPolicy.canManageAccount: HR can't touch Admin; a Manager can't touch HR or Admin. */
+  canManage(user: User): boolean {
+    const target = user.role?.code;
+    if (this.auth.hasRole(RoleCode.Admin)) return true;
+    if (this.auth.hasRole(RoleCode.Hr)) return target !== RoleCode.Admin;
+    return target !== RoleCode.Admin && target !== RoleCode.Hr;
+  }
+
+  isSelf(user: User): boolean { return user.id === this.auth.currentUser?.id; }
+
+  departmentLabel(user: User): string { return this.lang.label(user.department) || '—'; }
 
   isLearner(user: User): boolean { return user.role?.code === RoleCode.Learner; }
 
@@ -49,10 +73,15 @@ export class UserListComponent implements OnInit {
 
   refresh(): void {
     this.loading = true;
-    this.userService.getUsers().subscribe({
+    this.userService.getUsers(this.departmentId).subscribe({
       next: (users) => { this.users = users; this.loading = false; },
       error: () => { this.loading = false; this.toast.error(this.translate.instant('USER.LOAD_FAILED')); },
     });
+  }
+
+  onDepartmentChange(departmentId: string | null): void {
+    this.departmentId = departmentId;
+    this.refresh();
   }
 
   edit(user: User): void { this.router.navigate(['/admin/users', user.id, 'edit']); }

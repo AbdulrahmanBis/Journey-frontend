@@ -9,7 +9,7 @@
 <ng-container *ngIf="!loading && view">
   <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
     <a routerLink="/dashboard" class="link-secondary small">← {{ 'COMMON.BACK' | translate }}</a>
-    <a *ngIf="examCtaLabel" [routerLink]="['/exam', view.id]" class="btn btn-primary btn-sm">{{ examCtaLabel }} →</a>
+    <a *ngIf="examCtaLabel" [routerLink]="['/exam', view.id]" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">{{ examCtaLabel }} <span aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span></a>
     <a
       *ngIf="!examCtaLabel && canManageExam && view.percentComplete >= 100 && !view.exam"
       [routerLink]="['/journeys', view.journeyId, 'exam']"
@@ -43,9 +43,10 @@
         <span class="text-body-tertiary">{{ 'QUEST_LOG.STATUS' | translate }}</span>
         <app-status-badge [status]="view.status"></app-status-badge>
       </div>
+
       <div class="d-flex flex-column gap-1 small">
-        <span class="text-body-tertiary">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }}</span>
-        <span>{{ view.assignedByName }}</span>
+        <span class="text-body-tertiary">{{ (view.selfEnrolled ? 'CATALOG.REVIEWER' : 'QUEST_LOG.ASSIGNED_BY') | translate }}</span>
+        <span>{{ view.assignedByName }}<span class="text-body-tertiary" *ngIf="view.selfEnrolled"> · {{ 'CATALOG.SELF_ENROLLED' | translate }}</span></span>
       </div>
       <div class="d-flex flex-column gap-1 small">
         <span class="text-body-tertiary">{{ 'QUEST_LOG.ITEMS_COMPLETED' | translate }}</span>
@@ -69,6 +70,10 @@
       </button>
     </div>
   </div>
+
+  <!-- Package strip: where this journey sits in its packages, and the way on. Repeated under the
+       rail once the journey is finished, since that is where the learner's last click was. -->
+  <ng-container *ngTemplateOutlet="packageStrip"></ng-container>
 
   <div class="rail">
     <div class="rail-line"></div>
@@ -127,6 +132,10 @@
       </div>
     </div>
   </div>
+
+  <div class="mt-4" *ngIf="view.percentComplete >= 100">
+    <ng-container *ngTemplateOutlet="packageStrip"></ng-container>
+  </div>
 </ng-container>
 
 <!-- Completion-time modal -->
@@ -153,3 +162,34 @@
   (confirmed)="confirmCancelJourney()"
   (cancelled)="showCancelConfirm = false"
 ></app-confirm-dialog>
+
+<ng-template #packageStrip>
+  <div
+    class="card card-body flex-row flex-wrap align-items-center gap-3 mb-4 border-navy-subtle"
+    *ngFor="let p of packages"
+  >
+    <div class="flex-grow-1 overflow-hidden">
+      <span class="page-eyebrow">{{ 'PACKAGE.SINGULAR' | translate }}</span>
+      <div class="fw-semibold user-content">{{ p.packageTitle }}</div>
+      <div class="small text-body-tertiary" dir="auto">
+        {{ 'PACKAGE.POSITION' | translate: { position: p.position, total: p.total, done: p.completedJourneys } }}
+      </div>
+    </div>
+    <ng-container *ngIf="p.nextLearnerJourneyId; else packageDone">
+      <button
+        class="btn btn-sm d-inline-flex align-items-center gap-1"
+        [ngClass]="finished ? 'btn-primary' : 'btn-outline-secondary'"
+        (click)="openNext(p)"
+      >
+        <span>{{ (finished ? 'PACKAGE.NEXT_JOURNEY' : 'PACKAGE.UP_NEXT') | translate }}</span>
+        <bdi>{{ p.nextJourneyTitle }}</bdi>
+        <span aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
+      </button>
+    </ng-container>
+    <ng-template #packageDone>
+      <span class="badge rounded-pill bg-completed-subtle text-completed-emphasis" *ngIf="p.completedJourneys === p.total">
+        {{ 'PACKAGE.ALL_DONE' | translate }}
+      </span>
+    </ng-template>
+  </div>
+</ng-template>

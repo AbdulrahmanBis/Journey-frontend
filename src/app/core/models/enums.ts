@@ -23,6 +23,25 @@ export function codeOf(value: EnumValue | number | null | undefined): number | u
   return typeof value === 'number' ? value : value.code;
 }
 
+/* ---------------------------------- Catalog --------------------------------- */
+
+export const CatalogTypeCode = { Journey: 1001, Package: 1002 } as const;
+export type CatalogTypeCode = (typeof CatalogTypeCode)[keyof typeof CatalogTypeCode];
+
+/** The learner's own standing with a catalog entry — coarser than a journey's StatusCode. */
+export const LearningStatusCode = { NotStarted: 1001, InProgress: 1002, Completed: 1003, Cancelled: 1004 } as const;
+export type LearningStatusCode = (typeof LearningStatusCode)[keyof typeof LearningStatusCode];
+
+/** Badge colours for a LearningStatus, reusing the journey status palette. */
+export function learningStatusChipClass(status: EnumValue | number | null | undefined): string {
+  switch (codeOf(status)) {
+    case LearningStatusCode.InProgress: return 'bg-reflect-subtle text-reflect-emphasis';
+    case LearningStatusCode.Completed: return 'bg-completed-subtle text-completed-emphasis';
+    case LearningStatusCode.Cancelled: return 'bg-cancelled-subtle text-cancelled-emphasis';
+    default: return 'bg-secondary-subtle text-secondary-emphasis';
+  }
+}
+
 /* ----------------------------------- Roles ---------------------------------- */
 
 export const RoleCode = {
@@ -30,6 +49,8 @@ export const RoleCode = {
   Manager: 1002,
   Senior: 1003,
   Learner: 1004,
+  /** Sees and manages people in every department; Manager is limited to their own. */
+  Hr: 1005,
 } as const;
 export type RoleCode = (typeof RoleCode)[keyof typeof RoleCode];
 
@@ -39,7 +60,25 @@ export const USER_ROLES: readonly EnumValue[] = [
   { code: RoleCode.Manager, english: 'Manager', arabic: 'مدير' },
   { code: RoleCode.Senior, english: 'Senior', arabic: 'خبير' },
   { code: RoleCode.Learner, english: 'Learner', arabic: 'متعلم' },
+  { code: RoleCode.Hr, english: 'HR', arabic: 'الموارد البشرية' },
 ];
+
+/*
+  Role groups. These mirror AccessPolicy on the server, which is what actually enforces them;
+  here they only decide what the UI offers, so nobody is shown a button that would answer 403.
+*/
+
+/** May author journeys and exams, assign them, and review a learner's work. */
+export const STAFF_ROLES: readonly RoleCode[] = [RoleCode.Senior, RoleCode.Manager, RoleCode.Hr, RoleCode.Admin];
+
+/** May manage user accounts (a Manager only within their own department). */
+export const USER_ADMIN_ROLES: readonly RoleCode[] = [RoleCode.Manager, RoleCode.Hr, RoleCode.Admin];
+
+/** See every department, and can switch between them. */
+export const ORG_WIDE_ROLES: readonly RoleCode[] = [RoleCode.Hr, RoleCode.Admin];
+
+/** Have an organisation view at all: their department (Manager) or every department. */
+export const ORG_VIEW_ROLES: readonly RoleCode[] = [RoleCode.Manager, RoleCode.Hr, RoleCode.Admin];
 
 /**
  * Stable CSS slug per role code. Deliberately derived from the code, not from the server's text,
@@ -50,6 +89,7 @@ const ROLE_SLUG: Readonly<Record<number, string>> = {
   [RoleCode.Manager]: 'manager',
   [RoleCode.Senior]: 'senior',
   [RoleCode.Learner]: 'learner',
+  [RoleCode.Hr]: 'hr',
 };
 
 export function roleSlug(role: EnumValue | number | null | undefined): string {

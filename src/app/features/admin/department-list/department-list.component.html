@@ -1,0 +1,79 @@
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ 'USER.ADMIN_EYEBROW' | translate }}</span>
+    <h1 class="page-title">{{ 'DEPARTMENT.TITLE' | translate }}</h1>
+    <p class="text-body-secondary mt-1">{{ 'DEPARTMENT.SUB' | translate }}</p>
+  </div>
+  <button class="btn btn-primary" (click)="add()">{{ 'DEPARTMENT.ADD' | translate }}</button>
+</div>
+
+<p class="text-body-secondary" *ngIf="loading">{{ 'DEPARTMENT.LOADING' | translate }}</p>
+
+<div class="card text-center text-body-secondary py-5 px-4" *ngIf="!loading && !departments.length">
+  <h3 class="h5 text-body mb-2">{{ 'DEPARTMENT.EMPTY_TITLE' | translate }}</h3>
+  <p class="mb-0">{{ 'DEPARTMENT.EMPTY_SUB' | translate }}</p>
+</div>
+
+<div class="card overflow-hidden" *ngIf="!loading && departments.length">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th class="small text-uppercase text-body-tertiary">{{ 'DEPARTMENT.NAME_EN' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'DEPARTMENT.NAME_AR' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'DEPARTMENT.MEMBERS' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of departments">
+          <td class="text-nowrap" dir="ltr">{{ d.english }}</td>
+          <td class="text-nowrap" dir="rtl">{{ d.arabic }}</td>
+          <td><span class="badge rounded-pill text-bg-light">{{ d.memberCount ?? 0 }}</span></td>
+          <td>
+            <div class="d-flex gap-2 justify-content-end">
+              <button class="btn btn-outline-secondary btn-sm" (click)="rename(d)">{{ 'DEPARTMENT.RENAME' | translate }}</button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                [disabled]="!!d.memberCount"
+                [title]="(d.memberCount ? 'DEPARTMENT.HAS_MEMBERS' : 'COMMON.DELETE') | translate"
+                (click)="askDelete(d)"
+              >✕</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-modal [open]="!!editing" (dismissed)="editing = null">
+  <ng-container *ngIf="editing">
+    <h3 class="h5 mb-3">{{ (editing.id ? 'DEPARTMENT.RENAME_TITLE' : 'DEPARTMENT.ADD_TITLE') | translate }}</h3>
+    <div class="mb-3">
+      <label for="dept-en" class="form-label">{{ 'DEPARTMENT.NAME_EN' | translate }}</label>
+      <input id="dept-en" class="form-control" dir="ltr" maxlength="120" [(ngModel)]="editing.english" name="english" />
+    </div>
+    <div class="mb-3">
+      <label for="dept-ar" class="form-label">{{ 'DEPARTMENT.NAME_AR' | translate }}</label>
+      <input id="dept-ar" class="form-control" dir="rtl" maxlength="120" [(ngModel)]="editing.arabic" name="arabic" />
+    </div>
+    <p class="invalid-feedback d-block mb-0" *ngIf="error">{{ error }}</p>
+  </ng-container>
+  <div modal-actions>
+    <button class="btn btn-outline-secondary flex-fill" (click)="editing = null">{{ 'COMMON.CANCEL' | translate }}</button>
+    <button class="btn btn-primary flex-fill" [disabled]="saving" (click)="save()">
+      {{ (saving ? 'COMMON.SAVING' : 'COMMON.SAVE') | translate }}
+    </button>
+  </div>
+</app-modal>
+
+<app-confirm-dialog
+  [open]="!!deleting"
+  [title]="'DEPARTMENT.DELETE_TITLE' | translate"
+  [message]="deleteMessage"
+  [confirmLabel]="'COMMON.DELETE' | translate"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleting = null"
+></app-confirm-dialog>

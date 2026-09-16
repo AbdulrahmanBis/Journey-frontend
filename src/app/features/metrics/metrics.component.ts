@@ -5,17 +5,19 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { MetricsService } from '../../core/services/metrics.service';
-import { User } from '../../core/models/models';
+import { Department, User } from '../../core/models/models';
+import { LanguageService } from '../../core/services/language.service';
 import { GroupMetrics, HoursBucket, HoursGranularity, LearnerMetrics, OrgMetrics } from '../../core/models/metrics';
-import { RoleCode, toggleButtonClass } from '../../core/models/enums';
+import { ORG_VIEW_ROLES, ORG_WIDE_ROLES, RoleCode, toggleButtonClass } from '../../core/models/enums';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart.component';
+import { DepartmentPickerComponent } from '../../shared/components/department-picker/department-picker.component';
 
 type ViewKind = 'learner' | 'group' | 'org';
 
 @Component({
   selector: 'app-metrics',
   standalone: true,
-  imports: [CommonModule, FormsModule, BarChartComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, BarChartComponent, DepartmentPickerComponent, TranslatePipe],
   templateUrl: './metrics.component.html',
   styleUrl: './metrics.component.scss',
 })
@@ -26,6 +28,7 @@ export class MetricsComponent implements OnInit {
   private userService = inject(UserService);
   private metricsService = inject(MetricsService);
   private translate = inject(TranslateService);
+  private lang = inject(LanguageService);
 
   RoleCode = RoleCode;
   granularity: HoursGranularity = 'month';
@@ -34,6 +37,9 @@ export class MetricsComponent implements OnInit {
   seniors: User[] = [];
   learnersInScope: User[] = [];
   selectedSeniorId = '';
+  /** HR/Admin only; null = every department. A Manager is pinned to their own by the server. */
+  selectedDepartmentId: string | null = null;
+  departments: Department[] = [];
   selectedLearnerId = '';
 
   viewKind: ViewKind = 'group';
@@ -44,7 +50,8 @@ export class MetricsComponent implements OnInit {
   get user(): User { return this.auth.currentUser!; }
   get isLearner(): boolean { return this.auth.hasRole(RoleCode.Learner); }
   get isSenior(): boolean { return this.auth.hasRole(RoleCode.Senior); }
-  get isManagerOrAdmin(): boolean { return this.auth.hasRole(RoleCode.Manager, RoleCode.Admin); }
+  get isManagerOrAdmin(): boolean { return this.auth.hasRole(...ORG_VIEW_ROLES); }
+  get isOrgWide(): boolean { return this.auth.hasRole(...ORG_WIDE_ROLES); }
 
   get activeBuckets(): HoursBucket[] {
     const source = this.learnerMetrics ?? this.groupMetrics ?? this.orgMetrics;
@@ -58,7 +65,11 @@ export class MetricsComponent implements OnInit {
     if (this.viewKind === 'learner') {
       return this.learnerMetrics?.learnerName ?? this.translate.instant('METRICS.LEARNER');
     }
-    if (this.viewKind === 'org') return this.translate.instant('METRICS.WHOLE_ORG');
+    if (this.viewKind === 'org') {
+      if (!this.isOrgWide) return this.translate.instant('METRICS.YOUR_DEPARTMENT');
+      const department = this.departments.find((d) => d.id === this.selectedDepartmentId);
+      return department ? this.lang.label(department) : this.translate.instant('METRICS.WHOLE_ORG');
+    }
     return this.seniors.find((s) => s.id === this.selectedSeniorId)?.name
       ?? this.translate.instant('METRICS.YOUR_TEAM');
   }
@@ -75,9 +86,20 @@ export class MetricsComponent implements OnInit {
       });
       return;
     }
-    // Manager / Admin
-    this.userService.getSeniors().subscribe((seniors) => (this.seniors = seniors));
-    this.userService.getLearners().subscribe((learners) => {
+    // Manager / HR / Admin
+    this.loadOrgScope();
+  }
+
+  onDepartmentChange(departmentId: string | null): void {
+    this.selectedDepartmentId = departmentId;
+    this.selectedSeniorId = '';
+    this.selectedLearnerId = '';
+    this.loadOrgScope();
+  }
+
+  private loadOrgScope(): void {
+    this.userService.getSeniors(this.selectedDepartmentId).subscribe((seniors) => (this.seniors = seniors));
+    this.userService.getLearners(this.selectedDepartmentId).subscribe((learners) => {
       this.learnersInScope = learners;
       this.loadOrgView();
     });
@@ -91,7 +113,7 @@ export class MetricsComponent implements OnInit {
         this.loadGroupView(this.selectedSeniorId);
       });
     } else {
-      this.userService.getLearners().subscribe((learners) => {
+      this.userService.getLearners(this.selectedDepartmentId).subscribe((learners) => {
         this.learnersInScope = learners;
         this.loadOrgView();
       });
@@ -137,7 +159,7 @@ export class MetricsComponent implements OnInit {
     this.viewKind = 'org';
     this.learnerMetrics = null;
     this.groupMetrics = null;
-    this.metricsService.getOrgMetrics().subscribe({
+    this.metricsService.getOrgMetrics(this.selectedDepartmentId).subscribe({
       next: (m) => { this.orgMetrics = m; this.loading = false; },
       error: () => { this.loading = false; },
     });

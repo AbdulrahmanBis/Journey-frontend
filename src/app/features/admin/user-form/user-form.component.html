@@ -29,6 +29,18 @@
     </select>
   </div>
 
+  <div class="mb-3">
+    <app-department-picker
+      inputId="department"
+      [label]="'DEPARTMENT.LABEL' | translate"
+      [allowAll]="false"
+      [disabled]="!isOrgWide"
+      [value]="departmentId"
+      (valueChange)="onDepartmentChange($event)"
+    ></app-department-picker>
+    <div class="form-text" *ngIf="!isOrgWide">{{ 'DEPARTMENT.MANAGER_LOCKED' | translate }}</div>
+  </div>
+
   <div class="mb-3" *ngIf="role === RoleCode.Learner">
     <label for="senior" class="form-label">{{ 'USER.ASSIGNED_SENIOR' | translate }}</label>
     <select id="senior" class="form-select" [(ngModel)]="seniorId" name="senior">

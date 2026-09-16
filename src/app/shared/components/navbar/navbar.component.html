@@ -11,6 +11,9 @@
     <a routerLink="/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.DASHBOARD' | translate }}
     </a>
+    <a routerLink="/catalog" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
+      <span class="nav-dot"></span> {{ 'NAV.CATALOG' | translate }}
+    </a>
     <a routerLink="/metrics" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.METRICS' | translate }}
     </a>
@@ -19,6 +22,9 @@
     </a>
     <a *ngIf="canManageUsers" routerLink="/admin/users" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.USERS' | translate }}
+    </a>
+    <a *ngIf="canManageDepartments" routerLink="/admin/departments" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
+      <span class="nav-dot"></span> {{ 'NAV.DEPARTMENTS' | translate }}
     </a>
   </nav>
 

@@ -1,9 +1,20 @@
-<div class="mb-4">
-  <span class="page-eyebrow">{{ (isManagerScope ? 'DASHBOARD.ORG_OVERVIEW' : 'DASHBOARD.YOUR_TEAM') | translate }}</span>
-  <h1 class="page-title">{{ (isManagerScope ? 'DASHBOARD.SENIORS_AND_LEARNERS' : 'DASHBOARD.LEARNERS_ASSIGNED') | translate }}</h1>
-  <p class="text-body-secondary mt-1">
-    {{ (isManagerScope ? 'DASHBOARD.MANAGER_SUB' : 'DASHBOARD.SENIOR_SUB') | translate }}
-  </p>
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ (isManagerScope ? (isOrgWide ? 'DASHBOARD.ORG_OVERVIEW' : 'DASHBOARD.DEPARTMENT_OVERVIEW') : 'DASHBOARD.YOUR_TEAM') | translate }}</span>
+    <h1 class="page-title">{{ (isManagerScope ? 'DASHBOARD.SENIORS_AND_LEARNERS' : 'DASHBOARD.LEARNERS_ASSIGNED') | translate }}</h1>
+    <p class="text-body-secondary mt-1">
+      {{ (isManagerScope ? (isOrgWide ? 'DASHBOARD.ORG_WIDE_SUB' : 'DASHBOARD.MANAGER_SUB') : 'DASHBOARD.SENIOR_SUB') | translate }}
+    </p>
+  </div>
+  <div class="page-filter" *ngIf="isManagerScope && isOrgWide">
+    <app-department-picker
+      inputId="overview-department"
+      [label]="'DEPARTMENT.LABEL' | translate"
+      [small]="true"
+      [value]="departmentId"
+      (valueChange)="onDepartmentChange($event)"
+    ></app-department-picker>
+  </div>
 </div>
 
 <p class="text-body-secondary" *ngIf="loading">{{ 'DASHBOARD.LOADING_TEAM' | translate }}</p>
@@ -67,13 +78,36 @@
   </button>
 
   <div class="tree-children" *ngIf="expandedLearners.has(learner.id)">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3" *ngIf="learner.journeys.length; else noJourneys">
-      <div class="col" *ngFor="let j of learner.journeys">
-        <app-journey-card [view]="j" [compact]="true" (opened)="openJourney($event)"></app-journey-card>
+    <ng-container *ngIf="learner.journeys.length; else noJourneys">
+      <div class="d-flex flex-column gap-3 mb-3" *ngIf="groupsFor(learner).packages.length">
+        <app-package-group
+          *ngFor="let g of groupsFor(learner).packages"
+          [assignment]="g.assignment"
+          [views]="g.views"
+          [compact]="true"
+          [canCancel]="canCancelPackages"
+          (opened)="openJourney($event)"
+          (cancel)="cancelling = $event"
+        ></app-package-group>
       </div>
-    </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3">
+        <div class="col" *ngFor="let j of groupsFor(learner).standalone">
+          <app-journey-card [view]="j" [compact]="true" (opened)="openJourney($event)"></app-journey-card>
+        </div>
+      </div>
+    </ng-container>
     <ng-template #noJourneys>
       <p class="small text-body-tertiary py-2 px-1">{{ 'DASHBOARD.NO_JOURNEYS_ASSIGNED' | translate }}</p>
     </ng-template>
   </div>
 </ng-template>
+
+<app-confirm-dialog
+  [open]="!!cancelling"
+  [title]="'PACKAGE.CANCEL_TITLE' | translate"
+  [message]="cancelMessage"
+  [confirmLabel]="'PACKAGE.CANCEL' | translate"
+  [danger]="true"
+  (confirmed)="confirmCancel()"
+  (cancelled)="cancelling = null"
+></app-confirm-dialog>

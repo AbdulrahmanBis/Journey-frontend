@@ -6,25 +6,23 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { JourneyService } from '../../../core/services/journey.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
-import { UserService } from '../../../core/services/user.service';
 import { ExamService } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Journey, User } from '../../../core/models/models';
-import { RoleCode } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
+import { JourneysTabsComponent } from '../journeys-tabs/journeys-tabs.component';
 
 @Component({
   selector: 'app-journey-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, AssignLearnerModalComponent, JourneysTabsComponent, TranslatePipe],
   templateUrl: './journey-list.component.html',
 })
 export class JourneyListComponent implements OnInit {
   private auth = inject(AuthService);
   private journeyService = inject(JourneyService);
   private assignments = inject(AssignmentService);
-  private userService = inject(UserService);
   private examService = inject(ExamService);
   private toast = inject(ToastService);
   private router = inject(Router);
@@ -38,8 +36,6 @@ export class JourneyListComponent implements OnInit {
 
   // Assign modal
   assigningJourney: Journey | null = null;
-  availableLearners: User[] = [];
-  selectedLearnerId = '';
   assigning = false;
 
   // Delete confirm
@@ -91,26 +87,18 @@ export class JourneyListComponent implements OnInit {
     });
   }
 
-  openAssign(journey: Journey): void {
-    this.assigningJourney = journey;
-    this.selectedLearnerId = '';
-    const source = this.auth.hasRole(RoleCode.Senior)
-      ? this.userService.getLearnersBySenior(this.user.id)
-      : this.userService.getLearners();
-    source.subscribe((learners) => (this.availableLearners = learners));
-  }
+  openAssign(journey: Journey): void { this.assigningJourney = journey; }
 
   closeAssign(): void { this.assigningJourney = null; }
 
-  confirmAssign(): void {
-    if (!this.assigningJourney || !this.selectedLearnerId) return;
+  confirmAssign(learner: User): void {
+    if (!this.assigningJourney) return;
     this.assigning = true;
     const title = this.assigningJourney.title;
-    this.assignments.assignJourney(this.assigningJourney.id, this.selectedLearnerId, this.user).subscribe({
+    this.assignments.assignJourney(this.assigningJourney.id, learner.id, this.user).subscribe({
       next: () => {
         this.assigning = false;
-        const learner = this.availableLearners.find((l) => l.id === this.selectedLearnerId);
-        this.toast.success(this.translate.instant('JOURNEY.ASSIGNED', { title, name: learner?.name ?? '' }));
+        this.toast.success(this.translate.instant('JOURNEY.ASSIGNED', { title, name: learner.name }));
         this.closeAssign();
       },
       error: (err: any) => {
