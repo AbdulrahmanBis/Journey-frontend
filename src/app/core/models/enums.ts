@@ -57,6 +57,12 @@ export function roleSlug(role: EnumValue | number | null | undefined): string {
   return (code !== undefined && ROLE_SLUG[code]) || 'learner';
 }
 
+/** Bootstrap classes for a soft role chip, e.g. `bg-senior-subtle text-senior-emphasis`. */
+export function roleChipClass(role: EnumValue | number | null | undefined): string {
+  const slug = roleSlug(role);
+  return `bg-${slug}-subtle text-${slug}-emphasis`;
+}
+
 /* ---------------------------------- Statuses -------------------------------- */
 
 /** Shared by a journey assignment (learner-journey) and each item within it. */
@@ -89,6 +95,15 @@ const STATUS_SLUG: Readonly<Record<number, string>> = {
 export function statusSlug(status: EnumValue | number | null | undefined): string {
   const code = codeOf(status);
   return (code !== undefined && STATUS_SLUG[code]) || 'new';
+}
+
+/**
+ * Bootstrap classes for a soft status chip, e.g. `bg-completed-subtle text-completed-emphasis`.
+ * The slugs double as theme colour names (src/theme/_colors.scss), so there is no second lookup.
+ */
+export function statusChipClass(status: EnumValue | number | null | undefined): string {
+  const slug = statusSlug(status);
+  return `bg-${slug}-subtle text-${slug}-emphasis`;
 }
 
 /** True when the value is the given status, tolerating either an EnumValue or a raw code. */
@@ -214,3 +229,14 @@ export const TECH_TAGS = [
 ] as const;
 
 export type TechTag = (typeof TECH_TAGS)[number];
+
+/* ------------------------------ Bootstrap classes ---------------------------- */
+
+/**
+ * A toggle button in one of the theme colours: solid when chosen, outlined when not.
+ * Used for status pills and yes/no, correct/incorrect, pass/fail pairs, e.g.
+ * `toggleButtonClass(chosen, statusSlug(s))` → `btn-completed` / `btn-outline-completed`.
+ */
+export function toggleButtonClass(active: boolean, color: string): string {
+  return active ? `btn-${color}` : `btn-outline-${color}`;
+}

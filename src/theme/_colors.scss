@@ -1,0 +1,22 @@
+// Adds the app's own colours to Bootstrap's theme map. Loaded after Bootstrap's
+// variables and BEFORE its maps, because the maps (and every colour utility)
+// are derived from $theme-colors at that point.
+//
+// Each entry gets the full treatment: .btn-{name}, .btn-outline-{name},
+// .text-{name}, .bg-{name}, .text-bg-{name}, .border-{name}.
+
+$app-colors: (
+  "navy":      $navy,
+  "new":       $status-new,
+  "reflect":   $status-reflect,
+  "response":  $status-response,
+  "completed": $status-completed,
+  "cancelled": $status-cancelled,
+  "admin":     $role-admin,
+  "manager":   $role-manager,
+  "hr":        $role-hr,
+  "senior":    $role-senior,
+  "learner":   $role-learner,
+);
+
+$theme-colors: map-merge($theme-colors, $app-colors);

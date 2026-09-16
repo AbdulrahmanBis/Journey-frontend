@@ -55,6 +55,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/journeys/exam-attempt/exam-attempt.component').then((m) => m.ExamAttemptComponent),
   },
   {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/notifications/notifications.component').then((m) => m.NotificationsComponent),
+  },
+  {
     path: 'admin/users',
     canActivate: [authGuard, roleGuard([RoleCode.Manager, RoleCode.Admin])],
     loadComponent: () => import('./features/admin/user-list/user-list.component').then((m) => m.UserListComponent),

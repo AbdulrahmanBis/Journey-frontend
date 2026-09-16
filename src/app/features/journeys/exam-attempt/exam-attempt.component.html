@@ -1,80 +1,92 @@
-<div *ngIf="loading"><p class="muted">{{ 'EXAM.LOADING' | translate }}</p></div>
+<div *ngIf="loading"><p class="text-body-secondary">{{ 'EXAM.LOADING' | translate }}</p></div>
 
-<div class="empty-state card" *ngIf="!loading && notAllowed">
-  <h3>{{ 'EXAM.NO_ACCESS' | translate }}</h3>
-  <a routerLink="/dashboard" class="btn btn-ghost" style="margin-top: 14px;">{{ 'QUEST_LOG.BACK_TO_DASHBOARD' | translate }}</a>
+<div class="card text-center text-body-secondary py-5 px-4" *ngIf="!loading && notAllowed">
+  <h3 class="h5 text-body mb-2">{{ 'EXAM.NO_ACCESS' | translate }}</h3>
+  <div><a routerLink="/dashboard" class="btn btn-outline-secondary mt-3">{{ 'QUEST_LOG.BACK_TO_DASHBOARD' | translate }}</a></div>
 </div>
 
 <ng-container *ngIf="!loading && view">
-  <a [routerLink]="['/journey-log', view.id]" class="back-link">← {{ 'COMMON.BACK' | translate }}</a>
+  <a [routerLink]="['/journey-log', view.id]" class="link-secondary small d-inline-block mb-3">← {{ 'COMMON.BACK' | translate }}</a>
 
-  <div class="page-head">
-    <div>
-      <span class="page-eyebrow">{{ view.journey.title }}</span>
-      <h1 class="page-title">{{ exam?.title ?? ('EXAM.CHECKPOINT' | translate) }}</h1>
-      <p class="page-sub" *ngIf="learner && isReviewer">{{ 'EXAM.FOR_LEARNER' | translate: { name: learner.name } }}</p>
-    </div>
+  <div class="mb-4">
+    <span class="page-eyebrow user-content">{{ view.journey.title }}</span>
+    <h1 class="page-title user-content">{{ exam?.title ?? ('EXAM.CHECKPOINT' | translate) }}</h1>
+    <p class="text-body-secondary mt-1" *ngIf="learner && isReviewer">{{ 'EXAM.FOR_LEARNER' | translate: { name: learner.name } }}</p>
   </div>
 
   <!-- Locked -->
-  <div class="empty-state card" *ngIf="mode === 'locked'">
-    <h3>{{ 'EXAM.LOCKED_TITLE' | translate }}</h3>
+  <div class="card text-center text-body-secondary py-5 px-4" *ngIf="mode === 'locked'">
+    <h3 class="h5 text-body mb-2">{{ 'EXAM.LOCKED_TITLE' | translate }}</h3>
     <p>{{ 'EXAM.LOCKED_SUB' | translate: { percent: view.percentComplete } }}</p>
   </div>
 
   <!-- No exam configured -->
-  <div class="empty-state card" *ngIf="mode === 'no-exam'">
-    <h3>{{ 'EXAM.NO_EXAM_TITLE' | translate }}</h3>
+  <div class="card text-center text-body-secondary py-5 px-4" *ngIf="mode === 'no-exam'">
+    <h3 class="h5 text-body mb-2">{{ 'EXAM.NO_EXAM_TITLE' | translate }}</h3>
     <p>{{ 'EXAM.NO_EXAM_SUB' | translate }}</p>
-    <a *ngIf="isReviewer" [routerLink]="['/journeys', view.journeyId, 'exam']" class="btn btn-primary" style="margin-top: 14px;">
-      {{ 'QUEST_LOG.SETUP_EXAM' | translate }}
-    </a>
+    <div *ngIf="isReviewer">
+      <a [routerLink]="['/journeys', view.journeyId, 'exam']" class="btn btn-primary mt-3">{{ 'QUEST_LOG.SETUP_EXAM' | translate }}</a>
+    </div>
   </div>
 
   <!-- Reviewer waiting on the learner -->
-  <div class="empty-state card" *ngIf="mode === 'awaiting'">
-    <h3>{{ 'EXAM.AWAITING_TITLE' | translate }}</h3>
+  <div class="card text-center text-body-secondary py-5 px-4" *ngIf="mode === 'awaiting'">
+    <h3 class="h5 text-body mb-2">{{ 'EXAM.AWAITING_TITLE' | translate }}</h3>
     <p>{{ 'EXAM.AWAITING_SUB' | translate: { name: learner?.name ?? '' } }}</p>
   </div>
 
   <!-- Learner taking the exam -->
-  <div class="card card-pad exam-card" *ngIf="mode === 'take'">
-    <p class="muted" style="margin-bottom: 18px;">{{ 'EXAM.TAKE_SUB' | translate }}</p>
+  <div class="card card-body exam-card" *ngIf="mode === 'take'">
+    <p class="text-body-secondary mb-2">{{ 'EXAM.TAKE_SUB' | translate }}</p>
 
-    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
-      <p class="question-prompt"><span class="faint" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}</p>
+    <div class="question-block py-3" *ngFor="let q of exam!.questions; let i = index">
+      <p class="fw-semibold d-flex align-items-center gap-2 mb-2 user-content">
+        <span class="text-body-tertiary" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}
+      </p>
 
-      <div *ngIf="isMc(q)" class="answer-options">
-        <label class="answer-option" *ngFor="let opt of q.options; let oi = index">
-          <input type="radio" [name]="'take-' + q.id" [checked]="answerFor(q.id).selectedOptionIndex === optionCodeFor(oi)" (change)="answerFor(q.id).selectedOptionIndex = optionCodeFor(oi)" />
+      <div *ngIf="isMc(q)" class="d-flex flex-column gap-2">
+        <label class="answer-option d-flex align-items-center gap-2 px-3 py-2 border rounded small user-content" *ngFor="let opt of q.options; let oi = index">
+          <input
+            type="radio"
+            class="form-check-input mt-0 flex-shrink-0"
+            [name]="'take-' + q.id"
+            [checked]="answerFor(q.id).selectedOptionIndex === optionCodeFor(oi)"
+            (change)="answerFor(q.id).selectedOptionIndex = optionCodeFor(oi)"
+          />
           {{ opt }}
         </label>
       </div>
 
-      <div *ngIf="isYesNo(q)" class="flex gap-12">
-        <button type="button" class="pill" [class.active]="answerFor(q.id).boolAnswer === true" style="--pill-color: var(--brand)" (click)="answerFor(q.id).boolAnswer = true">
+      <div *ngIf="isYesNo(q)" class="d-flex gap-2">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(answerFor(q.id).boolAnswer === true, 'primary')" (click)="answerFor(q.id).boolAnswer = true">
           {{ 'COMMON.YES' | translate }}
         </button>
-        <button type="button" class="pill" [class.active]="answerFor(q.id).boolAnswer === false" style="--pill-color: var(--brand)" (click)="answerFor(q.id).boolAnswer = false">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(answerFor(q.id).boolAnswer === false, 'primary')" (click)="answerFor(q.id).boolAnswer = false">
           {{ 'COMMON.NO' | translate }}
         </button>
       </div>
 
-      <textarea *ngIf="isOpen(q)" class="textarea" rows="3" [placeholder]="'EXAM.YOUR_ANSWER' | translate" [(ngModel)]="answerFor(q.id).openText" [name]="'open-' + q.id"></textarea>
+      <textarea *ngIf="isOpen(q)" class="form-control user-content" rows="3" [placeholder]="'EXAM.YOUR_ANSWER' | translate" [(ngModel)]="answerFor(q.id).openText" [name]="'open-' + q.id"></textarea>
     </div>
 
-    <button class="btn btn-primary" [disabled]="!allAnswered || submitting" (click)="submitExam()">
-      {{ (submitting ? 'EXAM.SUBMITTING' : 'EXAM.SUBMIT_EXAM') | translate }}
-    </button>
+    <div class="mt-3">
+      <button class="btn btn-primary" [disabled]="!allAnswered || submitting" (click)="submitExam()">
+        {{ (submitting ? 'EXAM.SUBMITTING' : 'EXAM.SUBMIT_EXAM') | translate }}
+      </button>
+    </div>
   </div>
 
   <!-- Learner: submitted, awaiting grade -->
-  <div class="card card-pad exam-card" *ngIf="mode === 'under-review'">
-    <span class="badge exam-badge pending" style="margin-bottom: 18px;">{{ 'EXAM.UNDER_REVIEW_BADGE' | translate }}</span>
+  <div class="card card-body exam-card" *ngIf="mode === 'under-review'">
+    <div>
+      <span class="badge rounded-pill bg-reflect-subtle text-reflect-emphasis mb-2">{{ 'EXAM.UNDER_REVIEW_BADGE' | translate }}</span>
+    </div>
 
-    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
-      <p class="question-prompt"><span class="faint" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}</p>
-      <p class="answer-readout">
+    <div class="question-block py-3" *ngFor="let q of exam!.questions; let i = index">
+      <p class="fw-semibold d-flex align-items-center gap-2 mb-2 user-content">
+        <span class="text-body-tertiary" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}
+      </p>
+      <p class="answer-readout small text-body-secondary bg-body-tertiary rounded px-3 py-2 user-content">
         <ng-container *ngIf="isMc(q)">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
         <ng-container *ngIf="isYesNo(q)">{{ (answerOf(q)?.boolAnswer ? 'COMMON.YES' : 'COMMON.NO') | translate }}</ng-container>
         <ng-container *ngIf="isOpen(q)">{{ answerOf(q)?.openText }}</ng-container>
@@ -83,62 +95,73 @@
   </div>
 
   <!-- Reviewer grading -->
-  <div class="card card-pad exam-card" *ngIf="mode === 'grading'">
-    <p class="muted" style="margin-bottom: 18px;">{{ 'EXAM.GRADING_SUB' | translate }}</p>
+  <div class="card card-body exam-card" *ngIf="mode === 'grading'">
+    <p class="text-body-secondary mb-2">{{ 'EXAM.GRADING_SUB' | translate }}</p>
 
-    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
-      <p class="question-prompt"><span class="faint" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}</p>
-      <p class="answer-readout">
+    <div class="question-block py-3" *ngFor="let q of exam!.questions; let i = index">
+      <p class="fw-semibold d-flex align-items-center gap-2 mb-2 user-content">
+        <span class="text-body-tertiary" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}
+      </p>
+      <p class="answer-readout small text-body-secondary bg-body-tertiary rounded px-3 py-2 user-content">
         <ng-container *ngIf="isMc(q)">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
         <ng-container *ngIf="isYesNo(q)">{{ (answerOf(q)?.boolAnswer ? 'COMMON.YES' : 'COMMON.NO') | translate }}</ng-container>
         <ng-container *ngIf="isOpen(q)">{{ answerOf(q)?.openText }}</ng-container>
       </p>
 
-      <div class="flex gap-12" style="margin-top: 8px;">
-        <button type="button" class="pill" [class.active]="marks[q.id] === true" style="--pill-color: var(--status-completed)" (click)="setMark(q.id, true)">
+      <div class="d-flex gap-2 mt-2">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(marks[q.id] === true, 'completed')" (click)="setMark(q.id, true)">
           {{ 'EXAM.CORRECT' | translate }}
         </button>
-        <button type="button" class="pill" [class.active]="marks[q.id] === false" style="--pill-color: var(--status-cancelled)" (click)="setMark(q.id, false)">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(marks[q.id] === false, 'cancelled')" (click)="setMark(q.id, false)">
           {{ 'EXAM.INCORRECT' | translate }}
         </button>
       </div>
     </div>
 
-    <div class="grading-summary">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-3 p-3 bg-body-tertiary rounded">
       <div>
-        <span class="faint">{{ 'EXAM.COMPUTED_SCORE' | translate }}</span>
-        <p class="stat-num" style="font-size: 22px;">{{ liveScorePercent }}%</p>
-        <span class="faint" dir="auto">{{ 'EXAM.PASS_LINE' | translate: { percent: exam!.passingScorePercent } }}</span>
+        <span class="small text-body-tertiary">{{ 'EXAM.COMPUTED_SCORE' | translate }}</span>
+        <p class="stat-num fs-4">{{ liveScorePercent }}%</p>
+        <span class="small text-body-tertiary" dir="auto">{{ 'EXAM.PASS_LINE' | translate: { percent: exam!.passingScorePercent } }}</span>
       </div>
-      <div class="flex gap-12">
-        <button type="button" class="pill" [class.active]="passDecision === true" style="--pill-color: var(--status-completed)" (click)="passDecision = true">
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(passDecision === true, 'completed')" (click)="passDecision = true">
           {{ 'EXAM.PASS' | translate }}
         </button>
-        <button type="button" class="pill" [class.active]="passDecision === false" style="--pill-color: var(--status-cancelled)" (click)="passDecision = false">
+        <button type="button" class="btn btn-sm rounded-pill" [ngClass]="toggleButtonClass(passDecision === false, 'cancelled')" (click)="passDecision = false">
           {{ 'EXAM.FAIL' | translate }}
         </button>
       </div>
     </div>
 
-    <button class="btn btn-primary" style="margin-top: 18px;" [disabled]="!allMarked || grading" (click)="submitGrade()">
-      {{ (grading ? 'EXAM.GRADING' : 'EXAM.SUBMIT_GRADE') | translate }}
-    </button>
+    <div class="mt-3">
+      <button class="btn btn-primary" [disabled]="!allMarked || grading" (click)="submitGrade()">
+        {{ (grading ? 'EXAM.GRADING' : 'EXAM.SUBMIT_GRADE') | translate }}
+      </button>
+    </div>
   </div>
 
   <!-- Graded result -->
-  <div class="card card-pad exam-card" *ngIf="mode === 'result'">
-    <div class="result-banner" [class.pass]="attempt!.passed" [class.fail]="!attempt!.passed">
-      <span class="result-score">{{ attempt!.scorePercent }}%</span>
-      <span class="result-label">{{ (attempt!.passed ? 'EXAM.PASSED' : 'EXAM.FAILED') | translate }}</span>
+  <div class="card card-body exam-card" *ngIf="mode === 'result'">
+    <div
+      class="d-flex align-items-baseline gap-3 px-4 py-3 rounded mb-2"
+      [ngClass]="attempt!.passed ? 'bg-completed-subtle text-completed' : 'bg-cancelled-subtle text-cancelled'"
+    >
+      <span class="result-score fs-2 fw-bold">{{ attempt!.scorePercent }}%</span>
+      <span class="fs-6 fw-semibold">{{ (attempt!.passed ? 'EXAM.PASSED' : 'EXAM.FAILED') | translate }}</span>
     </div>
-    <p class="faint" dir="auto" style="margin-bottom: 18px;">{{ 'EXAM.GRADED_BY' | translate: { name: attempt!.gradedByName } }}</p>
+    <p class="small text-body-tertiary mb-2" dir="auto">{{ 'EXAM.GRADED_BY' | translate: { name: attempt!.gradedByName } }}</p>
 
-    <div class="question-block" *ngFor="let q of exam!.questions; let i = index">
-      <p class="question-prompt">
-        <span class="faint" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}
-        <span [class]="answerOf(q)?.markedCorrect ? 'result-icon pass' : 'result-icon fail'">{{ answerOf(q)?.markedCorrect ? '✓' : '✕' }}</span>
+    <div class="question-block py-3" *ngFor="let q of exam!.questions; let i = index">
+      <!--
+        The ✓/✕ mark is the prompt's last child, so in right-to-left it renders leftmost — the
+        correct trailing position. It needs no repositioning.
+      -->
+      <p class="fw-semibold d-flex align-items-center gap-2 mb-2 user-content">
+        <span class="text-body-tertiary" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}.</span> {{ q.prompt }}
+        <span class="small fw-bold" [ngClass]="answerOf(q)?.markedCorrect ? 'text-completed' : 'text-cancelled'">{{ answerOf(q)?.markedCorrect ? '✓' : '✕' }}</span>
       </p>
-      <p class="answer-readout">
+      <p class="answer-readout small text-body-secondary bg-body-tertiary rounded px-3 py-2 user-content">
         <ng-container *ngIf="isMc(q)">{{ optionText(q, answerOf(q)?.selectedOptionIndex) }}</ng-container>
         <ng-container *ngIf="isYesNo(q)">{{ (answerOf(q)?.boolAnswer ? 'COMMON.YES' : 'COMMON.NO') | translate }}</ng-container>
         <ng-container *ngIf="isOpen(q)">{{ answerOf(q)?.openText }}</ng-container>

@@ -1,0 +1,39 @@
+// The "subtle" and "emphasis" colour maps. Bootstrap redefines these inside its
+// own _maps.scss without !default, so they can only be extended AFTER it loads.
+//
+// This is what gives the status and role colours their soft chip look:
+// .bg-completed-subtle, .text-completed-emphasis, .border-completed-subtle —
+// the same pattern as Bootstrap's own .bg-success-subtle.
+
+$app-subtle-bg: (
+  "navy":      $role-admin-bg,
+  "new":       $status-new-bg,
+  "reflect":   $status-reflect-bg,
+  "response":  $status-response-bg,
+  "completed": $status-completed-bg,
+  "cancelled": $status-cancelled-bg,
+  "admin":     $role-admin-bg,
+  "manager":   $role-manager-bg,
+  "hr":        $role-hr-bg,
+  "senior":    $role-senior-bg,
+  "learner":   $role-learner-bg,
+);
+
+// Emphasis text is the base colour itself — these are already dark enough to
+// read on their subtle backgrounds.
+$app-emphasis: $app-colors;
+
+$theme-colors-text: map-merge($theme-colors-text, $app-emphasis);
+$theme-colors-bg-subtle: map-merge($theme-colors-bg-subtle, $app-subtle-bg);
+$theme-colors-border-subtle: map-merge(
+  $theme-colors-border-subtle,
+  map-loop($app-subtle-bg, shade-color, "$value", 8%)
+);
+
+// Bootstrap lists the utility classes for subtle colours explicitly rather than
+// deriving them, so the app colours have to be added here too.
+@each $name, $_ in $app-colors {
+  $utilities-bg-subtle: map-merge($utilities-bg-subtle, ("#{$name}-subtle": var(--#{$prefix}#{$name}-bg-subtle)));
+  $utilities-border-subtle: map-merge($utilities-border-subtle, ("#{$name}-subtle": var(--#{$prefix}#{$name}-border-subtle)));
+  $utilities-text-emphasis-colors: map-merge($utilities-text-emphasis-colors, ("#{$name}-emphasis": var(--#{$prefix}#{$name}-text-emphasis)));
+}

@@ -1,0 +1,14 @@
+// Unread: a bar on the reading-start edge and the soft brand background.
+.is-unread {
+  border-inline-start: 3px solid var(--bs-primary);
+  background: var(--bs-primary-bg-subtle);
+}
+
+.note-dot {
+  flex-shrink: 0;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  margin-top: 0.375rem;
+  border-radius: 50%;
+}
+.note-dot-on { background: var(--bs-primary); }

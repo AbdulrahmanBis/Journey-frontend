@@ -1,59 +1,60 @@
-<div class="page-head">
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
   <div>
     <span class="page-eyebrow">{{ 'JOURNEY.TEMPLATES_EYEBROW' | translate }}</span>
     <h1 class="page-title">{{ 'JOURNEY.TITLE' | translate }}</h1>
-    <p class="page-sub">{{ 'JOURNEY.SUB' | translate }}</p>
+    <p class="text-body-secondary mt-1">{{ 'JOURNEY.SUB' | translate }}</p>
   </div>
   <a routerLink="/journeys/new" class="btn btn-primary">{{ 'JOURNEY.NEW_JOURNEY' | translate }}</a>
 </div>
 
-<p class="muted" *ngIf="loading">{{ 'JOURNEY.LOADING' | translate }}</p>
+<p class="text-body-secondary" *ngIf="loading">{{ 'JOURNEY.LOADING' | translate }}</p>
 
-<div class="journey-grid" *ngIf="!loading">
-  <div class="card card-pad journey-card" *ngFor="let j of journeys">
-    <span class="tag">{{ j.techTag }}</span>
-    <h3 class="journey-title">{{ j.title }}</h3>
-    <p class="muted journey-desc">{{ j.description }}</p>
-    <p class="faint" dir="auto" style="font-size: 12px;">{{ 'JOURNEY.BY_AUTHOR' | translate: { name: j.createdByName } }}</p>
-    <div class="journey-actions">
-      <button class="btn btn-primary btn-sm" (click)="openAssign(j)">{{ 'COMMON.ASSIGN' | translate }}</button>
-      <button class="btn btn-ghost btn-sm" (click)="edit(j)">{{ 'COMMON.EDIT' | translate }}</button>
-      <a [routerLink]="['/journeys', j.id, 'exam']" class="btn btn-ghost btn-sm">
-        {{ (hasExam(j.id) ? 'JOURNEY.EXAM' : 'JOURNEY.ADD_EXAM') | translate }}
-      </a>
-      <button class="btn btn-danger btn-sm btn-icon" [title]="'COMMON.DELETE' | translate" (click)="askDelete(j)">✕</button>
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" *ngIf="!loading">
+  <div class="col" *ngFor="let j of journeys">
+    <div class="card card-body h-100 gap-3">
+      <span class="badge rounded-pill bg-light text-navy align-self-start">{{ j.techTag }}</span>
+      <h3 class="fs-5 mb-0 user-content">{{ j.title }}</h3>
+      <p class="text-body-secondary text-clamp-2 user-content">{{ j.description }}</p>
+      <p class="small text-body-tertiary" dir="auto">{{ 'JOURNEY.BY_AUTHOR' | translate: { name: j.createdByName } }}</p>
+      <div class="d-flex flex-wrap align-items-center gap-2 mt-auto pt-2 border-top">
+        <button class="btn btn-primary btn-sm" (click)="openAssign(j)">{{ 'COMMON.ASSIGN' | translate }}</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="edit(j)">{{ 'COMMON.EDIT' | translate }}</button>
+        <a [routerLink]="['/journeys', j.id, 'exam']" class="btn btn-outline-secondary btn-sm">
+          {{ (hasExam(j.id) ? 'JOURNEY.EXAM' : 'JOURNEY.ADD_EXAM') | translate }}
+        </a>
+        <button class="btn btn-outline-danger btn-sm ms-auto" [title]="'COMMON.DELETE' | translate" (click)="askDelete(j)">✕</button>
+      </div>
     </div>
   </div>
 
-  <div class="empty-state card" *ngIf="!journeys.length">
-    <h3>{{ 'JOURNEY.NONE_YET_TITLE' | translate }}</h3>
-    <p>{{ 'JOURNEY.NONE_YET_SUB' | translate }}</p>
-  </div>
-</div>
-
-<!-- Assign modal -->
-<div class="modal-backdrop" *ngIf="assigningJourney" (click)="closeAssign()">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3>{{ 'JOURNEY.ASSIGN_TITLE' | translate: { title: assigningJourney.title } }}</h3>
-    <p class="muted" style="margin: 8px 0 18px; font-size: 13.5px;">{{ 'JOURNEY.ASSIGN_SUB' | translate }}</p>
-
-    <div class="field">
-      <label>{{ 'JOURNEY.LEARNER' | translate }}</label>
-      <select class="select" [(ngModel)]="selectedLearnerId">
-        <option value="" disabled>{{ 'JOURNEY.SELECT_LEARNER' | translate }}</option>
-        <option *ngFor="let l of availableLearners" [value]="l.id">{{ l.name }}</option>
-      </select>
-      <p class="hint" *ngIf="!availableLearners.length">{{ 'JOURNEY.NO_LEARNERS' | translate }}</p>
-    </div>
-
-    <div class="flex gap-12 justify-between" style="margin-top: 8px;">
-      <button class="btn btn-ghost w-full" (click)="closeAssign()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button class="btn btn-primary w-full" [disabled]="!selectedLearnerId || assigning" (click)="confirmAssign()">
-        {{ (assigning ? 'JOURNEY.ASSIGNING' : 'JOURNEY.ASSIGN_JOURNEY') | translate }}
-      </button>
+  <div class="col-12" *ngIf="!journeys.length">
+    <div class="card text-center text-body-secondary py-5 px-4">
+      <h3 class="h5 text-body mb-2">{{ 'JOURNEY.NONE_YET_TITLE' | translate }}</h3>
+      <p>{{ 'JOURNEY.NONE_YET_SUB' | translate }}</p>
     </div>
   </div>
 </div>
+
+<app-modal [open]="!!assigningJourney" (dismissed)="closeAssign()">
+  <ng-container *ngIf="assigningJourney">
+    <h3 class="h5 mb-2">{{ 'JOURNEY.ASSIGN_TITLE' | translate: { title: assigningJourney.title } }}</h3>
+    <p class="small text-body-secondary mb-3">{{ 'JOURNEY.ASSIGN_SUB' | translate }}</p>
+
+    <label for="assign-learner" class="form-label">{{ 'JOURNEY.LEARNER' | translate }}</label>
+    <select id="assign-learner" class="form-select" [(ngModel)]="selectedLearnerId">
+      <option value="" disabled>{{ 'JOURNEY.SELECT_LEARNER' | translate }}</option>
+      <option *ngFor="let l of availableLearners" [value]="l.id">{{ l.name }}</option>
+    </select>
+    <p class="form-text" *ngIf="!availableLearners.length">{{ 'JOURNEY.NO_LEARNERS' | translate }}</p>
+  </ng-container>
+
+  <div modal-actions>
+    <button class="btn btn-outline-secondary flex-fill" (click)="closeAssign()">{{ 'COMMON.CANCEL' | translate }}</button>
+    <button class="btn btn-primary flex-fill" [disabled]="!selectedLearnerId || assigning" (click)="confirmAssign()">
+      {{ (assigning ? 'JOURNEY.ASSIGNING' : 'JOURNEY.ASSIGN_JOURNEY') | translate }}
+    </button>
+  </div>
+</app-modal>
 
 <app-confirm-dialog
   [open]="!!deletingJourney"

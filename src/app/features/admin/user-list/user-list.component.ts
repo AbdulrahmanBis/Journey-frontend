@@ -7,7 +7,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { User } from '../../../core/models/models';
-import { RoleCode, roleSlug } from '../../../core/models/enums';
+import { RoleCode, roleChipClass } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -15,7 +15,6 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.scss',
 })
 export class UserListComponent implements OnInit {
   private userService = inject(UserService);
@@ -25,7 +24,7 @@ export class UserListComponent implements OnInit {
   private lang = inject(LanguageService);
 
   RoleCode = RoleCode;
-  roleSlug = roleSlug;
+  roleChipClass = roleChipClass;
 
   users: User[] = [];
   loading = true;

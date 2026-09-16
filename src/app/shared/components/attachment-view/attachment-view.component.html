@@ -1,24 +1,24 @@
-<div class="attachments" *ngIf="attachments?.length">
+<div class="d-flex flex-column gap-3 mt-3 mb-1" *ngIf="attachments?.length">
   <ng-container *ngFor="let a of attachments">
 
     <!-- Image -->
-    <figure class="att att-image" *ngIf="is(a, K.Image)">
-      <img [src]="mediaUrl(a)" [alt]="title(a)" loading="lazy" />
-      <figcaption class="faint" *ngIf="a.label">{{ a.label }}</figcaption>
+    <figure class="mb-0" *ngIf="is(a, K.Image)">
+      <img class="img-fluid d-block rounded border" [src]="mediaUrl(a)" [alt]="title(a)" loading="lazy" />
+      <figcaption class="small text-body-tertiary mt-1 user-content" *ngIf="a.label">{{ a.label }}</figcaption>
     </figure>
 
     <!-- Uploaded video — streamed with range support so it can be seeked -->
-    <div class="att att-video" *ngIf="is(a, K.VideoFile)">
-      <video controls preload="metadata" [src]="mediaUrl(a)"></video>
-      <div class="att-meta">
-        <span class="att-name" dir="auto">{{ title(a) }}</span>
-        <span class="faint ltr-data" *ngIf="size(a)">{{ size(a) }}</span>
+    <div *ngIf="is(a, K.VideoFile)">
+      <video class="att-video d-block w-100 rounded bg-black" controls preload="metadata" [src]="mediaUrl(a)"></video>
+      <div class="d-flex align-items-center justify-content-between gap-3 mt-2 small">
+        <span class="fw-semibold user-content">{{ title(a) }}</span>
+        <span class="text-body-tertiary ltr-data" *ngIf="size(a)">{{ size(a) }}</span>
       </div>
     </div>
 
     <!-- YouTube / Vimeo / other allowed embeds -->
-    <div class="att att-embed" *ngIf="is(a, K.VideoEmbed) || is(a, K.Iframe)">
-      <div class="att-frame" *ngIf="canEmbed(a); else embedFallback">
+    <div *ngIf="is(a, K.VideoEmbed) || is(a, K.Iframe)">
+      <div class="ratio ratio-16x9 rounded overflow-hidden border bg-body-tertiary" *ngIf="canEmbed(a); else embedFallback">
         <iframe
           [src]="embedUrl(a)"
           [title]="title(a)"
@@ -30,25 +30,25 @@
         ></iframe>
       </div>
       <ng-template #embedFallback>
-        <a class="att-card" [href]="externalUrl(a)" target="_blank" rel="noopener noreferrer">
-          <span class="att-icon">🔗</span>
-          <span class="att-body">
-            <span class="att-name" dir="auto">{{ title(a) }}</span>
-            <span class="faint">{{ 'ATTACHMENT.CANNOT_EMBED' | translate }}</span>
+        <a class="att-card d-flex align-items-center gap-3 p-3 border rounded bg-body text-body" [href]="externalUrl(a)" target="_blank" rel="noopener noreferrer">
+          <span class="fs-4 flex-shrink-0">🔗</span>
+          <span class="d-flex flex-column overflow-hidden">
+            <span class="fw-semibold user-content">{{ title(a) }}</span>
+            <span class="small text-body-tertiary">{{ 'ATTACHMENT.CANNOT_EMBED' | translate }}</span>
           </span>
         </a>
       </ng-template>
-      <span class="faint att-caption" *ngIf="a.label && canEmbed(a)" dir="auto">{{ a.label }}</span>
+      <span class="d-block small text-body-tertiary mt-1 user-content" *ngIf="a.label && canEmbed(a)">{{ a.label }}</span>
     </div>
 
     <!-- PDF — browsers render these natively -->
-    <div class="att att-pdf" *ngIf="is(a, K.Pdf)">
-      <div class="att-frame pdf">
-        <iframe [src]="pdfUrl(a)" [title]="title(a)" loading="lazy"></iframe>
+    <div *ngIf="is(a, K.Pdf)">
+      <div class="att-pdf rounded overflow-hidden border bg-body-tertiary">
+        <iframe class="d-block w-100 h-100 border-0" [src]="pdfUrl(a)" [title]="title(a)" loading="lazy"></iframe>
       </div>
-      <div class="att-meta">
-        <span class="att-name" dir="auto">{{ title(a) }}</span>
-        <a class="btn btn-ghost btn-sm" [href]="mediaUrl(a)" target="_blank" rel="noopener noreferrer">
+      <div class="d-flex align-items-center justify-content-between gap-3 mt-2 small">
+        <span class="fw-semibold user-content">{{ title(a) }}</span>
+        <a class="btn btn-outline-secondary btn-sm" [href]="mediaUrl(a)" target="_blank" rel="noopener noreferrer">
           {{ 'ATTACHMENT.OPEN' | translate }}
         </a>
       </div>
@@ -56,15 +56,15 @@
 
     <!-- Word/Excel/text — download only, no in-browser renderer exists -->
     <a
-      class="att att-card"
+      class="att-card d-flex align-items-center gap-3 p-3 border rounded bg-body text-body"
       *ngIf="is(a, K.Document)"
       [href]="mediaUrl(a)"
       [attr.download]="a.originalName || null"
     >
-      <span class="att-icon">📄</span>
-      <span class="att-body">
-        <span class="att-name" dir="auto">{{ title(a) }}</span>
-        <span class="faint">
+      <span class="fs-4 flex-shrink-0">📄</span>
+      <span class="d-flex flex-column overflow-hidden">
+        <span class="fw-semibold user-content">{{ title(a) }}</span>
+        <span class="small text-body-tertiary">
           {{ 'ATTACHMENT.DOWNLOAD' | translate }}<ng-container *ngIf="size(a)"> · <span class="ltr-data">{{ size(a) }}</span></ng-container>
         </span>
       </span>
@@ -72,16 +72,16 @@
 
     <!-- Plain link -->
     <a
-      class="att att-card"
+      class="att-card d-flex align-items-center gap-3 p-3 border rounded bg-body text-body"
       *ngIf="is(a, K.Link)"
       [href]="externalUrl(a)"
       target="_blank"
       rel="noopener noreferrer"
     >
-      <span class="att-icon">🔗</span>
-      <span class="att-body">
-        <span class="att-name" dir="auto">{{ title(a) }}</span>
-        <span class="faint ltr-data att-url">{{ externalUrl(a) }}</span>
+      <span class="fs-4 flex-shrink-0">🔗</span>
+      <span class="d-flex flex-column overflow-hidden">
+        <span class="fw-semibold user-content">{{ title(a) }}</span>
+        <span class="small text-body-tertiary text-truncate ltr-data">{{ externalUrl(a) }}</span>
       </span>
     </a>
 

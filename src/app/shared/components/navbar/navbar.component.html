@@ -1,38 +1,38 @@
-<aside class="nav">
-  <div class="nav-brand">
+<aside class="app-nav sticky-lg-top d-flex flex-row flex-lg-column flex-wrap flex-lg-nowrap align-items-center align-items-lg-stretch gap-3 gap-lg-0">
+  <div class="d-flex align-items-center gap-2 flex-grow-1 flex-lg-grow-0 px-lg-2 pb-lg-4">
     <div class="brand-mark">J</div>
     <div>
-      <div class="brand-name">{{ 'NAV.BRAND' | translate }}</div>
-      <div class="brand-sub">{{ 'NAV.BRAND_SUB' | translate }}</div>
+      <div class="fw-semibold fs-6 lh-sm">{{ 'NAV.BRAND' | translate }}</div>
+      <div class="brand-sub small">{{ 'NAV.BRAND_SUB' | translate }}</div>
     </div>
   </div>
 
-  <nav class="nav-links">
-    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+  <nav class="nav nav-pills flex-row flex-lg-column gap-1 flex-lg-grow-1">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.DASHBOARD' | translate }}
     </a>
-    <a routerLink="/metrics" routerLinkActive="active" class="nav-link">
+    <a routerLink="/metrics" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.METRICS' | translate }}
     </a>
-    <a *ngIf="canManageJourneys" routerLink="/journeys" routerLinkActive="active" class="nav-link">
+    <a *ngIf="canManageJourneys" routerLink="/journeys" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.JOURNEYS' | translate }}
     </a>
-    <a *ngIf="canManageUsers" routerLink="/admin/users" routerLinkActive="active" class="nav-link">
+    <a *ngIf="canManageUsers" routerLink="/admin/users" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.USERS' | translate }}
     </a>
   </nav>
 
-  <div class="nav-user">
-    <div class="user-card">
-      <div class="user-avatar">{{ user.name.charAt(0) }}</div>
-      <div class="user-meta">
-        <div class="user-name">{{ user.name }}</div>
-        <span class="role-chip" [class]="'role-' + roleSlug(user.role)">{{ roleLabel }}</span>
+  <div class="nav-user d-flex flex-row flex-lg-column align-items-center align-items-lg-stretch gap-2 pt-lg-3">
+    <div class="d-flex align-items-center gap-2 px-1 py-1">
+      <div class="avatar">{{ user.name.charAt(0) }}</div>
+      <div class="d-none d-lg-flex flex-column gap-1 overflow-hidden">
+        <div class="small fw-semibold text-truncate">{{ user.name }}</div>
+        <span class="badge rounded-pill align-self-start" [ngClass]="roleChipClass(user.role)">{{ roleLabel }}</span>
       </div>
     </div>
-    <button class="btn btn-ghost btn-sm w-full" (click)="switchLanguage()" [title]="'COMMON.LANGUAGE' | translate">
+    <button class="btn btn-sm btn-outline-light" (click)="switchLanguage()" [title]="'COMMON.LANGUAGE' | translate">
       🌐 {{ otherLanguageLabel }}
     </button>
-    <button class="btn btn-ghost btn-sm w-full" (click)="logout()">{{ 'NAV.LOGOUT' | translate }}</button>
+    <button class="btn btn-sm btn-outline-light" (click)="logout()">{{ 'NAV.LOGOUT' | translate }}</button>
   </div>
 </aside>

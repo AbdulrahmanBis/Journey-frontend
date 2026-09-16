@@ -1,26 +1,24 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [NgIf, TranslatePipe],
+  imports: [ModalComponent, TranslatePipe],
   template: `
-    <div class="modal-backdrop" *ngIf="open" (click)="cancel()">
-      <div class="modal-panel" (click)="$event.stopPropagation()">
-        <h3>{{ title }}</h3>
-        <p class="muted" style="margin-top: 10px; line-height: 1.55;">{{ message }}</p>
-        <div class="flex gap-12 justify-between" style="margin-top: 24px;">
-          <button class="btn btn-ghost w-full" (click)="cancel()">
-            {{ cancelLabel ?? ('COMMON.CANCEL' | translate) }}
-          </button>
-          <button class="btn w-full" [class.btn-danger]="danger" [class.btn-primary]="!danger" (click)="confirm()">
-            {{ confirmLabel ?? ('COMMON.CONFIRM' | translate) }}
-          </button>
-        </div>
+    <app-modal [open]="open" (dismissed)="cancel()">
+      <h3 class="h5 mb-2">{{ title }}</h3>
+      <p class="text-body-secondary">{{ message }}</p>
+      <div modal-actions>
+        <button class="btn btn-outline-secondary flex-fill" (click)="cancel()">
+          {{ cancelLabel ?? ('COMMON.CANCEL' | translate) }}
+        </button>
+        <button class="btn flex-fill" [class.btn-danger]="danger" [class.btn-primary]="!danger" (click)="confirm()">
+          {{ confirmLabel ?? ('COMMON.CONFIRM' | translate) }}
+        </button>
       </div>
-    </div>
+    </app-modal>
   `,
 })
 export class ConfirmDialogComponent {

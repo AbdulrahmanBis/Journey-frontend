@@ -1,107 +1,5 @@
-.form-layout {
-  display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.item-draft {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px;
-  margin-bottom: 12px;
-  background: var(--bg);
-}
-
-.item-draft-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.item-draft-controls {
-  display: flex;
-  gap: 6px;
-}
-
-@media (max-width: 980px) {
-  .form-layout { grid-template-columns: 1fr; }
-}
-
-/* ------------------------- Attachment authoring ------------------------- */
-
-.att-editor {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border);
-}
-
-.att-editor-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-size: 13px;
-}
-
-.att-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  margin-bottom: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-
-.att-row-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.att-kind {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--brand-dark);
-  background: var(--brand-soft);
-  border-radius: 999px;
-  padding: 3px 10px;
-}
-
-.att-upload {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.att-progress {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 6px;
-  position: relative;
-  background: var(--border);
-  border-radius: 999px;
-  overflow: visible;
-}
-
-.att-progress-bar {
-  height: 6px;
-  background: var(--brand);
-  border-radius: 999px;
-  transition: width 0.2s var(--ease);
-}
-
-.att-file {
-  font-size: 12.5px;
-  color: var(--status-completed);
-  margin: 0;
-}
+// Bootstrap's progress bar is a full 1rem tall; an upload indicator should be a thin line.
+.upload-progress { --bs-progress-height: 0.375rem; }
 
 /*
   Quill builds its toolbar and editor in JavaScript, so that DOM carries no Angular
@@ -113,20 +11,19 @@ quill-editor { display: block; }
 :host ::ng-deep {
   .ql-toolbar.ql-snow,
   .ql-container.ql-snow {
-    border-color: var(--border-strong);
+    border-color: var(--bs-border-color);
+    background: var(--bs-white);
   }
 
   .ql-toolbar.ql-snow {
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    background: var(--surface);
+    border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
   }
 
   .ql-container.ql-snow {
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-    background: var(--surface);
-    font-family: var(--font-body);
-    font-size: 14px;
     min-height: 120px;
+    border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+    font-family: var(--bs-body-font-family);
+    font-size: var(--bs-body-font-size);
   }
 
   /*
@@ -146,8 +43,7 @@ quill-editor { display: block; }
   .ql-editor {
     min-height: 110px;
     line-height: 1.7;
+    // The editor holds author content, which may be Arabic or English.
+    unicode-bidi: plaintext;
   }
-
-  /* The editor holds author content, which may be Arabic or English. */
-  .ql-editor { unicode-bidi: plaintext; }
 }

@@ -20,7 +20,21 @@
     "LANGUAGE": "Language",
     "SAVE_FAILED": "Save failed.",
     "DELETE_FAILED": "Delete failed.",
-    "UPDATE_FAILED": "Update failed."
+    "UPDATE_FAILED": "Update failed.",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next"
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "EMPTY": "Nothing here yet.",
+    "EMPTY_TITLE": "No notifications",
+    "MARK_ALL_READ": "Mark all read",
+    "SHOW_ALL": "Show all notifications",
+    "JUST_NOW": "Just now",
+    "MINUTES_AGO": "{{count}}m ago",
+    "HOURS_AGO": "{{count}}h ago",
+    "DAYS_AGO": "{{count}}d ago",
+    "LOAD_FAILED": "Could not load notifications."
   },
   "NAV": {
     "BRAND": "Journey",

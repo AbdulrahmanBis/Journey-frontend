@@ -1,730 +1,252 @@
-/* ==========================================================================
-   Journey — Design System
-   Palette and type taken from diginationmea.com: deep navy + signature green,
-   IBM Plex Sans Arabic, flat squared geometry with restrained shadows.
-   Signature: the "journey rail" — a connected node trail used on the
-   quest-log screen to visualise progress through a journey.
-   ========================================================================== */
+// ==========================================================================
+// Journey — app-wide styles.
+//
+// Bootstrap (src/theme) provides everything generic: buttons, cards, forms, tables,
+// badges, modals, toasts, grid, spacing and colour utilities. This file holds only
+// what Bootstrap has no equivalent for, built from Bootstrap's own tokens
+// (var(--bs-*)) — never raw colours.
+//
+// Direction: only Bootstrap is run through RTLCSS. This file is not, so every rule
+// here uses logical properties (margin-inline-start, inset-inline-end,
+// text-align: start) and mirrors on its own.
+//
+// Both rules are enforced by `npm run audit:styles`.
+// ==========================================================================
 
-:root {
-  /* Brand — navy carries structure, green carries action */
-  --navy: #001f3f;
-  --navy-deep: #0c2340;
-  --ink: #001f3f;
-  --ink-soft: #0c2340;
-  --brand: #046307;
-  --brand-dark: #033d05;
-  --brand-soft: #f2f7f2;
-  --brand-tint: #c8ddc9;
-
-  /* Surfaces */
-  --bg: #f7f7fa;
-  --surface: #ffffff;
-  --surface-raised: #ffffff;
-  --border: #e3e6ea;
-  --border-strong: #cfd6dd;
-
-  /* Text */
-  --text: #13213c;
-  --text-muted: #566e7c;
-  --text-faint: #8a97a3;
-  --text-on-ink: #f2f7f2;
-  --text-on-ink-muted: #a8bcc8;
-
-  /* Status */
-  --status-new: #64748b;
-  --status-new-bg: #eef1f4;
-  --status-reflect: #b45309;
-  --status-reflect-bg: #fdf1e3;
-  --status-response: #1d4ed8;
-  --status-response-bg: #e7edfd;
-  --status-completed: #046307;
-  --status-completed-bg: #e6f0e6;
-  --status-cancelled: #b91c1c;
-  --status-cancelled-bg: #fbeaea;
-
-  /* Roles */
-  --role-admin: #001f3f;
-  --role-manager: #2b4c7e;
-  --role-senior: #046307;
-  --role-learner: #b45309;
-
-  /* Type — one family for Latin + Arabic; mono is for LTR data only */
-  --font-display: 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
-  --font-body: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
-
-  /* Shape & motion — squared off, closer to the DigiNation treatment */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --shadow-sm: 0 1px 2px rgba(0, 31, 63, 0.05);
-  --shadow-md: 0 6px 18px rgba(0, 31, 63, 0.07);
-  --shadow-lg: 0 14px 40px rgba(0, 31, 63, 0.14);
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-}
+@import 'tokens';
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
-* { box-sizing: border-box; }
+body { -webkit-font-smoothing: antialiased; }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-}
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0;
-  color: var(--ink);
-}
-
-p { margin: 0; }
-
-a { color: var(--brand); text-decoration: none; }
-
-button { font-family: inherit; }
-
-:focus-visible {
-  outline: 2px solid var(--brand);
+// Bootstrap's buttons and fields draw their own focus ring; everything else gets ours.
+:focus-visible:not(.btn):not(.form-control):not(.form-select):not(.form-check-input) {
+  outline: 2px solid var(--bs-primary);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--bs-border-radius-sm);
 }
 
-/* ----------------------------- Layout shells ----------------------------- */
+// Cards carry the restrained shadow of the DigiNation treatment. Bootstrap only emits
+// card shadows with $enable-shadows, which would also put shadows on every button.
+.card { box-shadow: var(--bs-box-shadow-sm); }
 
-.app-shell {
-  display: flex;
-  min-height: 100vh;
+// A card that is itself the click target.
+.card-interactive {
+  cursor: pointer;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    box-shadow: var(--bs-box-shadow);
+    border-color: var(--bs-primary-border-subtle);
+    transform: translateY(-2px);
+  }
 }
 
-.app-main {
-  flex: 1;
-  min-width: 0;
-  padding: 28px clamp(16px, 4vw, 48px) 64px;
+// Badges read as labels: small caps in the mono face. Arabic is handled below.
+.badge {
+  font-family: var(--bs-font-monospace);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.page-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 28px;
-}
+// --- Page header ----------------------------------------------------------
 
 .page-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  display: block;
+  margin-block-end: 0.375rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--brand);
-  margin-bottom: 6px;
-  display: block;
+  color: var(--bs-primary);
 }
 
-.page-title {
-  font-size: clamp(22px, 2.4vw, 30px);
-}
+.page-title { font-size: clamp(1.375rem, 2.4vw, 1.875rem); }
 
-.page-sub {
-  color: var(--text-muted);
-  margin-top: 6px;
-  font-size: 14.5px;
-}
+// --- Identity ------------------------------------------------------------
 
-/* -------------------------------- Buttons -------------------------------- */
-
-.btn {
+.avatar {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 14px;
-  padding: 10px 18px;
-  cursor: pointer;
-  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease), background 0.15s var(--ease);
-  white-space: nowrap;
-}
-.btn:active { transform: translateY(1px); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.btn-primary { background: var(--brand); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--brand-dark); box-shadow: var(--shadow-sm); }
-
-.btn-ink { background: var(--ink); color: var(--text-on-ink); }
-.btn-ink:hover:not(:disabled) { background: var(--ink-soft); }
-
-.btn-ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
-.btn-ghost:hover:not(:disabled) { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-dark); }
-
-.btn-danger { background: #fff; color: var(--status-cancelled); border-color: #edc9c9; }
-.btn-danger:hover:not(:disabled) { background: var(--status-cancelled-bg); }
-
-.btn-sm { padding: 6px 12px; font-size: 13px; }
-.btn-icon { padding: 8px; border-radius: var(--radius-sm); }
-.btn-block { width: 100%; }
-
-/* --------------------------------- Cards --------------------------------- */
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.card-pad { padding: 22px; }
-
-.card-hover {
-  transition: box-shadow 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
-  cursor: pointer;
-}
-.card-hover:hover { box-shadow: var(--shadow-md); border-color: var(--brand-tint); transform: translateY(-2px); }
-
-/* -------------------------------- Forms ---------------------------------- */
-
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
-
-.field label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.field .hint { font-size: 12.5px; color: var(--text-faint); }
-
-.input, .textarea, .select {
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  padding: 10px 13px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  width: 100%;
-  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
-}
-.input:focus, .textarea:focus, .select:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(4, 99, 7, 0.12);
-  outline: none;
-}
-.textarea { resize: vertical; min-height: 90px; font-family: var(--font-body); }
-
-.field-error { font-size: 12.5px; color: var(--status-cancelled); }
-.input.invalid, .textarea.invalid { border-color: var(--status-cancelled); }
-
-/* -------------------------------- Badges ---------------------------------- */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  text-transform: uppercase;
-  line-height: 1.4;
-}
-
-.badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--navy);
-  background: #eef1f4;
-  border-radius: 999px;
-  padding: 4px 10px;
-}
-
-.role-chip {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-.role-chip.role-admin { background: #e6ebf0; color: var(--role-admin); }
-.role-chip.role-manager { background: #e7edf6; color: var(--role-manager); }
-.role-chip.role-senior { background: var(--status-completed-bg); color: var(--role-senior); }
-.role-chip.role-learner { background: var(--status-reflect-bg); color: var(--role-learner); }
-
-/* -------------------------------- Utility --------------------------------- */
-
-.muted { color: var(--text-muted); }
-.faint { color: var(--text-faint); }
-.mono { font-family: var(--font-mono); }
-
-/*
-  Genuinely left-to-right data — emails, ids, bare numbers. This is the ONLY
-  thing that may be pinned to LTR. Translated sentences that merely *contain*
-  a number must never use it: forcing the whole phrase LTR is what rendered
-  "4 ساعة مسجلة" and "1 50 بمتوسط · نشطة%" backwards.
-*/
-.ltr-data {
-  direction: ltr;
-  unicode-bidi: isolate;
-}
-
-/* Mixed text + numbers: resolve direction from the first strong character. */
-.bidi-auto { unicode-bidi: plaintext; }
-
-.flex { display: flex; }
-.flex-col { display: flex; flex-direction: column; }
-.gap-8 { gap: 8px; }
-.gap-12 { gap: 12px; }
-.gap-16 { gap: 16px; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.w-full { width: 100%; }
-.divider { height: 1px; background: var(--border); border: none; margin: 18px 0; }
-
-.empty-state {
-  text-align: center;
-  padding: 56px 24px;
-  color: var(--text-muted);
-}
-.empty-state h3 { color: var(--text); margin-bottom: 8px; }
-
-/* -------------------------------- Modal ------------------------------------ */
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 31, 63, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 200;
-  animation: fadeIn 0.15s var(--ease);
-}
-
-.modal-panel {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-  max-width: 460px;
-  padding: 26px;
-  animation: riseIn 0.18s var(--ease);
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes riseIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-/* -------------------------------- Toasts ----------------------------------- */
-
-.toast-stack {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 300;
-  max-width: 340px;
-}
-
-.toast {
-  background: var(--ink);
-  color: var(--text-on-ink);
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  font-size: 13.5px;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  animation: riseIn 0.2s var(--ease);
-  border-left: 3px solid var(--brand);
-}
-.toast.success { border-left-color: var(--status-completed); }
-.toast.error { border-left-color: var(--status-cancelled); }
-
-/* ------------------------------ Responsive -------------------------------- */
-
-@media (max-width: 860px) {
-  .app-shell { flex-direction: column; }
-  .app-main { padding: 20px 16px 48px; }
-}
-
-/* ------------------------------ Auth screens ------------------------------- */
-
-.auth-screen {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.auth-brand {
-  background: radial-gradient(circle at 20% 20%, var(--navy-deep) 0%, var(--navy) 65%);
-  color: var(--text-on-ink);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 64px;
-}
-
-.brand-mark.lg {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 50%;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
   font-weight: 700;
-  font-size: 22px;
-  color: #fff;
-  margin-bottom: 22px;
+}
+.avatar-sm { width: 1.625rem; height: 1.625rem; font-size: 0.75rem; }
+.avatar-lg { width: 2.75rem; height: 2.75rem; font-size: 1.0625rem; }
+
+.brand-mark {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: var(--bs-border-radius-xl);
+  background: var(--bs-primary);
+  color: var(--bs-white);
+  font-weight: 700;
+}
+.brand-mark-lg { width: 3.25rem; height: 3.25rem; font-size: 1.375rem; border-radius: var(--bs-border-radius-lg); }
+
+// --- Numbers & text --------------------------------------------------------
+
+.stat-num {
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--bs-navy);
 }
 
-.auth-brand h1 { font-size: 34px; color: #fff; margin-bottom: 14px; }
-.auth-brand p { color: var(--text-on-ink-muted); font-size: 15px; line-height: 1.6; max-width: 380px; }
-
-.rail-demo { display: flex; align-items: center; gap: 0; margin-top: 56px; position: relative; }
-.rail-line { position: absolute; left: 8px; right: 8px; top: 50%; height: 2px; background: rgba(255, 255, 255, 0.14); z-index: 0; }
-.rail-node {
-  width: 16px; height: 16px; border-radius: 50%; background: var(--navy);
-  border: 2px solid rgba(255, 255, 255, 0.25); margin-right: 38px; z-index: 1; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff;
-}
-.rail-node.done { background: var(--status-completed); border-color: var(--status-completed); }
-.rail-node.current { border-color: var(--brand-tint); box-shadow: 0 0 0 5px rgba(200, 221, 201, 0.25); animation: pulse 1.8s ease-in-out infinite; }
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 5px rgba(200, 221, 201, 0.25); }
-  50% { box-shadow: 0 0 0 9px rgba(200, 221, 201, 0.12); }
-}
-
-.auth-panel { display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--bg); }
-.auth-card { width: 100%; max-width: 400px; }
-
-@media (max-width: 860px) {
-  .auth-screen { grid-template-columns: 1fr; }
-  .auth-brand { padding: 40px 24px; }
-  .rail-demo { display: none; }
-}
-
-/* ----------------------------- Stat strip & cards --------------------------- */
-
-.stat-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 14px;
-  margin-bottom: 26px;
-  max-width: 560px;
-}
-
-.stat { display: flex; flex-direction: column; gap: 4px; }
-.stat-num { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--ink); }
-.stat-label { font-size: 12.5px; color: var(--text-muted); }
-
-.journey-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.journey-card { display: flex; flex-direction: column; gap: 12px; }
-
-.journey-title { font-size: 17px; margin-top: 2px; }
-
-.journey-desc {
-  font-size: 13.5px;
-  line-height: 1.5;
+// Two lines, then an ellipsis.
+.text-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.journey-foot {
+/*
+  Genuinely left-to-right data — emails, ids, bare numbers. This is the ONLY thing that
+  may be pinned to LTR. Translated sentences that merely contain a number must never use
+  it: forcing the whole phrase LTR is what rendered "4 ساعة مسجلة" backwards.
+*/
+.ltr-data {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/*
+  Author-written content — journey titles, descriptions, item text, notes, exam prompts —
+  is in whatever language the author typed, not the UI language. Resolving direction per
+  paragraph from its first strong character keeps an English sentence's full stop at the
+  end inside the Arabic UI, and an Arabic title reading right-to-left inside the English one.
+*/
+.user-content { unicode-bidi: plaintext; }
+
+// --- Sign-in screens --------------------------------------------------------
+
+// Navy with a soft light spot, rather than a second navy shade to keep in step.
+.auth-brand {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(var(--bs-white-rgb), 0.07) 0%, transparent 65%),
+    var(--bs-navy);
+  color: var(--bs-light);
+}
+.auth-tagline {
+  max-width: 23.75rem;
+  color: rgba(var(--bs-white-rgb), 0.7);
+  line-height: 1.6;
+}
+.auth-card { max-width: 25rem; }
+
+// The decorative "journey rail" on the sign-in screens.
+.rail-demo {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+  gap: 2.375rem;
+  margin-block-start: 3.5rem;
 }
-
-.journey-foot-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 12px;
+.rail-demo-line {
+  position: absolute;
+  inset-inline: 0.5rem;
+  top: 50%;
+  height: 2px;
+  background: rgba(var(--bs-white-rgb), 0.14);
 }
-
-/* ------------------------------- Avatars ------------------------------- */
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--brand-soft);
-  color: var(--brand-dark);
+.rail-demo-node {
+  position: relative;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-family: var(--font-display);
-  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(var(--bs-white-rgb), 0.25);
+  border-radius: 50%;
+  background: var(--bs-navy);
+  font-size: 0.5625rem;
+  color: var(--bs-white);
+
+  &.done { background: var(--bs-completed); border-color: var(--bs-completed); }
+  &.current {
+    border-color: var(--bs-primary-border-subtle);
+    animation: rail-pulse 1.8s ease-in-out infinite;
+  }
 }
-.user-avatar.sm { width: 26px; height: 26px; font-size: 12px; }
-.user-avatar.lg { width: 44px; height: 44px; font-size: 17px; }
-
-/* ----------------------------- Status pills ----------------------------- */
-
-.pill {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border-strong);
-  background: #fff;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all 0.15s ease;
-}
-.pill.active { background: var(--pill-color); border-color: var(--pill-color); color: #fff; }
-.pill:hover:not(.active) { border-color: var(--pill-color); color: var(--pill-color); }
-
-.status-override {
-  margin-top: 16px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+@keyframes rail-pulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(var(--bs-primary-rgb), 0.25); }
+  50%      { box-shadow: 0 0 0 9px rgba(var(--bs-primary-rgb), 0.12); }
 }
 
-/* --------------------------------- Tables -------------------------------- */
+// ==========================================================================
+// Arabic
+//
+// Direction is already handled — Bootstrap's RTL build mirrors Bootstrap, and this
+// file uses logical properties. What remains is typography:
+//
+//   - Arabic has no letter case and uses joined letterforms, so `uppercase` does
+//     nothing and `letter-spacing` visibly breaks the joins.
+//   - The mono face has no Arabic glyphs, so translated text must not use it.
+//   - Arabic reads small at Latin sizes; small UI text needs a size and weight bump,
+//     and body text needs more leading.
+// ==========================================================================
 
-.user-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.user-table th {
-  text-align: left;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-faint);
-  font-weight: 600;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-}
-.user-table td {
-  padding: 12px 18px;
-  font-size: 13.5px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-.user-table tr:last-child td { border-bottom: none; }
-.user-table tr:hover td { background: var(--bg); }
-
-.select-sm {
-  font-size: 13px;
-  padding: 6px 10px;
-  width: auto;
-}
-
-@media (max-width: 760px) {
-  .user-table { display: block; overflow-x: auto; white-space: nowrap; }
-}
-
-/* -------------------------------- Exam badges ------------------------------- */
-
-.exam-badge {
-  font-family: var(--font-mono);
-  text-transform: none;
-}
-.exam-badge.graded.pass { color: var(--status-completed); background: var(--status-completed-bg); }
-.exam-badge.graded.fail { color: var(--status-cancelled); background: var(--status-cancelled-bg); }
-.exam-badge.pending { color: var(--status-reflect); background: var(--status-reflect-bg); }
-.exam-badge.ready { color: var(--brand-dark); background: var(--brand-soft); }
-
-/* ==========================================================================
-   RTL + Arabic typography
-   Two separate problems are handled here:
-   1. Direction — flex/grid mirror automatically once `dir` is set on <html>;
-      only rules that hard-code a physical side need an override.
-   2. Typography — Arabic has no letter case and uses joined letterforms, so
-      `text-transform: uppercase` is a no-op and `letter-spacing` visibly
-      breaks the joins. Arabic also reads small at Latin sizes, so the small
-      UI text (chips, labels, badges) needs a size and weight bump. And the
-      mono family has no Arabic glyphs at all, so translated text must fall
-      back to the Arabic family.
-   ========================================================================== */
-
-[dir="rtl"] {
-  /* --- Direction-only fixes --- */
-  .toast-stack { right: auto; left: 20px; }
-  .toast { border-left: none; border-right: 3px solid var(--brand); }
-  .toast.success { border-right-color: var(--status-completed); }
-  .toast.error { border-right-color: var(--status-cancelled); }
-
-  .user-table th { text-align: right; }
-
-  .rail-node { margin-right: 0; margin-left: 38px; }
-
-  .rail { padding-left: 0; padding-right: 4px; }
-  .quest-desc { padding-left: 0; padding-right: 20px; }
-  .note-list { padding-right: 0; padding-left: 4px; }
-
-  /* The quest-log rail line is absolutely positioned — it does not mirror on
-     its own, so it would sit on the left while its nodes moved to the right.
-     Selector is deepened to out-specify the component's own scoped rule. */
-  .rail .rail-line-vertical { left: auto; right: 19px; }
-
-  /* Nested learners indent from the wrong side otherwise. */
-  .tree .tree-children { padding: 4px 34px 14px 10px; }
-
-  /* Name should hug its avatar rather than drift to the far edge. */
-  .tree-head { text-align: right; }
-
-  /* The chevron glyph points the wrong way when mirrored. */
-  .tree-head .chevron { transform: scaleX(-1); }
-  .tree-head .chevron.open { transform: scaleX(-1) rotate(-90deg); }
-
-  /* Navbar subtitle sets the mono family directly, which has no Arabic glyphs. */
-  .nav .brand-sub { font-family: var(--font-body); font-size: 12.5px; }
-
-  /* --- Arabic typography --- */
-  /* Mono has no Arabic coverage: fall back for text, keep it for LTR data. */
-  .mono { font-family: var(--font-body); }
-  .ltr-data { font-family: var(--font-mono); }
+[dir='rtl'] {
+  body, p, li, td, label, span { line-height: 1.75; }
+  h1, h2, h3, h4, h5, h6 { line-height: 1.5; letter-spacing: 0; }
 
   .badge,
-  .role-chip,
-  .tag,
-  .pill,
   .page-eyebrow,
-  .exam-badge,
-  .user-table th {
-    font-family: var(--font-body);
+  .table th {
+    font-family: var(--bs-body-font-family);
     text-transform: none;
     letter-spacing: 0;
   }
 
-  .badge { font-size: 13px; font-weight: 600; }
-  .role-chip { font-size: 12.5px; font-weight: 600; }
-  .tag { font-size: 12.5px; font-weight: 500; }
-  .pill { font-size: 13px; font-weight: 500; }
-  .exam-badge { font-size: 12.5px; font-weight: 600; }
-  .page-eyebrow { font-size: 13px; font-weight: 600; }
-  .user-table th { font-size: 13px; }
-  .user-table td { font-size: 14.5px; }
+  .font-monospace { font-family: var(--bs-body-font-family) !important; }
+  .ltr-data { font-family: var(--bs-font-monospace); }
 
-  .page-sub { font-size: 15.5px; line-height: 1.8; }
-  .journey-desc { font-size: 14.5px; line-height: 1.85; }
-  .stat-label { font-size: 13.5px; font-weight: 500; }
-  .journey-foot-meta { font-size: 13px; }
-  .field label { font-size: 14px; }
-  .field .hint { font-size: 13px; }
-  .field-error { font-size: 13.5px; }
-  .btn { font-size: 14.5px; }
-  .btn-sm { font-size: 13.5px; }
-  .toast { font-size: 14.5px; line-height: 1.7; }
-  .empty-state { line-height: 1.8; }
+  .badge         { font-size: 0.8125rem; font-weight: 600; }
+  .page-eyebrow  { font-size: 0.8125rem; font-weight: 600; }
+  .table th      { font-size: 0.8125rem; }
+  .table td      { font-size: 0.90625rem; }
+  .form-label    { font-size: 0.875rem; }
+  .form-text     { font-size: 0.8125rem; }
+  .invalid-feedback { font-size: 0.84375rem; }
+  .btn           { font-size: 0.90625rem; }
+  .btn-sm        { font-size: 0.84375rem; }
+  .toast         { font-size: 0.90625rem; line-height: 1.7; }
+  .small, small  { font-size: 0.84375rem; }
 
-  /* The faint/muted greys are too light for Arabic strokes — darken a step. */
-  .faint { color: var(--text-muted); font-weight: 500; }
-  .muted { color: var(--text-muted); }
+  // The tertiary grey is too light for Arabic strokes — darken a step.
+  .text-body-tertiary { color: var(--bs-secondary-color) !important; font-weight: 500; }
 
-  /* Arabic needs more leading than Latin at the same size. */
-  body, p, li, td, label, span { line-height: 1.75; }
-  h1, h2, h3, h4 { line-height: 1.5; letter-spacing: 0; }
-
-  /* Emails, passwords and numbers are LTR data even inside an RTL form: type
-     left-to-right, but keep the field hugging the RTL reading edge. */
-  input[type="email"],
-  input[type="password"],
-  input[type="number"] {
-    direction: ltr;
-    text-align: right;
-  }
-
-  /*
-    User-authored content (journey titles, descriptions, quest items, notes,
-    prompts) is whatever language the author typed — it is NOT translated.
-    An English sentence inside an RTL block gets its trailing punctuation
-    pushed to the wrong end (".API" instead of "API."), and list bullets land
-    on the wrong side. Resolving direction per element from its first strong
-    character fixes both, in either language.
-  */
-  .journey-title,
-  .journey-desc,
-  .quest-title,
-  .quest-desc,
-  .quest-desc li,
-  .question-prompt,
-  .answer-readout,
-  .answer-option,
-  .note-message,
-  .tree-head-name,
-  .stat-num,
-  .empty-state p {
-    unicode-bidi: plaintext;
-  }
-
-  /* Bullets must sit on the reading side of each item, not the block side. */
-  .quest-desc li { list-style-position: inside; }
-
-  /*
-    Label/value rows collapse together in RTL ("إجمالي المُسند9"), because the
-    two spans end up adjacent with nothing between them. Force the split and
-    give the value its own isolation so a bare number keeps its place.
-  */
-  .kv-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .kv-row > * + * { unicode-bidi: isolate; }
-
-  /* "48.5س" / "3/3" — a number glued to an Arabic unit needs isolating. */
+  // "48.5س" / "3/3" — a number glued to an Arabic unit needs isolating.
   .stat-num { unicode-bidi: isolate; }
 
-  /* Arabic role names are longer than the Latin ones and wrapped mid-chip. */
-  .role-chip { white-space: nowrap; }
+  // Arabic role names are longer than the Latin ones and wrapped mid-chip.
+  .badge { white-space: nowrap; }
 
-  /* Score and verdict ran together as "100%ناجح". */
-  .result-banner {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
+  // Emails, passwords and numbers are typed left-to-right even in an Arabic form,
+  // while the field keeps hugging the reading edge.
+  input[type='email'],
+  input[type='password'],
+  input[type='number'] {
+    direction: ltr;
+    text-align: end;
   }
-  .result-score { unicode-bidi: isolate; }
-
-  /*
-    Prompts hold author-written text in either language, so resolve direction
-    per prompt from its first strong character — that keeps English sentences'
-    trailing punctuation at the correct end.
-
-    The ✓/✕ mark needs no repositioning: it is the prompt's last child, and in
-    RTL "last" renders leftmost, which is the correct trailing position (the
-    mirror of its rightmost placement in English).
-  */
-  .question-prompt { unicode-bidi: plaintext; }
 }

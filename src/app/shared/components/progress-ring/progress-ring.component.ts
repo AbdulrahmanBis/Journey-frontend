@@ -11,7 +11,7 @@ import { Component, Input } from '@angular/core';
           [attr.cy]="size / 2"
           [attr.r]="radius"
           fill="none"
-          stroke="var(--border)"
+          class="ring-track"
           [attr.stroke-width]="stroke"
         />
         <circle
@@ -19,7 +19,7 @@ import { Component, Input } from '@angular/core';
           [attr.cy]="size / 2"
           [attr.r]="radius"
           fill="none"
-          [attr.stroke]="ringColor"
+          [style.stroke]="ringColor"
           [attr.stroke-width]="stroke"
           stroke-linecap="round"
           [attr.stroke-dasharray]="circumference"
@@ -43,11 +43,14 @@ import { Component, Input } from '@angular/core';
         height: 100%;
         transition: stroke-dashoffset 0.4s ease;
       }
+      .ring-track {
+        stroke: var(--bs-border-color);
+      }
       .ring-label {
         position: absolute;
-        font-family: var(--font-mono);
+        font-family: var(--bs-font-monospace);
         font-weight: 600;
-        color: var(--ink);
+        color: var(--bs-navy);
       }
     `,
   ],
@@ -70,8 +73,8 @@ export class ProgressRingComponent {
   }
 
   get ringColor(): string {
-    if (this.percent >= 100) return 'var(--status-completed)';
-    if (this.percent > 0) return 'var(--brand)';
-    return 'var(--status-new)';
+    if (this.percent >= 100) return 'var(--bs-completed)';
+    if (this.percent > 0) return 'var(--bs-primary)';
+    return 'var(--bs-new)';
   }
 }

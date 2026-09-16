@@ -1,1 +1,2 @@
-/* Card grid and stat strip styles live in src/styles.scss for reuse across dashboards. */
+// Three small figures; left to stretch they would read as a banner, not a summary.
+.stat-row { max-width: 35rem; }

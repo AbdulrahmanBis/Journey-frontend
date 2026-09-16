@@ -1,0 +1,45 @@
+<a routerLink="/dashboard" class="link-secondary small d-inline-block mb-3">← {{ 'COMMON.BACK' | translate }}</a>
+
+<div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+  <div>
+    <span class="page-eyebrow">{{ 'NAV.BRAND' | translate }}</span>
+    <h1 class="page-title">{{ 'NOTIFICATIONS.TITLE' | translate }}</h1>
+  </div>
+  <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="unreadCount > 0" (click)="markAllRead()">
+    {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+  </button>
+</div>
+
+<p class="text-body-secondary" *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</p>
+
+<div class="card text-center text-body-secondary py-5 px-4" *ngIf="!loading && items.length === 0">
+  <h3 class="h5 text-body mb-2">{{ 'NOTIFICATIONS.EMPTY_TITLE' | translate }}</h3>
+  <p>{{ 'NOTIFICATIONS.EMPTY' | translate }}</p>
+</div>
+
+<div class="d-flex flex-column gap-2" *ngIf="!loading && items.length > 0">
+  <button
+    type="button"
+    class="card card-interactive flex-row align-items-start gap-3 w-100 p-3 text-start"
+    *ngFor="let n of items"
+    [class.is-unread]="!n.read"
+    (click)="select(n)"
+  >
+    <span class="note-dot" [class.note-dot-on]="!n.read" aria-hidden="true"></span>
+    <span class="d-flex flex-column gap-1 overflow-hidden">
+      <span class="fw-semibold user-content">{{ n.title }}</span>
+      <span class="text-body-secondary user-content">{{ n.body }}</span>
+      <span class="small text-body-tertiary">{{ formatDate(n.createdAt) }}</span>
+    </span>
+  </button>
+</div>
+
+<div class="d-flex align-items-center justify-content-center gap-3 mt-3" *ngIf="!loading && totalPages > 1">
+  <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="page === 0" (click)="previous()">
+    {{ 'COMMON.PREVIOUS' | translate }}
+  </button>
+  <span class="small text-body-tertiary ltr-data">{{ page + 1 }} / {{ totalPages }}</span>
+  <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="page + 1 >= totalPages" (click)="next()">
+    {{ 'COMMON.NEXT' | translate }}
+  </button>
+</div>

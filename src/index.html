@@ -17,6 +17,27 @@
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
+  <!--
+    Bootstrap is built twice (scripts/build-theme.mjs): left-to-right and right-to-left.
+    Both are written here, with the one that does not match the saved language disabled,
+    so the page never paints in the wrong direction first and switching language later
+    is instant. This must run before first paint, which is why it is an inline script in
+    <head> rather than something Angular does after booting. LanguageService takes over
+    from here. The storage key must match LANG_KEY in language.service.ts.
+  -->
+  <script>
+    (function () {
+      var rtl = false;
+      try { rtl = localStorage.getItem('ioj_lang') === 'arabic'; } catch (e) { /* storage blocked */ }
+      var html = document.documentElement;
+      html.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+      html.setAttribute('lang', rtl ? 'ar' : 'en');
+      document.write(
+        '<link id="bootstrap-ltr" rel="stylesheet" href="bootstrap-ltr.css"' + (rtl ? ' disabled' : '') + '>' +
+        '<link id="bootstrap-rtl" rel="stylesheet" href="bootstrap-rtl.css"' + (rtl ? '' : ' disabled') + '>'
+      );
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

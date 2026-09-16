@@ -1,23 +1,28 @@
-<div class="note-thread">
-  <div class="note-list" *ngIf="notes.length; else noNotes">
-    <div class="note" *ngFor="let n of notes" [class.mine]="n.actorId === currentUserId">
-      <div class="note-avatar">{{ n.actorName.charAt(0) }}</div>
-      <div class="note-body">
-        <div class="note-head">
-          <span class="note-author">{{ n.actorName }}</span>
-          <span class="role-chip" [class]="'role-' + roleSlug(n.actorRole)">{{ roleLabel(n) }}</span>
-          <span class="note-time faint">{{ relativeTime(n.timestamp) }}</span>
+<div class="d-flex flex-column gap-3">
+  <div class="note-list d-flex flex-column gap-3 pe-1" *ngIf="notes.length; else noNotes">
+    <div class="d-flex gap-2" *ngFor="let n of notes">
+      <div class="avatar avatar-sm">{{ n.actorName.charAt(0) }}</div>
+      <div
+        class="flex-grow-1 overflow-hidden rounded px-3 py-2"
+        [ngClass]="n.actorId === currentUserId ? 'bg-primary-subtle' : 'bg-body-tertiary'"
+      >
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+          <span class="small fw-semibold">{{ n.actorName }}</span>
+          <span class="badge rounded-pill" [ngClass]="roleChipClass(n.actorRole)">{{ roleLabel(n) }}</span>
+          <span class="small text-body-tertiary">{{ relativeTime(n.timestamp) }}</span>
         </div>
-        <p class="note-message">{{ n.message }}</p>
+        <p class="note-message user-content">{{ n.message }}</p>
       </div>
     </div>
   </div>
   <ng-template #noNotes>
-    <p class="faint note-empty">{{ 'NOTES.EMPTY' | translate }}</p>
+    <p class="small text-body-tertiary py-1">{{ 'NOTES.EMPTY' | translate }}</p>
   </ng-template>
 
-  <form class="note-form" (submit)="$event.preventDefault(); submit()">
-    <input class="input" [placeholder]="'NOTES.PLACEHOLDER' | translate" [(ngModel)]="draft" name="draft" />
-    <button class="btn btn-ghost btn-sm" type="submit" [disabled]="!draft.trim()">{{ 'NOTES.ADD' | translate }}</button>
+  <form class="d-flex gap-2" (submit)="$event.preventDefault(); submit()">
+    <input class="form-control" [placeholder]="'NOTES.PLACEHOLDER' | translate" [(ngModel)]="draft" name="draft" />
+    <button class="btn btn-outline-secondary btn-sm text-nowrap" type="submit" [disabled]="!draft.trim()">
+      {{ 'NOTES.ADD' | translate }}
+    </button>
   </form>
 </div>

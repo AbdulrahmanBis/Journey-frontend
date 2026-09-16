@@ -1,6 +1,13 @@
-<div class="app-shell" [class.no-nav]="!(auth.currentUser$ | async)">
+<div class="d-flex flex-column flex-lg-row min-vh-100">
   <app-navbar *ngIf="auth.currentUser$ | async"></app-navbar>
-  <main class="app-main">
+  <main class="app-main flex-grow-1" [class.app-main-bare]="!(auth.currentUser$ | async)">
+    <!--
+      Bar exists only to hold the bell. It aligns to the inline end, so the bell is top-right in
+      English and top-left in Arabic without any direction check in code.
+    -->
+    <header class="d-flex justify-content-end align-items-center gap-2 mb-2" *ngIf="auth.currentUser$ | async">
+      <app-notification-bell></app-notification-bell>
+    </header>
     <router-outlet></router-outlet>
   </main>
 </div>

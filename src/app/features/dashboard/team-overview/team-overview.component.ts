@@ -7,14 +7,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
 import { LearnerSummary, LearnerJourneyView, SeniorSummary } from '../../../core/models/models';
 import { EnumValue, StatusCode, isStatus } from '../../../core/models/enums';
-import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { ProgressRingComponent } from '../../../shared/components/progress-ring/progress-ring.component';
-import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-badge/exam-grade-badge.component';
+import { JourneyCardComponent } from '../../../shared/components/journey-card/journey-card.component';
 
 @Component({
   selector: 'app-team-overview',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent, TranslatePipe],
+  imports: [CommonModule, JourneyCardComponent, TranslatePipe],
   templateUrl: './team-overview.component.html',
   styleUrl: './team-overview.component.scss',
 })

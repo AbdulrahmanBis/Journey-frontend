@@ -163,3 +163,32 @@ export interface LearnerSummary extends User {
 export interface SeniorSummary extends User {
   learners: LearnerSummary[];
 }
+
+/**
+ * A notification as the bell and the notifications page receive it.
+ *
+ * Named AppNotification rather than Notification so it cannot be confused with — or shadowed by —
+ * the browser's own `Notification` global.
+ *
+ * `title` and `body` arrive already rendered in the active language; the template and its
+ * variables stay on the server.
+ */
+export interface AppNotification {
+  id: string;
+  templateId: string;
+  channel: EnumValue;
+  title: string;
+  body: string;
+  link: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface NotificationPage {
+  items: AppNotification[];
+  unreadCount: number;
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}

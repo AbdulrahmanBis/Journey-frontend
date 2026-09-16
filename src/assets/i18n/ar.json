@@ -20,7 +20,21 @@
     "LANGUAGE": "اللغة",
     "SAVE_FAILED": "فشل الحفظ.",
     "DELETE_FAILED": "فشل الحذف.",
-    "UPDATE_FAILED": "فشل التحديث."
+    "UPDATE_FAILED": "فشل التحديث.",
+    "PREVIOUS": "السابق",
+    "NEXT": "التالي"
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "الإشعارات",
+    "EMPTY": "لا يوجد شيء هنا بعد.",
+    "EMPTY_TITLE": "لا توجد إشعارات",
+    "MARK_ALL_READ": "تعليم الكل كمقروء",
+    "SHOW_ALL": "عرض كل الإشعارات",
+    "JUST_NOW": "الآن",
+    "MINUTES_AGO": "قبل {{count}} د",
+    "HOURS_AGO": "قبل {{count}} س",
+    "DAYS_AGO": "قبل {{count}} ي",
+    "LOAD_FAILED": "تعذر تحميل الإشعارات."
   },
   "NAV": {
     "BRAND": "جورني",

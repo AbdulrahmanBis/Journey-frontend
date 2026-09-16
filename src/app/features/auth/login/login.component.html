@@ -1,41 +1,41 @@
-<div class="auth-screen">
-  <section class="auth-brand">
-    <div class="brand-mark lg">J</div>
-    <h1>{{ 'NAV.BRAND' | translate }}</h1>
-    <p>{{ 'AUTH.BRAND_TAGLINE' | translate }}</p>
+<div class="row g-0 min-vh-100">
+  <section class="auth-brand col-lg-6 d-flex flex-column justify-content-center p-4 p-lg-5">
+    <div class="brand-mark brand-mark-lg mb-4">J</div>
+    <h1 class="fs-1 fw-semibold text-white mb-3">{{ 'NAV.BRAND' | translate }}</h1>
+    <p class="auth-tagline fs-6">{{ 'AUTH.BRAND_TAGLINE' | translate }}</p>
 
-    <div class="rail-demo">
-      <div class="rail-line"></div>
-      <div class="rail-node done"><span>✓</span></div>
-      <div class="rail-node done"><span>✓</span></div>
-      <div class="rail-node current"></div>
-      <div class="rail-node"></div>
-      <div class="rail-node"></div>
+    <div class="rail-demo d-none d-lg-flex">
+      <div class="rail-demo-line"></div>
+      <div class="rail-demo-node done"><span>✓</span></div>
+      <div class="rail-demo-node done"><span>✓</span></div>
+      <div class="rail-demo-node current"></div>
+      <div class="rail-demo-node"></div>
+      <div class="rail-demo-node"></div>
     </div>
   </section>
 
-  <section class="auth-panel">
-    <div class="card card-pad auth-card">
+  <section class="col-lg-6 d-flex align-items-center justify-content-center p-4 bg-body">
+    <div class="card card-body w-100 auth-card">
       <span class="page-eyebrow">{{ 'AUTH.SIGN_IN' | translate }}</span>
       <h2 class="page-title">{{ 'AUTH.WELCOME_BACK' | translate }}</h2>
-      <p class="muted" style="margin-top: 6px; margin-bottom: 22px;">{{ 'AUTH.LOGIN_SUB' | translate }}</p>
+      <p class="text-body-secondary mt-1 mb-4">{{ 'AUTH.LOGIN_SUB' | translate }}</p>
 
       <form (submit)="$event.preventDefault(); submit()">
-        <div class="field">
-          <label for="email">{{ 'AUTH.EMAIL' | translate }}</label>
-          <input id="email" class="input" type="email" [(ngModel)]="email" name="email" [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | translate" required />
+        <div class="mb-3">
+          <label for="email" class="form-label">{{ 'AUTH.EMAIL' | translate }}</label>
+          <input id="email" class="form-control" type="email" [(ngModel)]="email" name="email" [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | translate" required />
         </div>
-        <div class="field">
-          <label for="password">{{ 'AUTH.PASSWORD' | translate }}</label>
-          <input id="password" class="input" type="password" [(ngModel)]="password" name="password" [placeholder]="'AUTH.PASSWORD_PLACEHOLDER' | translate" required />
+        <div class="mb-3">
+          <label for="password" class="form-label">{{ 'AUTH.PASSWORD' | translate }}</label>
+          <input id="password" class="form-control" type="password" [(ngModel)]="password" name="password" [placeholder]="'AUTH.PASSWORD_PLACEHOLDER' | translate" required />
         </div>
-        <p class="field-error" *ngIf="error">{{ error }}</p>
-        <button class="btn btn-primary btn-block" type="submit" [disabled]="loading">
+        <p class="invalid-feedback d-block mb-3" *ngIf="error">{{ error }}</p>
+        <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
           {{ (loading ? 'AUTH.SIGNING_IN' : 'AUTH.SIGN_IN') | translate }}
         </button>
       </form>
 <!--
-      <p class="muted" style="margin-top: 18px; font-size: 13.5px;">
+      <p class="small text-body-secondary mt-3">
         {{ 'AUTH.NEW_HERE' | translate }} <a routerLink="/signup">{{ 'AUTH.CREATE_LEARNER_ACCOUNT' | translate }}</a>
       </p> -->
     </div>

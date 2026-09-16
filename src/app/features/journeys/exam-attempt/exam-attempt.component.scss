@@ -1,92 +1,19 @@
-.exam-card {
-  max-width: 680px;
-}
+// An exam reads as a document; full content width makes the lines too long to scan.
+.exam-card { max-width: 42.5rem; }
 
-.question-block {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-.question-block:last-of-type { border-bottom: none; }
-
-.question-prompt {
-  font-weight: 600;
-  font-size: 14.5px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.answer-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.question-block + .question-block { border-top: 1px solid var(--bs-border-color); }
 
 .answer-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13.5px;
-  padding: 8px 12px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.answer-option:hover { background: var(--bg); border-color: var(--brand); }
-.answer-option input[type='radio'] { accent-color: var(--brand); width: 16px; height: 16px; }
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 
-.answer-readout {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  white-space: pre-line;
+  &:hover {
+    border-color: var(--bs-primary) !important;
+    background-color: var(--bs-tertiary-bg);
+  }
 }
 
-.grading-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 16px;
-  padding: 16px;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-}
+.answer-readout { white-space: pre-line; }
 
-.result-banner {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  padding: 18px 20px;
-  border-radius: var(--radius-md);
-  margin-bottom: 8px;
-}
-.result-banner.pass { background: var(--status-completed-bg); }
-.result-banner.fail { background: var(--status-cancelled-bg); }
-
-.result-score {
-  font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 700;
-}
-.result-banner.pass .result-score,
-.result-banner.pass .result-label { color: var(--status-completed); }
-.result-banner.fail .result-score,
-.result-banner.fail .result-label { color: var(--status-cancelled); }
-
-.result-label {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.result-icon {
-  font-size: 13px;
-  font-weight: 700;
-}
-.result-icon.pass { color: var(--status-completed); }
-.result-icon.fail { color: var(--status-cancelled); }
+// Score and verdict ran together as "100%ناجح" in Arabic without isolating the number.
+.result-score { unicode-bidi: isolate; }

@@ -1,0 +1,56 @@
+<!-- Bootstrap dropdown markup; Angular owns the open state, so no Bootstrap JavaScript is needed. -->
+<div class="dropdown">
+  <button
+    type="button"
+    class="btn btn-light border rounded-circle position-relative bell-btn"
+    [attr.aria-label]="'NOTIFICATIONS.TITLE' | translate"
+    [attr.aria-expanded]="open"
+    aria-haspopup="true"
+    (click)="toggle()"
+  >
+    <span aria-hidden="true">🔔</span>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ltr-data" *ngIf="unreadCount() > 0">
+      {{ badgeLabel }}
+    </span>
+  </button>
+
+  <div
+    class="dropdown-menu dropdown-menu-end show p-0 overflow-hidden bell-panel"
+    data-bs-popper="static"
+    role="dialog"
+    *ngIf="open"
+    [attr.aria-label]="'NOTIFICATIONS.TITLE' | translate"
+  >
+    <div class="d-flex align-items-center justify-content-between gap-2 px-3 py-2 border-bottom">
+      <h3 class="h6 fw-bold mb-0">{{ 'NOTIFICATIONS.TITLE' | translate }}</h3>
+      <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="unreadCount() > 0" (click)="markAllRead($event)">
+        {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+      </button>
+    </div>
+
+    <p class="small text-body-secondary text-center py-4 px-3" *ngIf="items().length === 0">
+      {{ 'NOTIFICATIONS.EMPTY' | translate }}
+    </p>
+
+    <div class="list-group list-group-flush bell-list" *ngIf="items().length > 0">
+      <button
+        type="button"
+        class="list-group-item list-group-item-action d-flex align-items-start gap-2 text-start py-2"
+        *ngFor="let n of items()"
+        [class.bg-primary-subtle]="!n.read"
+        (click)="select(n)"
+      >
+        <span class="bell-dot" [class.bell-dot-on]="!n.read" aria-hidden="true"></span>
+        <span class="d-flex flex-column gap-1 overflow-hidden">
+          <span class="small fw-semibold text-body user-content">{{ n.title }}</span>
+          <span class="small text-body-secondary text-clamp-2 user-content">{{ n.body }}</span>
+          <span class="small text-body-tertiary">{{ timeAgo(n.createdAt) }}</span>
+        </span>
+      </button>
+    </div>
+
+    <a routerLink="/notifications" class="d-block text-center small fw-semibold py-2 border-top" (click)="open = false">
+      {{ 'NOTIFICATIONS.SHOW_ALL' | translate }}
+    </a>
+  </div>
+</div>

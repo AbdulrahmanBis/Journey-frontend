@@ -1,0 +1,26 @@
+:host { display: inline-block; }
+
+.bell-btn {
+  width: 2.375rem;
+  height: 2.375rem;
+  padding: 0;
+  line-height: 1;
+}
+
+.bell-panel {
+  width: min(22.5rem, calc(100vw - 2rem));
+}
+
+.bell-list {
+  max-height: 21.25rem;
+  overflow-y: auto;
+}
+
+.bell-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.375rem;
+  border-radius: 50%;
+}
+.bell-dot-on { background: var(--bs-primary); }

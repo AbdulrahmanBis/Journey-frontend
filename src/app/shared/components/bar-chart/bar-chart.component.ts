@@ -8,7 +8,7 @@ import { HoursBucket } from '../../../core/models/metrics';
   standalone: true,
   imports: [NgFor, NgIf, TranslatePipe],
   template: `
-    <div class="bar-chart" *ngIf="buckets.length">
+    <div *ngIf="buckets.length">
       <div class="bar-chart-track" [style.height.px]="height">
         <div class="bar-col" *ngFor="let b of buckets">
           <span class="bar-value" *ngIf="b.hours > 0">{{ b.hours }}</span>
@@ -23,7 +23,7 @@ import { HoursBucket } from '../../../core/models/metrics';
         <span class="bar-label" *ngFor="let b of buckets">{{ b.label }}</span>
       </div>
     </div>
-    <p class="faint" style="font-size: 13px; padding: 12px 0;" *ngIf="!buckets.length">
+    <p class="small text-body-tertiary py-2" *ngIf="!buckets.length">
       {{ 'METRICS.NO_HOURS' | translate }}
     </p>
   `,
@@ -34,7 +34,7 @@ import { HoursBucket } from '../../../core/models/metrics';
         display: flex;
         align-items: flex-end;
         gap: 6px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--bs-border-color);
       }
       .bar-col {
         flex: 1;
@@ -46,17 +46,17 @@ import { HoursBucket } from '../../../core/models/metrics';
         min-width: 0;
       }
       .bar-value {
-        font-family: var(--font-mono);
+        font-family: var(--bs-font-monospace);
         font-size: 10px;
-        color: var(--text-faint);
+        color: var(--bs-tertiary-color);
         margin-bottom: 3px;
         white-space: nowrap;
       }
       .bar {
         width: 100%;
         max-width: 26px;
-        background: var(--brand);
-        border-radius: 4px 4px 0 0;
+        background: var(--bs-primary);
+        border-radius: var(--bs-border-radius) var(--bs-border-radius) 0 0;
         transition: height 0.3s ease;
       }
       .bar-chart-labels {
@@ -68,8 +68,8 @@ import { HoursBucket } from '../../../core/models/metrics';
         flex: 1;
         text-align: center;
         font-size: 10.5px;
-        color: var(--text-faint);
-        font-family: var(--font-mono);
+        color: var(--bs-tertiary-color);
+        font-family: var(--bs-font-monospace);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

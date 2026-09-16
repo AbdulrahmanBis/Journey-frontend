@@ -18,18 +18,20 @@ import {
   codeOf,
   isStatus,
   statusSlug,
+  toggleButtonClass,
 } from '../../../core/models/enums';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ProgressRingComponent } from '../../../shared/components/progress-ring/progress-ring.component';
 import { NoteThreadComponent } from '../../../shared/components/note-thread/note-thread.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-badge/exam-grade-badge.component';
 import { AttachmentViewComponent } from '../../../shared/components/attachment-view/attachment-view.component';
 
 @Component({
   selector: 'app-journey-log',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, StatusBadgeComponent, ProgressRingComponent, NoteThreadComponent, ConfirmDialogComponent, ExamGradeBadgeComponent, AttachmentViewComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, StatusBadgeComponent, ProgressRingComponent, NoteThreadComponent, ConfirmDialogComponent, ModalComponent, ExamGradeBadgeComponent, AttachmentViewComponent, TranslatePipe],
   templateUrl: './journey-log.component.html',
   styleUrl: './journey-log.component.scss',
 })
@@ -46,6 +48,7 @@ export class JourneyLogComponent implements OnInit {
   STATUS_ORDER = STATUS_ORDER;
   StatusCode = StatusCode;
   statusSlug = statusSlug;
+  toggleButtonClass = toggleButtonClass;
 
   view: LearnerJourneyView | null = null;
   learner: User | null = null;

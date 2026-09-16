@@ -22,7 +22,6 @@ interface QuestionRow extends QuestionDraft {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, TranslatePipe],
   templateUrl: './exam-form.component.html',
-  styleUrl: './exam-form.component.scss',
 })
 export class ExamFormComponent implements OnInit {
   private route = inject(ActivatedRoute);

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgClass, NgIf } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Exam, ExamAttempt } from '../../../core/models/models';
 import { AttemptStatusCode, codeOf } from '../../../core/models/enums';
@@ -7,15 +7,18 @@ import { AttemptStatusCode, codeOf } from '../../../core/models/enums';
 @Component({
   selector: 'app-exam-grade-badge',
   standalone: true,
-  imports: [NgIf, TranslatePipe],
+  imports: [NgClass, NgIf, TranslatePipe],
   template: `
-    <span class="badge exam-badge graded" *ngIf="isGraded" [class.pass]="attempt!.passed" [class.fail]="!attempt!.passed">
+    <span class="badge rounded-pill" *ngIf="isGraded" [ngClass]="gradedClass">
       🎓 {{ attempt!.scorePercent }}% · {{ (attempt!.passed ? 'EXAM.PASSED' : 'EXAM.FAILED') | translate }}
     </span>
-    <span class="badge exam-badge pending" *ngIf="isUnderReview">{{ 'EXAM.UNDER_REVIEW_SHORT' | translate }}</span>
-    <span class="badge exam-badge ready" *ngIf="!attempt && exam && percentComplete >= 100">{{ 'EXAM.AVAILABLE_BADGE' | translate }}</span>
+    <span class="badge rounded-pill bg-reflect-subtle text-reflect-emphasis" *ngIf="isUnderReview">
+      {{ 'EXAM.UNDER_REVIEW_SHORT' | translate }}
+    </span>
+    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" *ngIf="!attempt && exam && percentComplete >= 100">
+      {{ 'EXAM.AVAILABLE_BADGE' | translate }}
+    </span>
   `,
-  styles: [],
 })
 export class ExamGradeBadgeComponent {
   @Input() exam?: Exam;
@@ -28,5 +31,11 @@ export class ExamGradeBadgeComponent {
 
   get isUnderReview(): boolean {
     return codeOf(this.attempt?.status) === AttemptStatusCode.Submitted;
+  }
+
+  get gradedClass(): string {
+    return this.attempt?.passed
+      ? 'bg-completed-subtle text-completed-emphasis'
+      : 'bg-cancelled-subtle text-cancelled-emphasis';
   }
 }

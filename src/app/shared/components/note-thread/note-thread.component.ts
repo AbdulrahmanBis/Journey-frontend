@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Note } from '../../../core/models/models';
-import { roleSlug } from '../../../core/models/enums';
+import { roleChipClass } from '../../../core/models/enums';
 import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
@@ -21,7 +21,7 @@ export class NoteThreadComponent {
   @Input() currentUserId = '';
   @Output() noteAdded = new EventEmitter<string>();
 
-  roleSlug = roleSlug;
+  roleChipClass = roleChipClass;
   draft = '';
 
   /** Role wording comes from the API triple, not the i18n files. */

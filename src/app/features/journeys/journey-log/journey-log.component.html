@@ -1,69 +1,68 @@
-<div *ngIf="loading"><p class="muted">{{ 'QUEST_LOG.LOADING' | translate }}</p></div>
+<div *ngIf="loading"><p class="text-body-secondary">{{ 'QUEST_LOG.LOADING' | translate }}</p></div>
 
-<div class="empty-state card" *ngIf="!loading && notAllowed">
-  <h3>{{ 'QUEST_LOG.NO_ACCESS_TITLE' | translate }}</h3>
+<div class="card text-center text-body-secondary py-5 px-4" *ngIf="!loading && notAllowed">
+  <h3 class="h5 text-body mb-2">{{ 'QUEST_LOG.NO_ACCESS_TITLE' | translate }}</h3>
   <p>{{ 'QUEST_LOG.NO_ACCESS_SUB' | translate }}</p>
-  <a routerLink="/dashboard" class="btn btn-ghost" style="margin-top: 14px;">{{ 'QUEST_LOG.BACK_TO_DASHBOARD' | translate }}</a>
+  <div><a routerLink="/dashboard" class="btn btn-outline-secondary mt-3">{{ 'QUEST_LOG.BACK_TO_DASHBOARD' | translate }}</a></div>
 </div>
 
 <ng-container *ngIf="!loading && view">
-  <div class="flex justify-between items-center" style="margin-bottom: 8px;">
-    <a routerLink="/dashboard" class="back-link" style="margin-bottom: 0;">← {{ 'COMMON.BACK' | translate }}</a>
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
+    <a routerLink="/dashboard" class="link-secondary small">← {{ 'COMMON.BACK' | translate }}</a>
     <a *ngIf="examCtaLabel" [routerLink]="['/exam', view.id]" class="btn btn-primary btn-sm">{{ examCtaLabel }} →</a>
     <a
       *ngIf="!examCtaLabel && canManageExam && view.percentComplete >= 100 && !view.exam"
       [routerLink]="['/journeys', view.journeyId, 'exam']"
-      class="btn btn-ghost btn-sm"
+      class="btn btn-outline-secondary btn-sm"
     >
       {{ 'QUEST_LOG.SETUP_EXAM' | translate }}
     </a>
   </div>
 
-  <div class="log-header card card-pad">
-    <div class="log-header-top">
-      <div class="log-header-info">
+  <div class="card card-body mb-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between gap-4">
+      <div>
         <span class="page-eyebrow">{{ view.journey.techTag }}</span>
-        <h1 class="page-title">{{ view.journey.title }}</h1>
-        <p class="muted" style="margin-top: 6px; max-width: 560px;">{{ view.journey.description }}</p>
+        <h1 class="page-title user-content">{{ view.journey.title }}</h1>
+        <p class="log-desc text-body-secondary mt-1 user-content">{{ view.journey.description }}</p>
 
-        <div class="flex items-center gap-12" style="margin-top: 14px;" *ngIf="learner && !isOwnView">
-          <div class="user-avatar sm">{{ learner.name.charAt(0) }}</div>
-          <span class="faint" dir="auto">{{ learner.name }}</span>
+        <div class="d-flex align-items-center gap-3 mt-3" *ngIf="learner && !isOwnView">
+          <div class="avatar avatar-sm">{{ learner.name.charAt(0) }}</div>
+          <span class="small text-body-tertiary" dir="auto">{{ learner.name }}</span>
         </div>
       </div>
 
-      <div class="log-header-progress">
+      <div class="d-flex flex-column align-items-center align-self-start align-self-sm-auto flex-shrink-0">
         <app-progress-ring [percent]="view.percentComplete" [size]="76" [stroke]="7"></app-progress-ring>
-        <span class="faint" dir="auto" style="margin-top: 8px;">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: view.totalTimeSpentHours } }}</span>
+        <span class="small text-body-tertiary mt-2" dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: view.totalTimeSpentHours } }}</span>
       </div>
     </div>
 
-    <div class="log-header-meta">
-      <div class="meta-block">
-        <span class="faint">{{ 'QUEST_LOG.STATUS' | translate }}</span>
+    <div class="d-flex flex-wrap gap-4 mt-3 pt-3 border-top">
+      <div class="d-flex flex-column gap-1 small">
+        <span class="text-body-tertiary">{{ 'QUEST_LOG.STATUS' | translate }}</span>
         <app-status-badge [status]="view.status"></app-status-badge>
       </div>
-      <div class="meta-block">
-        <span class="faint">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }}</span>
+      <div class="d-flex flex-column gap-1 small">
+        <span class="text-body-tertiary">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }}</span>
         <span>{{ view.assignedByName }}</span>
       </div>
-      <div class="meta-block">
-        <span class="faint">{{ 'QUEST_LOG.ITEMS_COMPLETED' | translate }}</span>
-        <span>{{ completedCount }} / {{ view.items.length }}</span>
+      <div class="d-flex flex-column gap-1 small">
+        <span class="text-body-tertiary">{{ 'QUEST_LOG.ITEMS_COMPLETED' | translate }}</span>
+        <span class="ltr-data">{{ completedCount }} / {{ view.items.length }}</span>
       </div>
-      <div class="meta-block" *ngIf="view.exam && (view.percentComplete >= 100 || view.examAttempt)">
-        <span class="faint">{{ 'QUEST_LOG.EXAM' | translate }}</span>
+      <div class="d-flex flex-column gap-1 small" *ngIf="view.exam && (view.percentComplete >= 100 || view.examAttempt)">
+        <span class="text-body-tertiary">{{ 'QUEST_LOG.EXAM' | translate }}</span>
         <app-exam-grade-badge [exam]="view.exam" [attempt]="view.examAttempt" [percentComplete]="view.percentComplete"></app-exam-grade-badge>
       </div>
     </div>
 
-    <div class="status-override" *ngIf="canOverrideJourneyStatus">
-      <span class="faint" style="margin-right: 8px;">{{ 'QUEST_LOG.OVERRIDE_STATUS' | translate }}</span>
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3" *ngIf="canOverrideJourneyStatus">
+      <span class="small text-body-tertiary me-2">{{ 'QUEST_LOG.OVERRIDE_STATUS' | translate }}</span>
       <button
-        class="pill"
+        class="btn btn-sm rounded-pill"
         *ngFor="let s of STATUS_ORDER"
-        [class.active]="isCurrent(s, view.status)"
-        [style.--pill-color]="'var(--status-' + statusSlug(s) + ')'"
+        [ngClass]="toggleButtonClass(isCurrent(s, view.status), statusSlug(s))"
         (click)="setJourneyStatus(s)"
       >
         {{ statusLabel(s) }}
@@ -72,52 +71,53 @@
   </div>
 
   <div class="rail">
-    <div class="rail-line-vertical"></div>
+    <div class="rail-line"></div>
 
-    <div class="rail-item" *ngFor="let item of view.items; let i = index">
-      <div class="rail-node-vertical" [class]="'status-' + statusSlug(item.progress.status)">
+    <div class="rail-item d-flex gap-3 position-relative" *ngFor="let item of view.items; let i = index">
+      <div class="rail-node" [ngClass]="'rail-node-' + statusSlug(item.progress.status)">
         <span *ngIf="isCompleted(item)">✓</span>
         <span *ngIf="!isCompleted(item)">{{ i + 1 }}</span>
       </div>
 
-      <div class="card card-pad quest-card">
-        <div class="flex justify-between items-center">
-          <h3 class="quest-title">{{ item.title }}</h3>
+      <div class="card card-body quest-card flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <h3 class="fs-6 fw-semibold mb-0 user-content">{{ item.title }}</h3>
           <app-status-badge [status]="item.progress.status"></app-status-badge>
         </div>
 
         <!-- Rich HTML from the editor; Angular sanitizes it on the way in. -->
-        <div class="quest-desc rich" *ngIf="isRichText(item.description)" [innerHTML]="item.description"></div>
+        <div class="quest-desc quest-rich my-2 user-content" *ngIf="isRichText(item.description)" [innerHTML]="item.description"></div>
 
         <!-- Legacy plain-text items keep their one-bullet-per-line rendering. -->
-        <ul class="quest-desc" *ngIf="!isRichText(item.description)">
+        <ul class="quest-desc my-2 user-content" *ngIf="!isRichText(item.description)">
           <li *ngFor="let line of plainLines(item.description)">{{ line }}</li>
         </ul>
 
         <app-attachment-view [attachments]="item.attachments"></app-attachment-view>
 
-        <p class="faint" dir="auto" *ngIf="item.progress.timeSpentHours">
+        <p class="small text-body-tertiary" dir="auto" *ngIf="item.progress.timeSpentHours">
           ⏱ {{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: item.progress.timeSpentHours } }}
         </p>
 
-        <div class="status-override">
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
           <button
-            class="pill"
+            class="btn btn-sm rounded-pill"
             *ngFor="let s of STATUS_ORDER"
-            [class.active]="isCurrent(s, item.progress.status)"
-            [style.--pill-color]="'var(--status-' + statusSlug(s) + ')'"
+            [ngClass]="toggleButtonClass(isCurrent(s, item.progress.status), statusSlug(s))"
             (click)="setItemStatus(item, s)"
           >
             {{ statusLabel(s) }}
           </button>
         </div>
 
-        <button class="notes-toggle" (click)="toggleNotes(item.progress.id)">
-          {{ (expandedNotes.has(item.progress.id) ? 'QUEST_LOG.HIDE_NOTES' : 'QUEST_LOG.NOTES') | translate }}
-          ({{ item.progress.notes.length }})
-        </button>
+        <div>
+          <button class="btn btn-link btn-sm px-0 mt-2 fw-semibold text-decoration-none" (click)="toggleNotes(item.progress.id)">
+            {{ (expandedNotes.has(item.progress.id) ? 'QUEST_LOG.HIDE_NOTES' : 'QUEST_LOG.NOTES') | translate }}
+            ({{ item.progress.notes.length }})
+          </button>
+        </div>
 
-        <div class="notes-panel" *ngIf="expandedNotes.has(item.progress.id)">
+        <div class="mt-2 pt-3 border-top" *ngIf="expandedNotes.has(item.progress.id)">
           <app-note-thread
             [notes]="item.progress.notes"
             [currentUserId]="currentUser.id"
@@ -130,22 +130,19 @@
 </ng-container>
 
 <!-- Completion-time modal -->
-<div class="modal-backdrop" *ngIf="completingItem" (click)="cancelCompletionModal()">
-  <div class="modal-panel" (click)="$event.stopPropagation()">
-    <h3>{{ completeModalTitle }}</h3>
-    <p class="muted" style="margin: 8px 0 18px; font-size: 13.5px;">{{ 'QUEST_LOG.COMPLETE_SUB' | translate }}</p>
-    <div class="field">
-      <label for="hours">{{ 'QUEST_LOG.TIME_SPENT' | translate }}</label>
-      <input id="hours" class="input" type="number" min="0.25" step="0.25" [(ngModel)]="completingHours" name="hours" [placeholder]="'QUEST_LOG.TIME_PLACEHOLDER' | translate" />
-    </div>
-    <div class="flex gap-12 justify-between">
-      <button class="btn btn-ghost w-full" (click)="cancelCompletionModal()">{{ 'COMMON.CANCEL' | translate }}</button>
-      <button class="btn btn-primary w-full" [disabled]="!completingHours || completingHours <= 0" (click)="confirmCompletion()">
-        {{ 'QUEST_LOG.MARK_COMPLETE' | translate }}
-      </button>
-    </div>
+<app-modal [open]="!!completingItem" (dismissed)="cancelCompletionModal()">
+  <h3 class="h5 mb-2">{{ completeModalTitle }}</h3>
+  <p class="small text-body-secondary mb-3">{{ 'QUEST_LOG.COMPLETE_SUB' | translate }}</p>
+  <label for="hours" class="form-label">{{ 'QUEST_LOG.TIME_SPENT' | translate }}</label>
+  <input id="hours" class="form-control" type="number" min="0.25" step="0.25" [(ngModel)]="completingHours" name="hours" [placeholder]="'QUEST_LOG.TIME_PLACEHOLDER' | translate" />
+
+  <div modal-actions>
+    <button class="btn btn-outline-secondary flex-fill" (click)="cancelCompletionModal()">{{ 'COMMON.CANCEL' | translate }}</button>
+    <button class="btn btn-primary flex-fill" [disabled]="!completingHours || completingHours <= 0" (click)="confirmCompletion()">
+      {{ 'QUEST_LOG.MARK_COMPLETE' | translate }}
+    </button>
   </div>
-</div>
+</app-modal>
 
 <app-confirm-dialog
   [open]="showCancelConfirm"

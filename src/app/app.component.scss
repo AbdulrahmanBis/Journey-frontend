@@ -1,7 +1,10 @@
-:host {
-  display: block;
+:host { display: block; }
+
+// min-width: 0 lets a wide table scroll inside the main column instead of stretching it.
+.app-main {
+  min-width: 0;
+  padding: 1.75rem clamp(1rem, 4vw, 3rem) 4rem;
 }
 
-.no-nav .app-main {
-  padding: 0;
-}
+// Signed-out screens (login, signup) are full-bleed.
+.app-main-bare { padding: 0; }

@@ -5,7 +5,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
-import { RoleCode, roleSlug } from '../../../core/models/enums';
+import { RoleCode, roleChipClass } from '../../../core/models/enums';
 
 @Component({
   selector: 'app-navbar',
@@ -21,7 +21,7 @@ export class NavbarComponent {
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
 
-  roleSlug = roleSlug;
+  roleChipClass = roleChipClass;
 
   get user() {
     return this.auth.currentUser!;

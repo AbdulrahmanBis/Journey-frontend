@@ -1,0 +1,31 @@
+<div
+  class="card card-body card-interactive h-100 gap-3"
+  role="button"
+  tabindex="0"
+  (click)="opened.emit(view)"
+  (keydown.enter)="opened.emit(view)"
+>
+  <div class="d-flex justify-content-between align-items-center gap-2">
+    <span class="badge rounded-pill bg-light text-navy">{{ view.journey.techTag }}</span>
+    <app-status-badge [status]="view.status"></app-status-badge>
+  </div>
+
+  <h3 class="fs-5 mb-0 user-content">{{ view.journey.title }}</h3>
+  <p class="text-body-secondary text-clamp-2 user-content" *ngIf="!compact">{{ view.journey.description }}</p>
+
+  <div *ngIf="view.exam">
+    <app-exam-grade-badge
+      [exam]="view.exam"
+      [attempt]="view.examAttempt"
+      [percentComplete]="view.percentComplete"
+    ></app-exam-grade-badge>
+  </div>
+
+  <div class="d-flex align-items-center gap-3 mt-auto pt-2 border-top">
+    <app-progress-ring [percent]="view.percentComplete" [size]="compact ? 42 : 48" [stroke]="5"></app-progress-ring>
+    <div class="d-flex flex-column gap-1 small text-body-tertiary">
+      <span dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: view.totalTimeSpentHours } }}</span>
+      <span>{{ 'QUEST_LOG.ASSIGNED_BY' | translate }} {{ view.assignedByName }}</span>
+    </div>
+  </div>
+</div>

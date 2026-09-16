@@ -1,56 +1,58 @@
-<div class="page-head">
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
   <div>
     <span class="page-eyebrow">{{ 'USER.ADMIN_EYEBROW' | translate }}</span>
     <h1 class="page-title">{{ 'USER.TITLE' | translate }}</h1>
-    <p class="page-sub">{{ 'USER.SUB' | translate }}</p>
+    <p class="text-body-secondary mt-1">{{ 'USER.SUB' | translate }}</p>
   </div>
   <a routerLink="/admin/users/new" class="btn btn-primary">{{ 'USER.ADD_USER' | translate }}</a>
 </div>
 
-<p class="muted" *ngIf="loading">{{ 'USER.LOADING' | translate }}</p>
+<p class="text-body-secondary" *ngIf="loading">{{ 'USER.LOADING' | translate }}</p>
 
-<div class="card" *ngIf="!loading">
-  <table class="user-table">
-    <thead>
-      <tr>
-        <th>{{ 'USER.NAME_COL' | translate }}</th>
-        <th>{{ 'USER.EMAIL' | translate }}</th>
-        <th>{{ 'USER.ROLE' | translate }}</th>
-        <th>{{ 'USER.SENIOR' | translate }}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let u of users">
-        <td>
-          <div class="flex items-center gap-12">
-            <div class="user-avatar sm">{{ u.name.charAt(0) }}</div>
-            <span>{{ u.name }}</span>
-          </div>
-        </td>
-        <td class="ltr-data faint">{{ u.email }}</td>
-        <td><span class="role-chip" [class]="'role-' + roleSlug(u.role)">{{ roleLabel(u) }}</span></td>
-        <td>
-          <select
-            *ngIf="isLearner(u)"
-            class="select select-sm"
-            [ngModel]="u.seniorId ?? ''"
-            (ngModelChange)="reassignSenior(u, $event)"
-          >
-            <option value="" disabled>{{ 'USER.UNASSIGNED' | translate }}</option>
-            <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
-          </select>
-          <span class="faint" *ngIf="!isLearner(u)">{{ 'COMMON.NONE' | translate }}</span>
-        </td>
-        <td>
-          <div class="flex gap-8">
-            <button class="btn btn-ghost btn-sm" (click)="edit(u)">{{ 'COMMON.EDIT' | translate }}</button>
-            <button class="btn btn-danger btn-sm btn-icon" [title]="'COMMON.DELETE' | translate" (click)="askDelete(u)">✕</button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="card overflow-hidden" *ngIf="!loading">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th class="small text-uppercase text-body-tertiary">{{ 'USER.NAME_COL' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'USER.EMAIL' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'USER.ROLE' | translate }}</th>
+          <th class="small text-uppercase text-body-tertiary">{{ 'USER.SENIOR' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar avatar-sm">{{ u.name.charAt(0) }}</div>
+              <span class="text-nowrap">{{ u.name }}</span>
+            </div>
+          </td>
+          <td class="text-body-tertiary"><span class="ltr-data">{{ u.email }}</span></td>
+          <td><span class="badge rounded-pill" [ngClass]="roleChipClass(u.role)">{{ roleLabel(u) }}</span></td>
+          <td>
+            <select
+              *ngIf="isLearner(u)"
+              class="form-select form-select-sm w-auto"
+              [ngModel]="u.seniorId ?? ''"
+              (ngModelChange)="reassignSenior(u, $event)"
+            >
+              <option value="" disabled>{{ 'USER.UNASSIGNED' | translate }}</option>
+              <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
+            </select>
+            <span class="text-body-tertiary" *ngIf="!isLearner(u)">{{ 'COMMON.NONE' | translate }}</span>
+          </td>
+          <td>
+            <div class="d-flex gap-2 justify-content-end">
+              <button class="btn btn-outline-secondary btn-sm" (click)="edit(u)">{{ 'COMMON.EDIT' | translate }}</button>
+              <button class="btn btn-outline-danger btn-sm" [title]="'COMMON.DELETE' | translate" (click)="askDelete(u)">✕</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <app-confirm-dialog

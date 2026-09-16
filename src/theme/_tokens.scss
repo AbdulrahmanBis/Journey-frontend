@@ -1,0 +1,18 @@
+// Bootstrap's functions, variables and mixins with the Journey theme applied —
+// and NO CSS output. Import this from a component stylesheet that needs a
+// breakpoint mixin or a Sass colour value:
+//
+//   @import 'tokens';
+//   @include media-breakpoint-down(md) { … }
+//
+// Prefer the CSS custom properties (var(--bs-primary)) wherever they will do;
+// they need no import at all.
+
+@import "bootstrap/scss/functions";
+@import "variables";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "colors";
+@import "bootstrap/scss/maps";
+@import "maps";
+@import "bootstrap/scss/mixins";

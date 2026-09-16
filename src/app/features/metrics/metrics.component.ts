@@ -7,7 +7,7 @@ import { UserService } from '../../core/services/user.service';
 import { MetricsService } from '../../core/services/metrics.service';
 import { User } from '../../core/models/models';
 import { GroupMetrics, HoursBucket, HoursGranularity, LearnerMetrics, OrgMetrics } from '../../core/models/metrics';
-import { RoleCode } from '../../core/models/enums';
+import { RoleCode, toggleButtonClass } from '../../core/models/enums';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart.component';
 
 type ViewKind = 'learner' | 'group' | 'org';
@@ -20,6 +20,8 @@ type ViewKind = 'learner' | 'group' | 'org';
   styleUrl: './metrics.component.scss',
 })
 export class MetricsComponent implements OnInit {
+  toggleButtonClass = toggleButtonClass;
+
   private auth = inject(AuthService);
   private userService = inject(UserService);
   private metricsService = inject(MetricsService);

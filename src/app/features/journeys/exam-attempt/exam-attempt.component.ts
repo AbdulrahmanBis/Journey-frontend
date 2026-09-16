@@ -9,7 +9,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ExamService, AnswerDraft } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Exam, ExamQuestion, LearnerJourneyView, User } from '../../../core/models/models';
-import { AttemptStatusCode, QuestionTypeCode, RoleCode, codeOf, optionCodeFor, optionIndexOf } from '../../../core/models/enums';
+import { AttemptStatusCode, QuestionTypeCode, RoleCode, codeOf, optionCodeFor, optionIndexOf, toggleButtonClass } from '../../../core/models/enums';
 
 interface DraftAnswer {
   selectedOptionIndex?: number;
@@ -47,6 +47,7 @@ export class ExamAttemptComponent implements OnInit {
   grading = false;
 
   optionCodeFor = optionCodeFor;
+  toggleButtonClass = toggleButtonClass;
 
   get currentUser(): User { return this.auth.currentUser!; }
   get isReviewer(): boolean { return !this.auth.hasRole(RoleCode.Learner); }

@@ -12,13 +12,13 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Journey, User } from '../../../core/models/models';
 import { RoleCode } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-journey-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, ModalComponent, TranslatePipe],
   templateUrl: './journey-list.component.html',
-  styleUrl: './journey-list.component.scss',
 })
 export class JourneyListComponent implements OnInit {
   private auth = inject(AuthService);

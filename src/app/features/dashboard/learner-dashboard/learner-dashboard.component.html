@@ -1,56 +1,43 @@
-<div class="page-head">
-  <div>
-    <span class="page-eyebrow">{{ 'DASHBOARD.YOUR_JOURNEYS' | translate }}</span>
-    <h1 class="page-title">{{ 'DASHBOARD.GREETING' | translate: { name: user.name.split(' ')[0] } }}</h1>
-    <p class="page-sub">{{ 'DASHBOARD.LEARNER_SUB' | translate }}</p>
+<div class="mb-4">
+  <span class="page-eyebrow">{{ 'DASHBOARD.YOUR_JOURNEYS' | translate }}</span>
+  <h1 class="page-title">{{ 'DASHBOARD.GREETING' | translate: { name: user.name.split(' ')[0] } }}</h1>
+  <p class="text-body-secondary mt-1">{{ 'DASHBOARD.LEARNER_SUB' | translate }}</p>
+</div>
+
+<div class="stat-row row row-cols-2 row-cols-sm-3 g-3 mb-4" *ngIf="!loading">
+  <div class="col">
+    <div class="card card-body h-100 gap-1">
+      <span class="stat-num">{{ activeCount }}</span>
+      <span class="small text-body-secondary">{{ 'DASHBOARD.IN_PROGRESS' | translate }}</span>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card card-body h-100 gap-1">
+      <span class="stat-num">{{ completedCount }}</span>
+      <span class="small text-body-secondary">{{ 'DASHBOARD.COMPLETED' | translate }}</span>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card card-body h-100 gap-1">
+      <span class="stat-num">{{ totalHours }}{{ 'COMMON.HOURS_SHORT' | translate }}</span>
+      <span class="small text-body-secondary">{{ 'DASHBOARD.TIME_LOGGED' | translate }}</span>
+    </div>
   </div>
 </div>
 
-<div class="stat-strip" *ngIf="!loading">
-  <div class="card card-pad stat">
-    <span class="stat-num">{{ activeCount }}</span>
-    <span class="stat-label">{{ 'DASHBOARD.IN_PROGRESS' | translate }}</span>
-  </div>
-  <div class="card card-pad stat">
-    <span class="stat-num">{{ completedCount }}</span>
-    <span class="stat-label">{{ 'DASHBOARD.COMPLETED' | translate }}</span>
-  </div>
-  <div class="card card-pad stat">
-    <span class="stat-num">{{ totalHours }}{{ 'COMMON.HOURS_SHORT' | translate }}</span>
-    <span class="stat-label">{{ 'DASHBOARD.TIME_LOGGED' | translate }}</span>
-  </div>
-</div>
-
-<div class="journey-grid" *ngIf="!loading; else loadingState">
-  <div class="card card-pad card-hover journey-card" *ngFor="let j of journeys" (click)="open(j)">
-    <div class="flex justify-between items-center">
-      <span class="tag">{{ j.journey.techTag }}</span>
-      <app-status-badge [status]="j.status"></app-status-badge>
-    </div>
-    <h3 class="journey-title">{{ j.journey.title }}</h3>
-    <p class="muted journey-desc">{{ j.journey.description }}</p>
-    <app-exam-grade-badge
-      *ngIf="j.exam"
-      [exam]="j.exam"
-      [attempt]="j.examAttempt"
-      [percentComplete]="j.percentComplete"
-      style="margin-bottom: 4px;"
-    ></app-exam-grade-badge>
-    <div class="journey-foot">
-      <app-progress-ring [percent]="j.percentComplete" [size]="48" [stroke]="5"></app-progress-ring>
-      <div class="journey-foot-meta">
-        <span class="faint" dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: j.totalTimeSpentHours } }}</span>
-        <span class="faint">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }} {{ j.assignedByName }}</span>
-      </div>
-    </div>
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" *ngIf="!loading; else loadingState">
+  <div class="col" *ngFor="let j of journeys">
+    <app-journey-card [view]="j" (opened)="open($event)"></app-journey-card>
   </div>
 
-  <div class="empty-state card" *ngIf="!journeys.length">
-    <h3>{{ 'DASHBOARD.NO_JOURNEYS_TITLE' | translate }}</h3>
-    <p>{{ 'DASHBOARD.NO_JOURNEYS_SUB' | translate }}</p>
+  <div class="col-12" *ngIf="!journeys.length">
+    <div class="card text-center text-body-secondary py-5 px-4">
+      <h3 class="h5 text-body mb-2">{{ 'DASHBOARD.NO_JOURNEYS_TITLE' | translate }}</h3>
+      <p>{{ 'DASHBOARD.NO_JOURNEYS_SUB' | translate }}</p>
+    </div>
   </div>
 </div>
 
 <ng-template #loadingState>
-  <p class="muted">{{ 'DASHBOARD.LOADING' | translate }}</p>
+  <p class="text-body-secondary">{{ 'DASHBOARD.LOADING' | translate }}</p>
 </ng-template>

@@ -29,10 +29,26 @@
               "src/assets"
             ],
             "styles": [
+              {
+                "input": "src/theme/generated/bootstrap.ltr.css",
+                "bundleName": "bootstrap-ltr",
+                "inject": false
+              },
+              {
+                "input": "src/theme/generated/bootstrap.rtl.css",
+                "bundleName": "bootstrap-rtl",
+                "inject": false
+              },
               "node_modules/quill/dist/quill.snow.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules",
+                "src/theme"
+              ]
+            }
           },
           "configurations": {
             "production": {
