@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { UserRole } from '../models/enums';
 
 export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
@@ -10,12 +9,13 @@ export const authGuard: CanActivateFn = () => {
   return router.createUrlTree(['/login']);
 };
 
-export function roleGuard(allowed: UserRole[]): CanActivateFn {
+/** `allowed` is a list of role codes (see RoleCode in core/models/enums). */
+export function roleGuard(allowed: number[]): CanActivateFn {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
     if (!auth.isLoggedIn) return router.createUrlTree(['/login']);
-    if (allowed.includes(auth.currentUser!.role)) return true;
+    if (auth.hasRole(...allowed)) return true;
     return router.createUrlTree(['/dashboard']);
   };
 }

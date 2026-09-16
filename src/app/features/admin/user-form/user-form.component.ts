@@ -2,16 +2,18 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { ROLE_LABEL, UserRole } from '../../../core/models/enums';
+import { LanguageService } from '../../../core/services/language.service';
+import { EnumValue, RoleCode, USER_ROLES } from '../../../core/models/enums';
 import { User } from '../../../core/models/models';
 import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss',
 })
@@ -20,9 +22,11 @@ export class UserFormComponent implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
   private toast = inject(ToastService);
+  private translate = inject(TranslateService);
+  private lang = inject(LanguageService);
 
-  roleLabel = ROLE_LABEL;
-  roles = Object.values(UserRole);
+  RoleCode = RoleCode;
+  roles = USER_ROLES;
   userId: string | null = null;
   isEdit = false;
   loading = true;
@@ -32,9 +36,15 @@ export class UserFormComponent implements OnInit {
   name = '';
   email = '';
   password = '';
-  role: UserRole = UserRole.Learner;
+  /** Numeric role code — this is what the API expects. */
+  role: number = RoleCode.Learner;
   seniorId = '';
   seniors: User[] = [];
+
+  /** Role wording follows the active language, from the enum triple. */
+  roleLabel(role: EnumValue): string {
+    return this.lang.label(role);
+  }
 
   ngOnInit(): void {
     this.userId = this.route.snapshot.paramMap.get('id');
@@ -48,12 +58,15 @@ export class UserFormComponent implements OnInit {
         next: ({ user, seniors }: { user: User; seniors: User[] }) => {
           this.name = user.name;
           this.email = user.email;
-          this.role = user.role;
+          this.role = user.role?.code ?? RoleCode.Learner;
           this.seniorId = user.seniorId ?? '';
           this.seniors = seniors;
           this.loading = false;
         },
-        error: () => { this.toast.error('User not found.'); this.router.navigate(['/admin/users']); },
+        error: () => {
+          this.toast.error(this.translate.instant('USER.NOT_FOUND'));
+          this.router.navigate(['/admin/users']);
+        },
       });
     } else {
       this.userService.getSeniors().subscribe({ next: (s) => { this.seniors = s; this.loading = false; } });
@@ -62,11 +75,17 @@ export class UserFormComponent implements OnInit {
 
   submit(): void {
     this.error = '';
-    if (!this.name.trim() || !this.email.trim()) { this.error = 'Name and email are required.'; return; }
-    if (!this.isEdit && !this.password.trim()) { this.error = 'Set a password for the new account.'; return; }
+    if (!this.name.trim() || !this.email.trim()) {
+      this.error = this.translate.instant('USER.NAME_EMAIL_REQUIRED');
+      return;
+    }
+    if (!this.isEdit && !this.password.trim()) {
+      this.error = this.translate.instant('USER.PASSWORD_REQUIRED');
+      return;
+    }
 
     this.saving = true;
-    const seniorId = this.role === UserRole.Learner ? this.seniorId || undefined : undefined;
+    const seniorId = this.role === RoleCode.Learner ? this.seniorId || undefined : undefined;
 
     const request = this.isEdit
       ? this.userService.updateUser(this.userId!, {
@@ -87,10 +106,13 @@ export class UserFormComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving = false;
-        this.toast.success(this.isEdit ? 'User updated.' : 'User created.');
+        this.toast.success(this.translate.instant(this.isEdit ? 'USER.UPDATED' : 'USER.CREATED'));
         this.router.navigate(['/admin/users']);
       },
-      error: (err: any) => { this.saving = false; this.error = err?.error?.message ?? 'Save failed.'; },
+      error: (err: any) => {
+        this.saving = false;
+        this.error = err?.error?.message ?? this.translate.instant('USER.SAVE_FAILED');
+      },
     });
   }
 }

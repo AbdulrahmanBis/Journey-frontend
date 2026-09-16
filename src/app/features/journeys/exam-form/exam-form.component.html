@@ -1,80 +1,86 @@
 <div class="page-head">
   <div>
-    <span class="page-eyebrow">{{ isEdit ? 'Edit exam' : 'New exam' }} · {{ journey?.title }}</span>
-    <h1 class="page-title">{{ isEdit ? 'Update checkpoint exam' : 'Create a checkpoint exam' }}</h1>
-    <p class="page-sub">Learners unlock this once every quest item is complete. Keep it short.</p>
+    <span class="page-eyebrow">{{ (isEdit ? 'EXAM.EDIT_EYEBROW' : 'EXAM.NEW_EYEBROW') | translate }} · {{ journey?.title }}</span>
+    <h1 class="page-title">{{ (isEdit ? 'EXAM.UPDATE_TITLE' : 'EXAM.CREATE_TITLE') | translate }}</h1>
+    <p class="page-sub">{{ 'EXAM.FORM_SUB' | translate }}</p>
   </div>
-  <a routerLink="/journeys" class="btn btn-ghost">← Back to journeys</a>
+  <a routerLink="/journeys" class="btn btn-ghost">{{ 'JOURNEY.BACK_TO_JOURNEYS' | translate }}</a>
 </div>
 
 <div *ngIf="!loading" class="form-layout">
   <div class="card card-pad">
-    <h3 style="margin-bottom: 16px;">Exam details</h3>
+    <h3 style="margin-bottom: 16px;">{{ 'EXAM.DETAILS' | translate }}</h3>
 
     <div class="field">
-      <label for="title">Title</label>
+      <label for="title">{{ 'EXAM.TITLE_LABEL' | translate }}</label>
       <input id="title" class="input" [(ngModel)]="title" name="title" />
     </div>
 
     <div class="field">
-      <label for="pass">Passing score (%)</label>
+      <label for="pass">{{ 'EXAM.PASSING_SCORE' | translate }}</label>
       <input id="pass" class="input" type="number" min="0" max="100" [(ngModel)]="passingScorePercent" name="pass" />
-      <span class="hint">Used as the default pass/fail line when your senior grades it — they can still override.</span>
+      <span class="hint">{{ 'EXAM.PASSING_HINT' | translate }}</span>
     </div>
 
-    <button *ngIf="isEdit" type="button" class="btn btn-danger btn-sm" (click)="showDeleteConfirm = true">Remove exam from this journey</button>
+    <button *ngIf="isEdit" type="button" class="btn btn-danger btn-sm" (click)="showDeleteConfirm = true">
+      {{ 'EXAM.REMOVE_FROM_JOURNEY' | translate }}
+    </button>
   </div>
 
   <div class="card card-pad">
     <div class="flex justify-between items-center" style="margin-bottom: 16px;">
-      <h3>Questions</h3>
-      <button class="btn btn-ghost btn-sm" type="button" (click)="addQuestion()">+ Add question</button>
+      <h3>{{ 'EXAM.QUESTIONS' | translate }}</h3>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="addQuestion()">{{ 'EXAM.ADD_QUESTION' | translate }}</button>
     </div>
 
     <div class="item-draft" *ngFor="let q of questions; let i = index">
       <div class="item-draft-head">
-        <span class="mono faint">Q{{ i + 1 }}</span>
-        <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeQuestion(i)" title="Remove question">✕</button>
+        <span class="faint" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}</span>
+        <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeQuestion(i)" [title]="'EXAM.REMOVE_QUESTION' | translate">✕</button>
       </div>
 
       <div class="field">
-        <label>Question type</label>
+        <label>{{ 'EXAM.QUESTION_TYPE' | translate }}</label>
         <select class="select" [(ngModel)]="q.type" [name]="'type-' + i" (ngModelChange)="onTypeChange(q)">
-          <option *ngFor="let t of questionTypes" [value]="t">{{ typeLabel[t] }}</option>
+          <option *ngFor="let t of questionTypes" [ngValue]="t.code">{{ typeLabel(t) }}</option>
         </select>
       </div>
 
       <div class="field">
-        <textarea class="textarea" [(ngModel)]="q.prompt" [name]="'prompt-' + i" placeholder="Question prompt" rows="2"></textarea>
+        <textarea class="textarea" [(ngModel)]="q.prompt" [name]="'prompt-' + i" [placeholder]="'EXAM.PROMPT_PLACEHOLDER' | translate" rows="2"></textarea>
       </div>
 
       <!-- Multiple choice options -->
-      <div *ngIf="q.type === 'multiple_choice'" class="options-block">
-        <span class="hint" style="display:block; margin-bottom: 8px;">Pick the correct option:</span>
+      <div *ngIf="q.type === QuestionTypeCode.MultipleChoice" class="options-block">
+        <span class="hint" style="display:block; margin-bottom: 8px;">{{ 'EXAM.PICK_CORRECT' | translate }}</span>
         <div class="option-row" *ngFor="let opt of q.options; let oi = index">
-          <input type="radio" [name]="'correct-' + i" [checked]="q.correctOptionIndex === oi" (change)="q.correctOptionIndex = oi" />
-          <input class="input" [(ngModel)]="q.options[oi]" [name]="'opt-' + i + '-' + oi" placeholder="Option text" />
-          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="q.options.length <= 2" (click)="removeOption(q, oi)" title="Remove option">✕</button>
+          <input type="radio" [name]="'correct-' + i" [checked]="q.correctOptionIndex === optionCodeFor(oi)" (change)="q.correctOptionIndex = optionCodeFor(oi)" />
+          <input class="input" [(ngModel)]="q.options[oi]" [name]="'opt-' + i + '-' + oi" [placeholder]="'EXAM.OPTION_PLACEHOLDER' | translate" />
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="q.options.length <= 2" (click)="removeOption(q, oi)" [title]="'EXAM.REMOVE_OPTION' | translate">✕</button>
         </div>
-        <button class="btn btn-ghost btn-sm" type="button" (click)="addOption(q)">+ Add option</button>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="addOption(q)">{{ 'EXAM.ADD_OPTION' | translate }}</button>
       </div>
 
       <!-- Yes / No -->
-      <div *ngIf="q.type === 'yes_no'" class="options-block">
-        <span class="hint" style="display:block; margin-bottom: 8px;">Correct answer:</span>
+      <div *ngIf="q.type === QuestionTypeCode.YesNo" class="options-block">
+        <span class="hint" style="display:block; margin-bottom: 8px;">{{ 'EXAM.CORRECT_ANSWER' | translate }}</span>
         <div class="flex gap-12">
-          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === true" style="--pill-color: var(--status-completed)" (click)="q.correctBoolAnswer = true">Yes</button>
-          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === false" style="--pill-color: var(--status-cancelled)" (click)="q.correctBoolAnswer = false">No</button>
+          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === true" style="--pill-color: var(--status-completed)" (click)="q.correctBoolAnswer = true">
+            {{ 'COMMON.YES' | translate }}
+          </button>
+          <button type="button" class="pill" [class.active]="q.correctBoolAnswer === false" style="--pill-color: var(--status-cancelled)" (click)="q.correctBoolAnswer = false">
+            {{ 'COMMON.NO' | translate }}
+          </button>
         </div>
       </div>
 
       <!-- Open question -->
-      <p class="faint" style="font-size: 12.5px; margin-top: 8px;" *ngIf="q.type === 'open'">
-        No correct answer to set — your reviewer marks this correct or incorrect when grading.
+      <p class="faint" style="font-size: 12.5px; margin-top: 8px;" *ngIf="q.type === QuestionTypeCode.Open">
+        {{ 'EXAM.OPEN_NOTE' | translate }}
       </p>
     </div>
 
-    <p class="faint" *ngIf="!questions.length" style="padding: 8px 0;">No questions yet — add the first one.</p>
+    <p class="faint" *ngIf="!questions.length" style="padding: 8px 0;">{{ 'EXAM.NO_QUESTIONS' | translate }}</p>
   </div>
 </div>
 
@@ -82,16 +88,16 @@
 
 <div class="flex gap-12" style="margin-top: 20px;" *ngIf="!loading">
   <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
-    {{ saving ? 'Saving…' : isEdit ? 'Save exam' : 'Create exam' }}
+    {{ (saving ? 'COMMON.SAVING' : (isEdit ? 'EXAM.SAVE_EXAM' : 'EXAM.CREATE_EXAM')) | translate }}
   </button>
-  <a routerLink="/journeys" class="btn btn-ghost">Cancel</a>
+  <a routerLink="/journeys" class="btn btn-ghost">{{ 'COMMON.CANCEL' | translate }}</a>
 </div>
 
 <app-confirm-dialog
   [open]="showDeleteConfirm"
-  title="Remove this exam?"
-  message="Learners will no longer see an exam step for this journey. Past graded attempts are kept."
-  confirmLabel="Remove exam"
+  [title]="'EXAM.REMOVE_TITLE' | translate"
+  [message]="'EXAM.REMOVE_MESSAGE' | translate"
+  [confirmLabel]="'EXAM.REMOVE_CONFIRM' | translate"
   [danger]="true"
   (confirmed)="confirmDeleteExam()"
   (cancelled)="showDeleteConfirm = false"

@@ -1,0 +1,127 @@
+.attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+
+.att {
+  display: block;
+}
+
+/* ------------------------------- Image ------------------------------- */
+
+.att-image {
+  margin: 0;
+
+  img {
+    max-width: 100%;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  figcaption {
+    font-size: 12.5px;
+    margin-top: 6px;
+  }
+}
+
+/* ------------------------------- Video ------------------------------- */
+
+.att-video video {
+  width: 100%;
+  max-height: 420px;
+  border-radius: var(--radius-sm);
+  background: #000;
+  display: block;
+}
+
+/* --------------------------- Embeds & PDFs --------------------------- */
+
+.att-frame {
+  position: relative;
+  width: 100%;
+  /* 16:9 keeps players from collapsing before their content loads. */
+  padding-top: 56.25%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* A page of A4 is taller than it is wide, so 16:9 would crop it awkwardly. */
+  &.pdf {
+    padding-top: 0;
+    height: 520px;
+
+    iframe { position: static; height: 100%; }
+  }
+}
+
+.att-caption {
+  display: block;
+  font-size: 12.5px;
+  margin-top: 6px;
+}
+
+/* ------------------------- Link / document card ------------------------- */
+
+.att-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+
+  &:hover {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+  }
+}
+
+.att-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.att-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.att-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.att-url {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.att-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}

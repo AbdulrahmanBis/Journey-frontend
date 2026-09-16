@@ -2,17 +2,24 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/models';
-import { UserRole } from '../models/enums';
+import { RoleCode } from '../models/enums';
 import { API_BASE } from './api.config';
+
+/** Fields accepted when creating or updating a user — `role` is the numeric code. */
+export interface UserPayload {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: number;
+  seniorId?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
 
-  // GET /api/users          → all users
-  // GET /api/users?role=senior
-  // GET /api/users?role=learner
-  // GET /api/users?role=learner&seniorId=x
+  // GET /api/users            → all users
+  // GET /api/users?role=1003  → seniors
 
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${API_BASE}/users`);
@@ -23,24 +30,26 @@ export class UserService {
   }
 
   getSeniors(): Observable<User[]> {
-    return this.http.get<User[]>(`${API_BASE}/users`, { params: { role: UserRole.Senior } });
+    return this.http.get<User[]>(`${API_BASE}/users`, { params: { role: String(RoleCode.Senior) } });
   }
 
   getLearners(): Observable<User[]> {
-    return this.http.get<User[]>(`${API_BASE}/users`, { params: { role: UserRole.Learner } });
+    return this.http.get<User[]>(`${API_BASE}/users`, { params: { role: String(RoleCode.Learner) } });
   }
 
   getLearnersBySenior(seniorId: string): Observable<User[]> {
-    return this.http.get<User[]>(`${API_BASE}/users`, { params: { role: UserRole.Learner, seniorId } });
+    return this.http.get<User[]>(`${API_BASE}/users`, {
+      params: { role: String(RoleCode.Learner), seniorId },
+    });
   }
 
   // POST /api/users
-  createUser(data: { name: string; email: string; password: string; role: UserRole; seniorId?: string }): Observable<User> {
+  createUser(data: { name: string; email: string; password: string; role: number; seniorId?: string }): Observable<User> {
     return this.http.post<User>(`${API_BASE}/users`, data);
   }
 
   // PUT /api/users/:id
-  updateUser(id: string, changes: Partial<Omit<User, 'id'>>): Observable<User> {
+  updateUser(id: string, changes: UserPayload): Observable<User> {
     return this.http.put<User>(`${API_BASE}/users/${id}`, changes);
   }
 

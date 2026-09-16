@@ -2,12 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Exam, ExamAttempt, User } from '../models/models';
-import { QuestionType } from '../models/enums';
 import { API_BASE } from './api.config';
 
 export interface QuestionDraft {
   id?: string;
-  type: QuestionType;
+  /** Numeric QuestionTypeCode. */
+  type: number;
   prompt: string;
   options?: string[];
   correctOptionIndex?: number;
@@ -27,12 +27,10 @@ export class ExamService {
 
   // ----------------------------- Exam template --------------------------
 
-  // GET /api/journeys/:journeyId/exam → Exam | null
   getExamForJourney(journeyId: string): Observable<Exam | null> {
     return this.http.get<Exam | null>(`${API_BASE}/journeys/${journeyId}/exam`);
   }
 
-  // POST /api/journeys/:journeyId/exam  (create or replace)
   saveExam(
     journeyId: string,
     data: { title: string; passingScorePercent: number },
@@ -47,19 +45,16 @@ export class ExamService {
     });
   }
 
-  // DELETE /api/journeys/:journeyId/exam
   deleteExam(journeyId: string): Observable<void> {
     return this.http.delete<void>(`${API_BASE}/journeys/${journeyId}/exam`);
   }
 
   // ----------------------------- Attempts ------------------------------
 
-  // GET /api/learner-journeys/:learnerJourneyId/exam-attempt → ExamAttempt | null
   getAttempt(learnerJourneyId: string): Observable<ExamAttempt | null> {
     return this.http.get<ExamAttempt | null>(`${API_BASE}/learner-journeys/${learnerJourneyId}/exam-attempt`);
   }
 
-  // POST /api/learner-journeys/:learnerJourneyId/exam-attempt  body: { examId, answers }
   submitAttempt(learnerJourneyId: string, examId: string, answers: AnswerDraft[]): Observable<ExamAttempt> {
     return this.http.post<ExamAttempt>(
       `${API_BASE}/learner-journeys/${learnerJourneyId}/exam-attempt`,
@@ -67,7 +62,6 @@ export class ExamService {
     );
   }
 
-  // PATCH /api/exam-attempts/:id/grade  body: { marks, passed }
   gradeAttempt(
     attemptId: string,
     marks: { questionId: string; markedCorrect: boolean }[],

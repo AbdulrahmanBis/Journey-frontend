@@ -1,62 +1,66 @@
 /* ==========================================================================
-   IT Onboarding Journey — Design System
-   Palette: ink/indigo brand on a cool, quiet light surface.
+   Journey — Design System
+   Palette and type taken from diginationmea.com: deep navy + signature green,
+   IBM Plex Sans Arabic, flat squared geometry with restrained shadows.
    Signature: the "journey rail" — a connected node trail used on the
    quest-log screen to visualise progress through a journey.
    ========================================================================== */
 
 :root {
-  /* Brand */
-  --ink: #14152b;
-  --ink-soft: #1f2142;
-  --brand: #6366f1;
-  --brand-dark: #4d4fd1;
-  --brand-soft: #eef0ff;
+  /* Brand — navy carries structure, green carries action */
+  --navy: #001f3f;
+  --navy-deep: #0c2340;
+  --ink: #001f3f;
+  --ink-soft: #0c2340;
+  --brand: #046307;
+  --brand-dark: #033d05;
+  --brand-soft: #f2f7f2;
+  --brand-tint: #c8ddc9;
 
   /* Surfaces */
-  --bg: #f5f6fb;
+  --bg: #f7f7fa;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --border: #e6e8f2;
-  --border-strong: #d3d7e8;
+  --border: #e3e6ea;
+  --border-strong: #cfd6dd;
 
   /* Text */
-  --text: #1b1d29;
-  --text-muted: #6b7280;
-  --text-faint: #9aa0b4;
-  --text-on-ink: #eef0ff;
-  --text-on-ink-muted: #9aa0c4;
+  --text: #13213c;
+  --text-muted: #566e7c;
+  --text-faint: #8a97a3;
+  --text-on-ink: #f2f7f2;
+  --text-on-ink-muted: #a8bcc8;
 
   /* Status */
-  --status-new: #94a3b8;
-  --status-new-bg: #f1f3f7;
-  --status-reflect: #d97706;
-  --status-reflect-bg: #fef3e2;
-  --status-response: #2563eb;
-  --status-response-bg: #e8efff;
-  --status-completed: #0f9d68;
-  --status-completed-bg: #e3f8ee;
-  --status-cancelled: #dc2626;
-  --status-cancelled-bg: #fdeaea;
+  --status-new: #64748b;
+  --status-new-bg: #eef1f4;
+  --status-reflect: #b45309;
+  --status-reflect-bg: #fdf1e3;
+  --status-response: #1d4ed8;
+  --status-response-bg: #e7edfd;
+  --status-completed: #046307;
+  --status-completed-bg: #e6f0e6;
+  --status-cancelled: #b91c1c;
+  --status-cancelled-bg: #fbeaea;
 
   /* Roles */
-  --role-admin: #7c3aed;
-  --role-manager: #2563eb;
-  --role-senior: #0f9d68;
-  --role-learner: #d97706;
+  --role-admin: #001f3f;
+  --role-manager: #2b4c7e;
+  --role-senior: #046307;
+  --role-learner: #b45309;
 
-  /* Type */
-  --font-display: 'Space Grotesk', 'Inter', sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+  /* Type — one family for Latin + Arabic; mono is for LTR data only */
+  --font-display: 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
 
-  /* Shape & motion */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --shadow-sm: 0 1px 2px rgba(20, 21, 43, 0.06);
-  --shadow-md: 0 8px 24px rgba(20, 21, 43, 0.08);
-  --shadow-lg: 0 16px 48px rgba(20, 21, 43, 0.16);
+  /* Shape & motion — squared off, closer to the DigiNation treatment */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --shadow-sm: 0 1px 2px rgba(0, 31, 63, 0.05);
+  --shadow-md: 0 6px 18px rgba(0, 31, 63, 0.07);
+  --shadow-lg: 0 14px 40px rgba(0, 31, 63, 0.14);
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -165,11 +169,11 @@ button { font-family: inherit; }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border-strong); }
 .btn-ghost:hover:not(:disabled) { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-dark); }
 
-.btn-danger { background: #fff; color: var(--status-cancelled); border-color: #f3c8c8; }
+.btn-danger { background: #fff; color: var(--status-cancelled); border-color: #edc9c9; }
 .btn-danger:hover:not(:disabled) { background: var(--status-cancelled-bg); }
 
 .btn-sm { padding: 6px 12px; font-size: 13px; }
-.btn-icon { padding: 8px; border-radius: 10px; }
+.btn-icon { padding: 8px; border-radius: var(--radius-sm); }
 .btn-block { width: 100%; }
 
 /* --------------------------------- Cards --------------------------------- */
@@ -187,7 +191,7 @@ button { font-family: inherit; }
   transition: box-shadow 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
   cursor: pointer;
 }
-.card-hover:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); transform: translateY(-2px); }
+.card-hover:hover { box-shadow: var(--shadow-md); border-color: var(--brand-tint); transform: translateY(-2px); }
 
 /* -------------------------------- Forms ---------------------------------- */
 
@@ -214,7 +218,7 @@ button { font-family: inherit; }
 }
 .input:focus, .textarea:focus, .select:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-soft);
+  box-shadow: 0 0 0 3px rgba(4, 99, 7, 0.12);
   outline: none;
 }
 .textarea { resize: vertical; min-height: 90px; font-family: var(--font-body); }
@@ -245,8 +249,8 @@ button { font-family: inherit; }
   align-items: center;
   font-family: var(--font-mono);
   font-size: 11.5px;
-  color: var(--brand-dark);
-  background: var(--brand-soft);
+  color: var(--navy);
+  background: #eef1f4;
   border-radius: 999px;
   padding: 4px 10px;
 }
@@ -260,16 +264,31 @@ button { font-family: inherit; }
   border-radius: 999px;
   font-weight: 600;
 }
-.role-chip.role-admin { background: #f1e8fe; color: var(--role-admin); }
-.role-chip.role-manager { background: #e8efff; color: var(--role-manager); }
-.role-chip.role-senior { background: #e3f8ee; color: var(--role-senior); }
-.role-chip.role-learner { background: #fef3e2; color: var(--role-learner); }
+.role-chip.role-admin { background: #e6ebf0; color: var(--role-admin); }
+.role-chip.role-manager { background: #e7edf6; color: var(--role-manager); }
+.role-chip.role-senior { background: var(--status-completed-bg); color: var(--role-senior); }
+.role-chip.role-learner { background: var(--status-reflect-bg); color: var(--role-learner); }
 
 /* -------------------------------- Utility --------------------------------- */
 
 .muted { color: var(--text-muted); }
 .faint { color: var(--text-faint); }
 .mono { font-family: var(--font-mono); }
+
+/*
+  Genuinely left-to-right data — emails, ids, bare numbers. This is the ONLY
+  thing that may be pinned to LTR. Translated sentences that merely *contain*
+  a number must never use it: forcing the whole phrase LTR is what rendered
+  "4 ساعة مسجلة" and "1 50 بمتوسط · نشطة%" backwards.
+*/
+.ltr-data {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Mixed text + numbers: resolve direction from the first strong character. */
+.bidi-auto { unicode-bidi: plaintext; }
+
 .flex { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
 .gap-8 { gap: 8px; }
@@ -292,7 +311,7 @@ button { font-family: inherit; }
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 16, 33, 0.5);
+  background: rgba(0, 31, 63, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,7 +378,7 @@ button { font-family: inherit; }
 }
 
 .auth-brand {
-  background: radial-gradient(circle at 20% 20%, #23255a 0%, var(--ink) 60%);
+  background: radial-gradient(circle at 20% 20%, var(--navy-deep) 0%, var(--navy) 65%);
   color: var(--text-on-ink);
   display: flex;
   flex-direction: column;
@@ -370,7 +389,7 @@ button { font-family: inherit; }
 .brand-mark.lg {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--brand);
   display: flex;
   align-items: center;
@@ -388,15 +407,15 @@ button { font-family: inherit; }
 .rail-demo { display: flex; align-items: center; gap: 0; margin-top: 56px; position: relative; }
 .rail-line { position: absolute; left: 8px; right: 8px; top: 50%; height: 2px; background: rgba(255, 255, 255, 0.14); z-index: 0; }
 .rail-node {
-  width: 16px; height: 16px; border-radius: 50%; background: var(--ink);
+  width: 16px; height: 16px; border-radius: 50%; background: var(--navy);
   border: 2px solid rgba(255, 255, 255, 0.25); margin-right: 38px; z-index: 1; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff;
 }
 .rail-node.done { background: var(--status-completed); border-color: var(--status-completed); }
-.rail-node.current { border-color: var(--brand); box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.25); animation: pulse 1.8s ease-in-out infinite; }
+.rail-node.current { border-color: var(--brand-tint); box-shadow: 0 0 0 5px rgba(200, 221, 201, 0.25); animation: pulse 1.8s ease-in-out infinite; }
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.25); }
-  50% { box-shadow: 0 0 0 9px rgba(99, 102, 241, 0.12); }
+  0%, 100% { box-shadow: 0 0 0 5px rgba(200, 221, 201, 0.25); }
+  50% { box-shadow: 0 0 0 9px rgba(200, 221, 201, 0.12); }
 }
 
 .auth-panel { display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--bg); }
@@ -544,3 +563,168 @@ button { font-family: inherit; }
 .exam-badge.graded.fail { color: var(--status-cancelled); background: var(--status-cancelled-bg); }
 .exam-badge.pending { color: var(--status-reflect); background: var(--status-reflect-bg); }
 .exam-badge.ready { color: var(--brand-dark); background: var(--brand-soft); }
+
+/* ==========================================================================
+   RTL + Arabic typography
+   Two separate problems are handled here:
+   1. Direction — flex/grid mirror automatically once `dir` is set on <html>;
+      only rules that hard-code a physical side need an override.
+   2. Typography — Arabic has no letter case and uses joined letterforms, so
+      `text-transform: uppercase` is a no-op and `letter-spacing` visibly
+      breaks the joins. Arabic also reads small at Latin sizes, so the small
+      UI text (chips, labels, badges) needs a size and weight bump. And the
+      mono family has no Arabic glyphs at all, so translated text must fall
+      back to the Arabic family.
+   ========================================================================== */
+
+[dir="rtl"] {
+  /* --- Direction-only fixes --- */
+  .toast-stack { right: auto; left: 20px; }
+  .toast { border-left: none; border-right: 3px solid var(--brand); }
+  .toast.success { border-right-color: var(--status-completed); }
+  .toast.error { border-right-color: var(--status-cancelled); }
+
+  .user-table th { text-align: right; }
+
+  .rail-node { margin-right: 0; margin-left: 38px; }
+
+  .rail { padding-left: 0; padding-right: 4px; }
+  .quest-desc { padding-left: 0; padding-right: 20px; }
+  .note-list { padding-right: 0; padding-left: 4px; }
+
+  /* The quest-log rail line is absolutely positioned — it does not mirror on
+     its own, so it would sit on the left while its nodes moved to the right.
+     Selector is deepened to out-specify the component's own scoped rule. */
+  .rail .rail-line-vertical { left: auto; right: 19px; }
+
+  /* Nested learners indent from the wrong side otherwise. */
+  .tree .tree-children { padding: 4px 34px 14px 10px; }
+
+  /* Name should hug its avatar rather than drift to the far edge. */
+  .tree-head { text-align: right; }
+
+  /* The chevron glyph points the wrong way when mirrored. */
+  .tree-head .chevron { transform: scaleX(-1); }
+  .tree-head .chevron.open { transform: scaleX(-1) rotate(-90deg); }
+
+  /* Navbar subtitle sets the mono family directly, which has no Arabic glyphs. */
+  .nav .brand-sub { font-family: var(--font-body); font-size: 12.5px; }
+
+  /* --- Arabic typography --- */
+  /* Mono has no Arabic coverage: fall back for text, keep it for LTR data. */
+  .mono { font-family: var(--font-body); }
+  .ltr-data { font-family: var(--font-mono); }
+
+  .badge,
+  .role-chip,
+  .tag,
+  .pill,
+  .page-eyebrow,
+  .exam-badge,
+  .user-table th {
+    font-family: var(--font-body);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .badge { font-size: 13px; font-weight: 600; }
+  .role-chip { font-size: 12.5px; font-weight: 600; }
+  .tag { font-size: 12.5px; font-weight: 500; }
+  .pill { font-size: 13px; font-weight: 500; }
+  .exam-badge { font-size: 12.5px; font-weight: 600; }
+  .page-eyebrow { font-size: 13px; font-weight: 600; }
+  .user-table th { font-size: 13px; }
+  .user-table td { font-size: 14.5px; }
+
+  .page-sub { font-size: 15.5px; line-height: 1.8; }
+  .journey-desc { font-size: 14.5px; line-height: 1.85; }
+  .stat-label { font-size: 13.5px; font-weight: 500; }
+  .journey-foot-meta { font-size: 13px; }
+  .field label { font-size: 14px; }
+  .field .hint { font-size: 13px; }
+  .field-error { font-size: 13.5px; }
+  .btn { font-size: 14.5px; }
+  .btn-sm { font-size: 13.5px; }
+  .toast { font-size: 14.5px; line-height: 1.7; }
+  .empty-state { line-height: 1.8; }
+
+  /* The faint/muted greys are too light for Arabic strokes — darken a step. */
+  .faint { color: var(--text-muted); font-weight: 500; }
+  .muted { color: var(--text-muted); }
+
+  /* Arabic needs more leading than Latin at the same size. */
+  body, p, li, td, label, span { line-height: 1.75; }
+  h1, h2, h3, h4 { line-height: 1.5; letter-spacing: 0; }
+
+  /* Emails, passwords and numbers are LTR data even inside an RTL form: type
+     left-to-right, but keep the field hugging the RTL reading edge. */
+  input[type="email"],
+  input[type="password"],
+  input[type="number"] {
+    direction: ltr;
+    text-align: right;
+  }
+
+  /*
+    User-authored content (journey titles, descriptions, quest items, notes,
+    prompts) is whatever language the author typed — it is NOT translated.
+    An English sentence inside an RTL block gets its trailing punctuation
+    pushed to the wrong end (".API" instead of "API."), and list bullets land
+    on the wrong side. Resolving direction per element from its first strong
+    character fixes both, in either language.
+  */
+  .journey-title,
+  .journey-desc,
+  .quest-title,
+  .quest-desc,
+  .quest-desc li,
+  .question-prompt,
+  .answer-readout,
+  .answer-option,
+  .note-message,
+  .tree-head-name,
+  .stat-num,
+  .empty-state p {
+    unicode-bidi: plaintext;
+  }
+
+  /* Bullets must sit on the reading side of each item, not the block side. */
+  .quest-desc li { list-style-position: inside; }
+
+  /*
+    Label/value rows collapse together in RTL ("إجمالي المُسند9"), because the
+    two spans end up adjacent with nothing between them. Force the split and
+    give the value its own isolation so a bare number keeps its place.
+  */
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .kv-row > * + * { unicode-bidi: isolate; }
+
+  /* "48.5س" / "3/3" — a number glued to an Arabic unit needs isolating. */
+  .stat-num { unicode-bidi: isolate; }
+
+  /* Arabic role names are longer than the Latin ones and wrapped mid-chip. */
+  .role-chip { white-space: nowrap; }
+
+  /* Score and verdict ran together as "100%ناجح". */
+  .result-banner {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .result-score { unicode-bidi: isolate; }
+
+  /*
+    Prompts hold author-written text in either language, so resolve direction
+    per prompt from its first strong character — that keeps English sentences'
+    trailing punctuation at the correct end.
+
+    The ✓/✕ mark needs no repositioning: it is the prompt's last child, and in
+    RTL "last" renders leftmost, which is the correct trailing position (the
+    mirror of its rightmost placement in English).
+  */
+  .question-prompt { unicode-bidi: plaintext; }
+}

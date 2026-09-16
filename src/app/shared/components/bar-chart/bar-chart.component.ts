@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { HoursBucket } from '../../../core/models/metrics';
 
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, TranslatePipe],
   template: `
     <div class="bar-chart" *ngIf="buckets.length">
       <div class="bar-chart-track" [style.height.px]="height">
@@ -22,7 +23,9 @@ import { HoursBucket } from '../../../core/models/metrics';
         <span class="bar-label" *ngFor="let b of buckets">{{ b.label }}</span>
       </div>
     </div>
-    <p class="faint" style="font-size: 13px; padding: 12px 0;" *ngIf="!buckets.length">No logged hours in this period yet.</p>
+    <p class="faint" style="font-size: 13px; padding: 12px 0;" *ngIf="!buckets.length">
+      {{ 'METRICS.NO_HOURS' | translate }}
+    </p>
   `,
   styles: [
     `

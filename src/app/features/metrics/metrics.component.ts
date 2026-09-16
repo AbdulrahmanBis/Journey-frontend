@@ -1,12 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { MetricsService } from '../../core/services/metrics.service';
 import { User } from '../../core/models/models';
 import { GroupMetrics, HoursBucket, HoursGranularity, LearnerMetrics, OrgMetrics } from '../../core/models/metrics';
-import { UserRole } from '../../core/models/enums';
+import { RoleCode } from '../../core/models/enums';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart.component';
 
 type ViewKind = 'learner' | 'group' | 'org';
@@ -14,7 +15,7 @@ type ViewKind = 'learner' | 'group' | 'org';
 @Component({
   selector: 'app-metrics',
   standalone: true,
-  imports: [CommonModule, FormsModule, BarChartComponent],
+  imports: [CommonModule, FormsModule, BarChartComponent, TranslatePipe],
   templateUrl: './metrics.component.html',
   styleUrl: './metrics.component.scss',
 })
@@ -22,8 +23,9 @@ export class MetricsComponent implements OnInit {
   private auth = inject(AuthService);
   private userService = inject(UserService);
   private metricsService = inject(MetricsService);
+  private translate = inject(TranslateService);
 
-  UserRole = UserRole;
+  RoleCode = RoleCode;
   granularity: HoursGranularity = 'month';
   loading = true;
 
@@ -38,9 +40,9 @@ export class MetricsComponent implements OnInit {
   orgMetrics: OrgMetrics | null = null;
 
   get user(): User { return this.auth.currentUser!; }
-  get isLearner(): boolean { return this.user.role === UserRole.Learner; }
-  get isSenior(): boolean { return this.user.role === UserRole.Senior; }
-  get isManagerOrAdmin(): boolean { return this.auth.hasRole(UserRole.Manager, UserRole.Admin); }
+  get isLearner(): boolean { return this.auth.hasRole(RoleCode.Learner); }
+  get isSenior(): boolean { return this.auth.hasRole(RoleCode.Senior); }
+  get isManagerOrAdmin(): boolean { return this.auth.hasRole(RoleCode.Manager, RoleCode.Admin); }
 
   get activeBuckets(): HoursBucket[] {
     const source = this.learnerMetrics ?? this.groupMetrics ?? this.orgMetrics;
@@ -51,9 +53,12 @@ export class MetricsComponent implements OnInit {
   }
 
   get scopeLabel(): string {
-    if (this.viewKind === 'learner') return this.learnerMetrics?.learnerName ?? 'Learner';
-    if (this.viewKind === 'org') return 'Whole org';
-    return this.seniors.find((s) => s.id === this.selectedSeniorId)?.name ?? 'Your team';
+    if (this.viewKind === 'learner') {
+      return this.learnerMetrics?.learnerName ?? this.translate.instant('METRICS.LEARNER');
+    }
+    if (this.viewKind === 'org') return this.translate.instant('METRICS.WHOLE_ORG');
+    return this.seniors.find((s) => s.id === this.selectedSeniorId)?.name
+      ?? this.translate.instant('METRICS.YOUR_TEAM');
   }
 
   ngOnInit(): void {

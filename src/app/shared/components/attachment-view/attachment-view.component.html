@@ -1,0 +1,89 @@
+<div class="attachments" *ngIf="attachments?.length">
+  <ng-container *ngFor="let a of attachments">
+
+    <!-- Image -->
+    <figure class="att att-image" *ngIf="is(a, K.Image)">
+      <img [src]="mediaUrl(a)" [alt]="title(a)" loading="lazy" />
+      <figcaption class="faint" *ngIf="a.label">{{ a.label }}</figcaption>
+    </figure>
+
+    <!-- Uploaded video — streamed with range support so it can be seeked -->
+    <div class="att att-video" *ngIf="is(a, K.VideoFile)">
+      <video controls preload="metadata" [src]="mediaUrl(a)"></video>
+      <div class="att-meta">
+        <span class="att-name" dir="auto">{{ title(a) }}</span>
+        <span class="faint ltr-data" *ngIf="size(a)">{{ size(a) }}</span>
+      </div>
+    </div>
+
+    <!-- YouTube / Vimeo / other allowed embeds -->
+    <div class="att att-embed" *ngIf="is(a, K.VideoEmbed) || is(a, K.Iframe)">
+      <div class="att-frame" *ngIf="canEmbed(a); else embedFallback">
+        <iframe
+          [src]="embedUrl(a)"
+          [title]="title(a)"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <ng-template #embedFallback>
+        <a class="att-card" [href]="externalUrl(a)" target="_blank" rel="noopener noreferrer">
+          <span class="att-icon">🔗</span>
+          <span class="att-body">
+            <span class="att-name" dir="auto">{{ title(a) }}</span>
+            <span class="faint">{{ 'ATTACHMENT.CANNOT_EMBED' | translate }}</span>
+          </span>
+        </a>
+      </ng-template>
+      <span class="faint att-caption" *ngIf="a.label && canEmbed(a)" dir="auto">{{ a.label }}</span>
+    </div>
+
+    <!-- PDF — browsers render these natively -->
+    <div class="att att-pdf" *ngIf="is(a, K.Pdf)">
+      <div class="att-frame pdf">
+        <iframe [src]="pdfUrl(a)" [title]="title(a)" loading="lazy"></iframe>
+      </div>
+      <div class="att-meta">
+        <span class="att-name" dir="auto">{{ title(a) }}</span>
+        <a class="btn btn-ghost btn-sm" [href]="mediaUrl(a)" target="_blank" rel="noopener noreferrer">
+          {{ 'ATTACHMENT.OPEN' | translate }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Word/Excel/text — download only, no in-browser renderer exists -->
+    <a
+      class="att att-card"
+      *ngIf="is(a, K.Document)"
+      [href]="mediaUrl(a)"
+      [attr.download]="a.originalName || null"
+    >
+      <span class="att-icon">📄</span>
+      <span class="att-body">
+        <span class="att-name" dir="auto">{{ title(a) }}</span>
+        <span class="faint">
+          {{ 'ATTACHMENT.DOWNLOAD' | translate }}<ng-container *ngIf="size(a)"> · <span class="ltr-data">{{ size(a) }}</span></ng-container>
+        </span>
+      </span>
+    </a>
+
+    <!-- Plain link -->
+    <a
+      class="att att-card"
+      *ngIf="is(a, K.Link)"
+      [href]="externalUrl(a)"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="att-icon">🔗</span>
+      <span class="att-body">
+        <span class="att-name" dir="auto">{{ title(a) }}</span>
+        <span class="faint ltr-data att-url">{{ externalUrl(a) }}</span>
+      </span>
+    </a>
+
+  </ng-container>
+</div>

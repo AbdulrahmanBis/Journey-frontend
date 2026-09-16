@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { User } from '../models/models';
-import { UserRole } from '../models/enums';
 import { API_BASE } from './api.config';
 import { TokenStore } from './auth.interceptor';
 
@@ -17,6 +17,7 @@ interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
+  private translate = inject(TranslateService);
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.restoreUser());
   readonly currentUser$ = this.currentUserSubject.asObservable();
@@ -24,8 +25,10 @@ export class AuthService {
   get currentUser(): User | null { return this.currentUserSubject.value; }
   get isLoggedIn(): boolean { return !!this.currentUser; }
 
-  hasRole(...roles: UserRole[]): boolean {
-    return !!this.currentUser && roles.includes(this.currentUser.role);
+  /** Role checks compare numeric codes — the wire format is `{ code, english, arabic }`. */
+  hasRole(...roleCodes: number[]): boolean {
+    const code = this.currentUser?.role?.code;
+    return code !== undefined && roleCodes.includes(code);
   }
 
   private restoreUser(): User | null {
@@ -39,7 +42,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${API_BASE}/auth/login`, { email, password }).pipe(
       tap((res) => this.persist(res)),
       map((res) => res.user),
-      catchError((err) => throwError(() => new Error(err?.error?.message ?? 'Incorrect email or password.'))),
+      catchError((err) => throwError(() =>
+        new Error(err?.error?.message ?? this.translate.instant('AUTH.INVALID_CREDENTIALS')))),
     );
   }
 
@@ -47,7 +51,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${API_BASE}/auth/signup`, data).pipe(
       tap((res) => this.persist(res)),
       map((res) => res.user),
-      catchError((err) => throwError(() => new Error(err?.error?.message ?? 'Could not create account.'))),
+      catchError((err) => throwError(() =>
+        new Error(err?.error?.message ?? this.translate.instant('AUTH.COULD_NOT_CREATE')))),
     );
   }
 
@@ -59,9 +64,6 @@ export class AuthService {
 
   private persist(res: AuthResponse): void {
     TokenStore.set(res.token);
-    console.log(res.user);
-    //convert first letter to lowercase in role from the type USERROLE:
-    res.user.role = (res.user.role.charAt(0).toLowerCase() + res.user.role.slice(1)) as UserRole;
     this.currentUserSubject.next(res.user);
     try { localStorage.setItem(USER_KEY, JSON.stringify(res.user)); } catch { /* ignore */ }
   }

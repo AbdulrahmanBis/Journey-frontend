@@ -21,17 +21,32 @@
             "outputPath": "dist/it-onboarding-journey",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets"],
-            "styles": ["src/styles.scss"],
+            "assets": [
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/quill/dist/quill.snow.css",
+              "src/styles.scss"
+            ],
             "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "750kB", "maximumError": "1.5MB" },
-                { "type": "anyComponentStyle", "maximumWarning": "8kB", "maximumError": "16kB" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "750kB",
+                  "maximumError": "1.5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
+                }
               ],
               "outputHashing": "all"
             },
@@ -47,8 +62,12 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "it-onboarding-journey:build:production" },
-            "development": { "buildTarget": "it-onboarding-journey:build:development" }
+            "production": {
+              "buildTarget": "it-onboarding-journey:build:production"
+            },
+            "development": {
+              "buildTarget": "it-onboarding-journey:build:development"
+            }
           },
           "defaultConfiguration": "development"
         }

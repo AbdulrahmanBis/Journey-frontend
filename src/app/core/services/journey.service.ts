@@ -5,11 +5,28 @@ import { Journey, JourneyItem } from '../models/models';
 import { TechTag } from '../models/enums';
 import { API_BASE } from './api.config';
 
+/** Attachments are sent as the complete set for an item — anything omitted is deleted. */
+export interface AttachmentPayload {
+  id?: string;
+  kind: number;
+  label?: string;
+  url?: string;
+  storageKey?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  originalName?: string;
+}
+
 export interface JourneyPayload {
   title: string;
   description: string;
   techTag: TechTag;
-  items: { id?: string; title: string; description: string }[];
+  items: {
+    id?: string;
+    title: string;
+    description: string;
+    attachments?: AttachmentPayload[];
+  }[];
 }
 
 @Injectable({ providedIn: 'root' })

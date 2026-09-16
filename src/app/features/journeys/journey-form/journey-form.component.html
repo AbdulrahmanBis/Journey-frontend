@@ -1,70 +1,145 @@
 <div class="page-head">
   <div>
-    <span class="page-eyebrow">{{ isEdit ? 'Edit journey' : 'New journey' }}</span>
-    <h1 class="page-title">{{ isEdit ? 'Update journey' : 'Create a journey' }}</h1>
-    <p class="page-sub">Define the journey, then lay out each quest item learners will work through in order.</p>
+    <span class="page-eyebrow">{{ (isEdit ? 'JOURNEY.EDIT_EYEBROW' : 'JOURNEY.NEW_EYEBROW') | translate }}</span>
+    <h1 class="page-title">{{ (isEdit ? 'JOURNEY.UPDATE_TITLE' : 'JOURNEY.CREATE_TITLE') | translate }}</h1>
+    <p class="page-sub">{{ 'JOURNEY.FORM_SUB' | translate }}</p>
   </div>
-  <a routerLink="/journeys" class="btn btn-ghost">← Back to journeys</a>
+  <a routerLink="/journeys" class="btn btn-ghost">{{ 'JOURNEY.BACK_TO_JOURNEYS' | translate }}</a>
 </div>
 
-<p class="hint" style="display:block; margin: -8px 0 18px;" *ngIf="!isEdit">Save the journey first, then you can add a checkpoint exam.</p>
-<a *ngIf="isEdit" [routerLink]="['/journeys', journeyId, 'exam']" class="btn btn-ghost" style="margin-bottom: 18px; display: inline-block;">🎓 Manage exam</a>
+<p class="hint" style="display:block; margin: -8px 0 18px;" *ngIf="!isEdit">{{ 'JOURNEY.SAVE_FIRST_HINT' | translate }}</p>
+<a *ngIf="isEdit" [routerLink]="['/journeys', journeyId, 'exam']" class="btn btn-ghost" style="margin-bottom: 18px; display: inline-block;">
+  {{ 'JOURNEY.MANAGE_EXAM' | translate }}
+</a>
 
 <div *ngIf="!loading" class="form-layout">
   <div class="card card-pad">
-    <h3 style="margin-bottom: 16px;">Journey details</h3>
+    <h3 style="margin-bottom: 16px;">{{ 'JOURNEY.DETAILS' | translate }}</h3>
 
     <div class="field">
-      <label for="title">Title</label>
-      <input id="title" class="input" [(ngModel)]="title" name="title" placeholder="e.g. AWS DevOps Fundamentals" />
+      <label for="title">{{ 'JOURNEY.FIELD_TITLE' | translate }}</label>
+      <input id="title" class="input" [(ngModel)]="title" name="title" [placeholder]="'JOURNEY.TITLE_PLACEHOLDER' | translate" />
     </div>
 
     <div class="field">
-      <label for="tag">Tech / solution</label>
+      <label for="tag">{{ 'JOURNEY.TECH_SOLUTION' | translate }}</label>
       <select id="tag" class="select" [(ngModel)]="techTag" name="tag">
         <option *ngFor="let t of techTags" [value]="t">{{ t }}</option>
       </select>
     </div>
 
     <div class="field">
-      <label for="desc">Description</label>
-      <textarea id="desc" class="textarea" [(ngModel)]="description" name="desc" placeholder="What will the learner be able to do after this journey?"></textarea>
+      <label for="desc">{{ 'JOURNEY.DESCRIPTION' | translate }}</label>
+      <textarea id="desc" class="textarea" [(ngModel)]="description" name="desc" [placeholder]="'JOURNEY.DESCRIPTION_PLACEHOLDER' | translate"></textarea>
     </div>
   </div>
 
   <div class="card card-pad">
     <div class="flex justify-between items-center" style="margin-bottom: 16px;">
-      <h3>Quest items</h3>
-      <button class="btn btn-ghost btn-sm" type="button" (click)="addItem()">+ Add item</button>
+      <h3>{{ 'JOURNEY.QUEST_ITEMS' | translate }}</h3>
+      <button class="btn btn-ghost btn-sm" type="button" (click)="addItem()">{{ 'JOURNEY.ADD_ITEM' | translate }}</button>
     </div>
 
     <div class="item-draft" *ngFor="let item of items; let i = index; let first = first; let last = last">
       <div class="item-draft-head">
-        <span class="mono faint">#{{ i + 1 }}</span>
+        <span class="ltr-data faint">#{{ i + 1 }}</span>
         <div class="item-draft-controls">
-          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="first" (click)="moveItem(i, -1)" title="Move up">↑</button>
-          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="last" (click)="moveItem(i, 1)" title="Move down">↓</button>
-          <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeItem(i)" title="Remove">✕</button>
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="first" (click)="moveItem(i, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
+          <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="last" (click)="moveItem(i, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
+          <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeItem(i)" [title]="'COMMON.REMOVE' | translate">✕</button>
         </div>
       </div>
+
       <div class="field">
-        <input class="input" [(ngModel)]="item.title" [name]="'item-title-' + i" placeholder="Quest item title" />
+        <input class="input" [(ngModel)]="item.title" [name]="'item-title-' + i" [placeholder]="'JOURNEY.ITEM_TITLE_PLACEHOLDER' | translate" />
       </div>
-      <div class="field" style="margin-bottom: 8px;">
-        <textarea class="textarea" [(ngModel)]="item.description" [name]="'item-desc-' + i" placeholder="Detailed description — one line per bullet point" rows="3"></textarea>
-        <span class="hint">Tip: put each bullet on its own line.</span>
+
+      <div class="field">
+        <quill-editor
+          [(ngModel)]="item.description"
+          [name]="'item-desc-' + i"
+          [modules]="quillModules"
+          [placeholder]="'JOURNEY.ITEM_DESC_PLACEHOLDER' | translate"
+          theme="snow"
+        ></quill-editor>
+      </div>
+
+      <!-- ───────────────────────── Attachments ───────────────────────── -->
+      <div class="att-editor">
+        <div class="att-editor-head">
+          <span class="faint">{{ 'ATTACHMENT.TITLE' | translate }}</span>
+          <select
+            class="select select-sm"
+            [name]="'add-att-' + i"
+            [ngModel]="''"
+            (ngModelChange)="addAttachment(item, $event)"
+          >
+            <option value="" disabled>{{ 'ATTACHMENT.ADD' | translate }}</option>
+            <option *ngFor="let k of attachmentKinds" [ngValue]="k.code">{{ kindLabel(k) }}</option>
+          </select>
+        </div>
+
+        <div class="att-row" *ngFor="let a of item.attachments; let ai = index; let afirst = first; let alast = last">
+          <div class="att-row-head">
+            <span class="att-kind">{{ draftKindLabel(a) }}</span>
+            <div class="item-draft-controls">
+              <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="afirst" (click)="moveAttachment(item, ai, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
+              <button class="btn btn-ghost btn-sm btn-icon" type="button" [disabled]="alast" (click)="moveAttachment(item, ai, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
+              <button class="btn btn-danger btn-sm btn-icon" type="button" (click)="removeAttachment(item, ai)" [title]="'COMMON.REMOVE' | translate">✕</button>
+            </div>
+          </div>
+
+          <input
+            class="input"
+            [(ngModel)]="a.label"
+            [name]="'att-label-' + i + '-' + ai"
+            [placeholder]="'ATTACHMENT.LABEL_PLACEHOLDER' | translate"
+          />
+
+          <!-- External kinds: a URL -->
+          <input
+            *ngIf="!isUploadedKind(a.kind)"
+            class="input ltr-data"
+            [(ngModel)]="a.url"
+            [name]="'att-url-' + i + '-' + ai"
+            [placeholder]="'ATTACHMENT.URL_PLACEHOLDER' | translate"
+          />
+
+          <!-- Uploaded kinds: a file -->
+          <div class="att-upload" *ngIf="isUploadedKind(a.kind)">
+            <input
+              type="file"
+              class="input"
+              [accept]="acceptFor(a.kind)"
+              [name]="'att-file-' + i + '-' + ai"
+              (change)="onFileSelected($event, a)"
+            />
+            <div class="att-progress" *ngIf="a.uploading">
+              <div class="att-progress-bar" [style.width.%]="a.progress || 0"></div>
+              <span class="faint ltr-data">{{ a.progress || 0 }}%</span>
+            </div>
+            <p class="faint att-file" *ngIf="!a.uploading && a.storageKey">
+              ✓ <span dir="auto">{{ fileName(a) }}</span>
+              <span class="ltr-data" *ngIf="fileSize(a)"> · {{ fileSize(a) }}</span>
+            </p>
+            <p class="field-error" *ngIf="a.error">{{ a.error }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <p class="faint" *ngIf="!items.length" style="padding: 8px 0;">No quest items yet — add the first one.</p>
+    <p class="faint" *ngIf="!items.length" style="padding: 8px 0;">{{ 'JOURNEY.NO_ITEMS_YET' | translate }}</p>
   </div>
 </div>
 
 <p class="field-error" style="margin-top: 16px;" *ngIf="error">{{ error }}</p>
+<p class="hint" style="margin-top: 8px;" *ngIf="incompleteCount() > 0">
+  {{ 'ATTACHMENT.INCOMPLETE_SKIPPED' | translate: { count: incompleteCount() } }}
+</p>
 
 <div class="flex gap-12" style="margin-top: 20px;" *ngIf="!loading">
-  <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
-    {{ saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create journey' }}
+  <button class="btn btn-primary" (click)="submit()" [disabled]="saving || uploadingCount() > 0">
+    {{ (saving ? 'COMMON.SAVING' : (isEdit ? 'USER.SAVE_CHANGES' : 'JOURNEY.CREATE_JOURNEY')) | translate }}
   </button>
-  <a routerLink="/journeys" class="btn btn-ghost">Cancel</a>
+  <a routerLink="/journeys" class="btn btn-ghost">{{ 'COMMON.CANCEL' | translate }}</a>
 </div>

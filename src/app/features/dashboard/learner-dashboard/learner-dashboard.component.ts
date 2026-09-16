@@ -1,10 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
 import { LearnerJourneyView } from '../../../core/models/models';
-import { Status } from '../../../core/models/enums';
+import { StatusCode, isStatus } from '../../../core/models/enums';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ProgressRingComponent } from '../../../shared/components/progress-ring/progress-ring.component';
 import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-badge/exam-grade-badge.component';
@@ -12,7 +13,7 @@ import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-b
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent],
+  imports: [CommonModule, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent, TranslatePipe],
   templateUrl: './learner-dashboard.component.html',
   styleUrl: './learner-dashboard.component.scss',
 })
@@ -29,11 +30,13 @@ export class LearnerDashboardComponent implements OnInit {
   }
 
   get activeCount(): number {
-    return this.journeys.filter((j) => j.status !== Status.Completed && j.status !== Status.Cancelled).length;
+    return this.journeys.filter(
+      (j) => !isStatus(j.status, StatusCode.Completed) && !isStatus(j.status, StatusCode.Cancelled),
+    ).length;
   }
 
   get completedCount(): number {
-    return this.journeys.filter((j) => j.status === Status.Completed).length;
+    return this.journeys.filter((j) => isStatus(j.status, StatusCode.Completed)).length;
   }
 
   get totalHours(): number {

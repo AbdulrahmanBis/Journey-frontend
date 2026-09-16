@@ -1,23 +1,23 @@
 <div class="page-head">
   <div>
-    <span class="page-eyebrow">Your journeys</span>
-    <h1 class="page-title">Hey {{ user.name.split(' ')[0] }}, here's where you're at</h1>
-    <p class="page-sub">Pick up a journey below and keep working through its quest log.</p>
+    <span class="page-eyebrow">{{ 'DASHBOARD.YOUR_JOURNEYS' | translate }}</span>
+    <h1 class="page-title">{{ 'DASHBOARD.GREETING' | translate: { name: user.name.split(' ')[0] } }}</h1>
+    <p class="page-sub">{{ 'DASHBOARD.LEARNER_SUB' | translate }}</p>
   </div>
 </div>
 
 <div class="stat-strip" *ngIf="!loading">
   <div class="card card-pad stat">
     <span class="stat-num">{{ activeCount }}</span>
-    <span class="stat-label">In progress</span>
+    <span class="stat-label">{{ 'DASHBOARD.IN_PROGRESS' | translate }}</span>
   </div>
   <div class="card card-pad stat">
     <span class="stat-num">{{ completedCount }}</span>
-    <span class="stat-label">Completed</span>
+    <span class="stat-label">{{ 'DASHBOARD.COMPLETED' | translate }}</span>
   </div>
   <div class="card card-pad stat">
-    <span class="stat-num">{{ totalHours }}h</span>
-    <span class="stat-label">Time logged</span>
+    <span class="stat-num">{{ totalHours }}{{ 'COMMON.HOURS_SHORT' | translate }}</span>
+    <span class="stat-label">{{ 'DASHBOARD.TIME_LOGGED' | translate }}</span>
   </div>
 </div>
 
@@ -39,18 +39,18 @@
     <div class="journey-foot">
       <app-progress-ring [percent]="j.percentComplete" [size]="48" [stroke]="5"></app-progress-ring>
       <div class="journey-foot-meta">
-        <span class="mono faint">{{ j.totalTimeSpentHours }}h logged</span>
-        <span class="faint">Assigned by {{ j.assignedByName }}</span>
+        <span class="faint" dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: j.totalTimeSpentHours } }}</span>
+        <span class="faint">{{ 'QUEST_LOG.ASSIGNED_BY' | translate }} {{ j.assignedByName }}</span>
       </div>
     </div>
   </div>
 
   <div class="empty-state card" *ngIf="!journeys.length">
-    <h3>No journeys yet</h3>
-    <p>Your assigned senior will set up your first quest log soon.</p>
+    <h3>{{ 'DASHBOARD.NO_JOURNEYS_TITLE' | translate }}</h3>
+    <p>{{ 'DASHBOARD.NO_JOURNEYS_SUB' | translate }}</p>
   </div>
 </div>
 
 <ng-template #loadingState>
-  <p class="muted">Loading your journeys…</p>
+  <p class="muted">{{ 'DASHBOARD.LOADING' | translate }}</p>
 </ng-template>

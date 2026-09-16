@@ -1,11 +1,10 @@
-import { ExamAttemptStatus, QuestionType, Status, TechTag, UserRole } from './enums';
+import { EnumValue, TechTag } from './enums';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  password: string; // mock only — plain text for demo data, never do this for real auth
-  role: UserRole;
+  role: EnumValue;
   /** Set on learners only: which senior they report to for training. */
   seniorId?: string;
   createdAt: string;
@@ -23,13 +22,38 @@ export interface Journey {
   updatedAt: string;
 }
 
-/** One step inside a Journey template. */
+/**
+ * A piece of content hanging off a journey item.
+ *
+ * Exactly one of `url` (link / embed kinds) or `storageKey` (uploaded kinds) is set — build the
+ * src for uploaded ones with `FileService.mediaUrl()`, which appends the auth token that media
+ * elements cannot send as a header.
+ */
+export interface Attachment {
+  id?: string;
+  kind: EnumValue;
+  label?: string;
+  url?: string;
+  storageKey?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  originalName?: string;
+  order?: number;
+}
+
+/**
+ * One step inside a Journey template.
+ *
+ * `description` is rich HTML from the editor (it used to be plain text split on newlines), so it
+ * must be rendered as sanitized HTML rather than line-by-line.
+ */
 export interface JourneyItem {
   id: string;
   journeyId: string;
   title: string;
   description: string;
   order: number;
+  attachments?: Attachment[];
 }
 
 /** A note left by any actor on a specific learner's progress through one item. */
@@ -37,7 +61,7 @@ export interface Note {
   id: string;
   actorId: string;
   actorName: string;
-  actorRole: UserRole;
+  actorRole: EnumValue;
   message: string;
   timestamp: string;
 }
@@ -50,7 +74,7 @@ export interface LearnerJourney {
   assignedById: string;
   assignedByName: string;
   assignedAt: string;
-  status: Status;
+  status: EnumValue;
   startedAt?: string;
   completedAt?: string;
 }
@@ -60,7 +84,7 @@ export interface LearnerJourneyItem {
   id: string;
   learnerJourneyId: string;
   journeyItemId: string;
-  status: Status;
+  status: EnumValue;
   timeSpentHours?: number;
   updatedAt: string;
   notes: Note[];
@@ -70,9 +94,7 @@ export interface LearnerJourneyItem {
 
 export interface ExamQuestion {
   id: string;
-  examId: string;
-  order: number;
-  type: QuestionType;
+  type: EnumValue;
   prompt: string;
   /** multiple_choice only */
   options?: string[];
@@ -82,7 +104,7 @@ export interface ExamQuestion {
   correctBoolAnswer?: boolean;
 }
 
-/** One exam per journey template — the brief's "short exam at the end of the journey". */
+/** One exam per journey template. */
 export interface Exam {
   id: string;
   journeyId: string;
@@ -107,7 +129,7 @@ export interface ExamAttempt {
   id: string;
   learnerJourneyId: string;
   examId: string;
-  status: ExamAttemptStatus;
+  status: EnumValue;
   answers: ExamAnswer[];
   submittedAt?: string;
   gradedAt?: string;
@@ -130,7 +152,7 @@ export interface LearnerJourneyView extends LearnerJourney {
   totalTimeSpentHours: number;
   /** Present only if the journey template has an exam configured. */
   exam?: Exam;
-  /** Present only once the learner has started/submitted/been graded. */
+  /** Present only once the learner has submitted. */
   examAttempt?: ExamAttempt;
 }
 

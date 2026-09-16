@@ -1,49 +1,49 @@
 <div class="page-head">
   <div>
-    <span class="page-eyebrow">{{ isEdit ? 'Edit user' : 'New user' }}</span>
-    <h1 class="page-title">{{ isEdit ? 'Update user' : 'Add a user' }}</h1>
+    <span class="page-eyebrow">{{ (isEdit ? 'USER.EDIT_USER' : 'USER.NEW_USER') | translate }}</span>
+    <h1 class="page-title">{{ (isEdit ? 'USER.UPDATE_USER' : 'USER.ADD_A_USER') | translate }}</h1>
   </div>
-  <a routerLink="/admin/users" class="btn btn-ghost">← Back to users</a>
+  <a routerLink="/admin/users" class="btn btn-ghost">{{ 'USER.BACK_TO_USERS' | translate }}</a>
 </div>
 
 <div class="card card-pad form-card" *ngIf="!loading">
   <div class="field">
-    <label for="name">Full name</label>
-    <input id="name" class="input" [(ngModel)]="name" name="name" placeholder="Jane Doe" />
+    <label for="name">{{ 'USER.FULL_NAME' | translate }}</label>
+    <input id="name" class="input" [(ngModel)]="name" name="name" [placeholder]="'AUTH.NAME_PLACEHOLDER' | translate" />
   </div>
 
   <div class="field">
-    <label for="email">Email</label>
-    <input id="email" class="input" type="email" [(ngModel)]="email" name="email" placeholder="jane@company.io" />
+    <label for="email">{{ 'USER.EMAIL' | translate }}</label>
+    <input id="email" class="input" type="email" [(ngModel)]="email" name="email" [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | translate" />
   </div>
 
   <div class="field">
-    <label for="password">{{ isEdit ? 'New password (leave blank to keep current)' : 'Password' }}</label>
-    <input id="password" class="input" type="password" [(ngModel)]="password" name="password" placeholder="••••••••" />
+    <label for="password">{{ (isEdit ? 'USER.NEW_PASSWORD' : 'USER.PASSWORD') | translate }}</label>
+    <input id="password" class="input" type="password" [(ngModel)]="password" name="password" [placeholder]="'AUTH.PASSWORD_PLACEHOLDER' | translate" />
   </div>
 
   <div class="field">
-    <label for="role">Role</label>
+    <label for="role">{{ 'USER.ROLE' | translate }}</label>
     <select id="role" class="select" [(ngModel)]="role" name="role">
-      <option *ngFor="let r of roles" [value]="r">{{ roleLabel[r] }}</option>
+      <option *ngFor="let r of roles" [ngValue]="r.code">{{ roleLabel(r) }}</option>
     </select>
   </div>
 
-  <div class="field" *ngIf="role === 'learner'">
-    <label for="senior">Assigned senior</label>
+  <div class="field" *ngIf="role === RoleCode.Learner">
+    <label for="senior">{{ 'USER.ASSIGNED_SENIOR' | translate }}</label>
     <select id="senior" class="select" [(ngModel)]="seniorId" name="senior">
-      <option value="">Unassigned</option>
+      <option value="">{{ 'USER.UNASSIGNED' | translate }}</option>
       <option *ngFor="let s of seniors" [value]="s.id">{{ s.name }}</option>
     </select>
-    <span class="hint">This senior will manage their journeys.</span>
+    <span class="hint">{{ 'USER.SENIOR_HINT' | translate }}</span>
   </div>
 
   <p class="field-error" *ngIf="error">{{ error }}</p>
 
   <div class="flex gap-12" style="margin-top: 8px;">
     <button class="btn btn-primary" (click)="submit()" [disabled]="saving">
-      {{ saving ? 'Saving…' : isEdit ? 'Save changes' : 'Create user' }}
+      {{ (saving ? 'COMMON.SAVING' : (isEdit ? 'USER.SAVE_CHANGES' : 'USER.CREATE_USER')) | translate }}
     </button>
-    <a routerLink="/admin/users" class="btn btn-ghost">Cancel</a>
+    <a routerLink="/admin/users" class="btn btn-ghost">{{ 'COMMON.CANCEL' | translate }}</a>
   </div>
 </div>

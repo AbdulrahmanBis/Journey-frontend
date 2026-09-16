@@ -1,13 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
+  <base href="/" />
   <title>Journey · IT Onboarding Quest Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/x-icon" href="data:," />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!--
+    IBM Plex Sans Arabic carries BOTH Latin and Arabic glyphs (verified: the served
+    CSS includes U+0600-06FF at every weight), so one family covers the whole UI in
+    either language. IBM Plex Mono is kept for ids/emails/numbers only — it has no
+    Arabic coverage, so it must never be applied to translated text.
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
 </head>
 <body>
   <app-root></app-root>

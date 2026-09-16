@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { Status, STATUS_LABEL } from '../../../core/models/enums';
+import { Component, Input, inject } from '@angular/core';
+import { EnumValue, statusSlug } from '../../../core/models/enums';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-status-badge',
@@ -12,17 +13,21 @@ import { Status, STATUS_LABEL } from '../../../core/models/enums';
   `,
 })
 export class StatusBadgeComponent {
-  @Input({ required: true }) status!: Status;
+  private lang = inject(LanguageService);
 
+  @Input({ required: true }) status!: EnumValue;
+
+  /** Enum wording comes from the API triple, picked for the active language. */
   get label(): string {
-    return STATUS_LABEL[this.status];
+    return this.lang.label(this.status);
   }
 
+  /** CSS keys off the local slug, not the server text, so styling survives relabelling. */
   get color(): string {
-    return `var(--status-${this.status})`;
+    return `var(--status-${statusSlug(this.status)})`;
   }
 
   get bg(): string {
-    return `var(--status-${this.status}-bg)`;
+    return `var(--status-${statusSlug(this.status)}-bg)`;
   }
 }

@@ -1,6 +1,6 @@
 # Journey — IT Onboarding Quest Log (Angular Frontend)
 
-Angular 18 standalone-component SPA. All data comes from a real REST backend at `http://localhost:3000/api`.
+Angular 18 standalone-component SPA. All data comes from the Spring Boot backend at `http://localhost:3000/api`.
 
 ---
 
@@ -11,8 +11,8 @@ npm install
 npm start        # ng serve -o  →  http://localhost:4200
 ```
 
-**The backend must be running at `http://localhost:3000/api` before you open the app.**  
-See `API_CONTRACT.md` for the full endpoint specification the backend must implement.
+**The backend must be running at `http://localhost:3000/api` before you open the app.**
+See `API_CONTRACT.md` for the full endpoint specification.
 
 To change the base URL for a different environment, edit one line:
 
@@ -25,10 +25,56 @@ export const API_BASE = 'http://localhost:3000/api';
 
 ## Authentication
 
-Login and signup both call the backend, which returns `{ user, token }`.  
-The token is stored in `localStorage` under `ioj_token` and automatically attached to every subsequent request as `Authorization: Bearer <token>` via an Angular functional HTTP interceptor (`auth.interceptor.ts`).
+Login calls the backend, which returns `{ user, token }`. The token is stored in `localStorage`
+under `ioj_token` and attached to every subsequent request as `Authorization: Bearer <token>` via a
+functional HTTP interceptor (`auth.interceptor.ts`). The current user is cached under `ioj_user` so
+the session survives a refresh.
 
-The current user object is also stored in `localStorage` (`ioj_user`) so the session survives a browser refresh without needing a separate `/me` round-trip on startup.
+Role checks compare **numeric codes**, not strings — `auth.hasRole(RoleCode.Manager, RoleCode.Admin)`.
+
+---
+
+## Enum-backed values
+
+Every status, role and question type arrives from the API as a triple:
+
+```ts
+interface EnumValue { code: number; english: string; arabic: string; }
+```
+
+- The **database stores only the `code`** (1001-based). Requests send back just the code.
+- **Display text comes from the triple**, not from the i18n files — render it with
+  `LanguageService.label(value)` so it follows the active language. Adding a new status means
+  editing the backend enum only.
+- **CSS keys off a local slug**, never the server text: `statusSlug()` / `roleSlug()` in
+  `core/models/enums.ts` drive the `--status-*` variables and `.role-*` classes, so styling
+  survives relabelling or an Arabic switch.
+- Exam option choices are 1001-based too (`1001` = first option). Convert at the UI boundary with
+  `optionCodeFor(index)` / `optionIndexOf(code)`.
+
+---
+
+## Internationalisation (English / Arabic + RTL)
+
+Built on **ngx-translate v18**.
+
+```
+src/assets/i18n/en.json
+src/assets/i18n/ar.json
+```
+
+- Templates: `{{ 'USER.FULL_NAME' | translate }}`; with params:
+  `{{ 'DASHBOARD.GREETING' | translate: { name: firstName } }}`
+- Component code (toasts, validation): `translate.instant('USER.CREATED')`
+- Any component whose template uses the pipe must list `TranslatePipe` in its standalone `imports`.
+- `core/services/language.service.ts` owns the active language, sets `lang` + `dir` on `<html>`,
+  and persists the choice under `ioj_lang`. The navbar has the toggle.
+- RTL overrides live in a `[dir="rtl"]` block at the bottom of `src/styles.scss` — only the rules
+  that hard-code a physical side need them; flex/grid mirrors on its own. `.mono` is pinned to
+  `direction: ltr` so ids, numbers and timestamps stay readable.
+
+> Keep both files at **identical key sets**. A key present in one and missing from the other renders
+> as the raw `SECTION.KEY` string on screen, with no build error.
 
 ---
 
@@ -38,25 +84,26 @@ The current user object is also stored in `localStorage` (`ioj_user`) so the ses
 src/app/
   core/
     models/
-      enums.ts          UserRole, Status, QuestionType, …
+      enums.ts          EnumValue, RoleCode, StatusCode, QuestionTypeCode,
+                        AttemptStatusCode, slugs + option-code helpers
       models.ts         User, Journey, Exam, LearnerJourneyView, …
       metrics.ts        LearnerMetrics, GroupMetrics, OrgMetrics, …
     services/
-      api.config.ts     API_BASE constant (single place to change the URL)
+      api.config.ts     API_BASE constant
       auth.interceptor.ts  JWT Bearer interceptor + TokenStore helper
       auth.service.ts   login / signup / logout / session restore
-      user.service.ts   GET/POST/PUT/PATCH/DELETE /users
+      language.service.ts  active language, <html lang|dir>, enum label picker
+      user.service.ts   /users CRUD
       journey.service.ts  journey templates + items CRUD
       assignment.service.ts  learner-journeys, item status, notes, dashboards
       exam.service.ts   exam template CRUD + attempt submit/grade
       metrics.service.ts  /metrics/learner, /metrics/senior, /metrics/org
-      toast.service.ts  in-memory notification queue (no backend needed)
+      toast.service.ts  in-memory notification queue
     guards/
-      guards.ts         authGuard, roleGuard, guestGuard
-  shared/
-    components/
-      navbar              role-aware sidebar nav
-      status-badge        colored status pill
+      guards.ts         authGuard, roleGuard(codes), guestGuard
+  shared/components/
+      navbar              role-aware sidebar nav + language toggle
+      status-badge        colored status pill (label from the API triple)
       progress-ring       SVG donut chart
       bar-chart           CSS flex bar chart for hours
       exam-grade-badge    inline 🎓 grade display
@@ -95,21 +142,11 @@ src/app/
 
 ---
 
-## Key HTTP services summary
+## Notes
 
-| Service | Endpoints used |
-|---------|---------------|
-| AuthService | `POST /auth/login`, `POST /auth/signup` |
-| UserService | `GET/POST/PUT/PATCH/DELETE /users` |
-| JourneyService | `GET/POST/PUT/DELETE /journeys`, `GET /journeys/:id/items` |
-| AssignmentService | `GET/POST /learner-journeys`, `PATCH /learner-journeys/:id/status`, `PATCH /learner-journey-items/:id/status`, `POST /learner-journey-items/:id/notes`, `GET /dashboard/senior/:id`, `GET /dashboard/manager` |
-| ExamService | `GET/POST/DELETE /journeys/:id/exam`, `GET/POST /learner-journeys/:id/exam-attempt`, `PATCH /exam-attempts/:id/grade` |
-| MetricsService | `GET /metrics/learner/:id`, `GET /metrics/senior/:id`, `GET /metrics/org` |
+The composed `LearnerJourneyView` returned by `/learner-journeys/:id` now embeds `exam` and
+`examAttempt`, so the quest log and exam screens no longer need separate lookups.
 
-Full request/response shapes for every endpoint are in **`API_CONTRACT.md`**.
-
----
-
-## Notes on verification
-
-The backend isn't running in this environment so the app will show loading spinners and network errors until your backend is up. The Angular code compiles cleanly (verified with TypeScript syntax check — no errors outside expected missing-module noise). Run `npm install && npm start` and point it at your running backend.
+This project lives under OneDrive, which intermittently locks build output: `ng build` can finish
+compiling and then fail with `EPERM: rmdir dist/...`. That is a lock artifact, not a code error —
+clear `dist` and re-run.

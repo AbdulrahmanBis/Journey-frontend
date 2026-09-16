@@ -1,10 +1,12 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../core/services/language.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
 import { LearnerSummary, LearnerJourneyView, SeniorSummary } from '../../../core/models/models';
-import { Status } from '../../../core/models/enums';
+import { EnumValue, StatusCode, isStatus } from '../../../core/models/enums';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ProgressRingComponent } from '../../../shared/components/progress-ring/progress-ring.component';
 import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-badge/exam-grade-badge.component';
@@ -12,7 +14,7 @@ import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-b
 @Component({
   selector: 'app-team-overview',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent],
+  imports: [CommonModule, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent, TranslatePipe],
   templateUrl: './team-overview.component.html',
   styleUrl: './team-overview.component.scss',
 })
@@ -22,6 +24,12 @@ export class TeamOverviewComponent implements OnInit {
   private auth = inject(AuthService);
   private assignments = inject(AssignmentService);
   private router = inject(Router);
+  private lang = inject(LanguageService);
+
+  /** Role wording comes from the API triple, so it follows the active language. */
+  roleLabel(person: { role?: EnumValue }): string {
+    return this.lang.label(person?.role);
+  }
 
   loading = true;
   learners: LearnerSummary[] = []; // senior scope
@@ -65,7 +73,9 @@ export class TeamOverviewComponent implements OnInit {
   }
 
   activeJourneyCount(journeys: LearnerJourneyView[]): number {
-    return journeys.filter((j) => j.status !== Status.Completed && j.status !== Status.Cancelled).length;
+    return journeys.filter(
+      (j) => !isStatus(j.status, StatusCode.Completed) && !isStatus(j.status, StatusCode.Cancelled),
+    ).length;
   }
 
   avgProgress(journeys: LearnerJourneyView[]): number {
