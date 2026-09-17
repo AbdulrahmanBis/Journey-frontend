@@ -6,7 +6,6 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { JourneyService } from '../../../core/services/journey.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
-import { ExamService } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Journey } from '../../../core/models/models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -23,16 +22,12 @@ export class JourneyListComponent implements OnInit {
   private auth = inject(AuthService);
   private journeyService = inject(JourneyService);
   private assignments = inject(AssignmentService);
-  private examService = inject(ExamService);
   private toast = inject(ToastService);
   private router = inject(Router);
   private translate = inject(TranslateService);
 
   journeys: Journey[] = [];
   loading = true;
-
-  // exam presence cache: journeyId → boolean
-  examMap: Record<string, boolean> = {};
 
   // Assign modal
   assigningJourney: Journey | null = null;
@@ -55,18 +50,10 @@ export class JourneyListComponent implements OnInit {
       next: (journeys) => {
         this.journeys = journeys;
         this.loading = false;
-        // Load exam state for each journey to show the + Exam / Exam button correctly
-        journeys.forEach((j) => {
-          this.examService.getExamForJourney(j.id).subscribe((exam) => {
-            this.examMap[j.id] = !!exam;
-          });
-        });
       },
       error: () => { this.loading = false; this.toast.error(this.translate.instant('JOURNEY.LOAD_FAILED')); },
     });
   }
-
-  hasExam(journeyId: string): boolean { return !!this.examMap[journeyId]; }
 
   edit(journey: Journey): void { this.router.navigate(['/journeys', journey.id, 'edit']); }
 

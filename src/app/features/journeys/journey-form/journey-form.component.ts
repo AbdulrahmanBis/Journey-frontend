@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QuillEditorComponent } from 'ngx-quill';
+import { cleanEditorHtml } from '../../../shared/directives/editor-html';
 import { AuthService } from '../../../core/services/auth.service';
 import { JourneyService, AttachmentPayload } from '../../../core/services/journey.service';
 import { FileService } from '../../../core/services/file.service';
@@ -314,7 +315,7 @@ export class JourneyFormComponent implements OnInit {
       .map((i) => ({
         id: i.id,
         title: i.title.trim(),
-        description: (i.description ?? '').trim(),
+        description: cleanEditorHtml(i.description),
         // Incomplete rows are dropped rather than rejected — a half-filled row is just noise.
         attachments: i.attachments.filter((a) => this.isComplete(a)).map(
           (a): AttachmentPayload => ({

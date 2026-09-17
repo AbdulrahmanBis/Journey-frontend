@@ -1,0 +1,82 @@
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ 'ANNOUNCEMENTS.EYEBROW' | translate }}</span>
+    <h1 class="page-title">{{ (isEdit ? 'ANNOUNCEMENTS.EDIT_TITLE' : 'ANNOUNCEMENTS.NEW_TITLE') | translate }}</h1>
+    <p class="text-body-secondary mt-1 mb-0">{{ 'ANNOUNCEMENTS.FORM_SUB' | translate }}</p>
+  </div>
+  <a routerLink="/announcements" class="btn btn-outline-secondary">{{ 'ANNOUNCEMENTS.BACK' | translate }}</a>
+</div>
+
+<p class="text-body-secondary" *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</p>
+
+<form class="row g-3 align-items-start" *ngIf="!loading" (ngSubmit)="save()">
+  <div class="col-lg-8">
+    <div class="card card-body">
+      <div class="mb-3">
+        <label for="ann-title" class="form-label">{{ 'ANNOUNCEMENTS.FIELD_TITLE' | translate }}</label>
+        <input id="ann-title" class="form-control" maxlength="200" name="title" [(ngModel)]="title" [placeholder]="'ANNOUNCEMENTS.TITLE_PLACEHOLDER' | translate" />
+      </div>
+      <label class="form-label" for="ann-body">{{ 'ANNOUNCEMENTS.FIELD_BODY' | translate }}</label>
+      <quill-editor
+        id="ann-body"
+        name="body"
+        [(ngModel)]="body"
+        [modules]="quillModules"
+        [placeholder]="'ANNOUNCEMENTS.BODY_PLACEHOLDER' | translate"
+        theme="snow"
+      ></quill-editor>
+      <div class="form-text">{{ 'ANNOUNCEMENTS.LINK_HINT' | translate }}</div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card card-body gap-3">
+      <fieldset>
+        <legend class="form-label fs-6">{{ 'ANNOUNCEMENTS.AUDIENCE' | translate }}</legend>
+        <ng-container *ngIf="isOrgWide; else managerAudience">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" id="aud-everyone" name="audience" [value]="true" [(ngModel)]="orgWide" />
+            <label class="form-check-label" for="aud-everyone">{{ 'ANNOUNCEMENTS.EVERYONE' | translate }}</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" id="aud-departments" name="audience" [value]="false" [(ngModel)]="orgWide" />
+            <label class="form-check-label" for="aud-departments">{{ 'ANNOUNCEMENTS.SOME_DEPARTMENTS' | translate }}</label>
+          </div>
+          <div class="ms-4 mt-2 d-flex flex-column gap-1" *ngIf="!orgWide">
+            <div class="form-check" *ngFor="let d of departments">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                [id]="'aud-dep-' + d.id"
+                [checked]="selectedDepartments.has(d.id)"
+                (change)="toggleDepartment(d.id, $any($event.target).checked)"
+              />
+              <label class="form-check-label" [for]="'aud-dep-' + d.id">{{ lang.label(d) }}</label>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #managerAudience>
+          <p class="small text-body-secondary mb-0">{{ 'ANNOUNCEMENTS.MANAGER_AUDIENCE' | translate: { department: ownDepartment } }}</p>
+        </ng-template>
+      </fieldset>
+
+      <div>
+        <label for="ann-until" class="form-label">{{ 'ANNOUNCEMENTS.SHOW_UNTIL' | translate }}</label>
+        <input id="ann-until" type="date" class="form-control" name="showUntil" [min]="today" [max]="maxDate" [(ngModel)]="showUntil" />
+        <div class="form-text">{{ 'ANNOUNCEMENTS.SHOW_UNTIL_HINT' | translate }}</div>
+      </div>
+
+      <div class="form-check" *ngIf="isEdit">
+        <input class="form-check-input" type="checkbox" id="ann-notify" name="notifyAgain" [(ngModel)]="notifyAgain" />
+        <label class="form-check-label" for="ann-notify">{{ 'ANNOUNCEMENTS.NOTIFY_AGAIN' | translate }}</label>
+      </div>
+      <p class="small text-body-tertiary mb-0" *ngIf="!isEdit">{{ 'ANNOUNCEMENTS.NOTIFY_HINT' | translate }}</p>
+
+      <div class="alert alert-danger small mb-0" *ngIf="error">{{ error }}</div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ (saving ? 'COMMON.SAVING' : isEdit ? 'COMMON.SAVE' : 'ANNOUNCEMENTS.PUBLISH') | translate }}
+      </button>
+    </div>
+  </div>
+</form>

@@ -18,10 +18,12 @@ import { JourneyGroups, PackageGroupComponent, groupByPackage } from '../../../s
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 
 /** Everything about one learner on one page: status, what needs attention, packages and journeys. */
+import { CertificateListComponent } from '../../../shared/components/certificate-list/certificate-list.component';
+
 @Component({
   selector: 'app-learner-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe, AttentionListComponent, JourneyCardComponent, PackageGroupComponent, ConfirmDialogComponent, TimeAgoPipe],
+  imports: [CommonModule, RouterLink, TranslatePipe, CertificateListComponent, AttentionListComponent, JourneyCardComponent, PackageGroupComponent, ConfirmDialogComponent, TimeAgoPipe],
   templateUrl: './learner-profile.component.html',
 })
 export class LearnerProfileComponent implements OnInit {

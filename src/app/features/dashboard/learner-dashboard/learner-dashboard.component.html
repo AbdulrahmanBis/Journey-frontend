@@ -112,6 +112,10 @@
   </div>
 </div>
 
+<div class="mt-4" *ngIf="!loading">
+  <app-certificate-list></app-certificate-list>
+</div>
+
 <ng-template #loadingState>
   <p class="text-body-secondary">{{ 'DASHBOARD.LOADING' | translate }}</p>
 </ng-template>

@@ -21,7 +21,12 @@
     </div>
 
     <div class="card card-body">
-      <h2 class="h5 mb-3">{{ (isPackage ? 'CATALOG.JOURNEYS_INCLUDED' : 'CATALOG.WHAT_YOU_DO') | translate }}</h2>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h5 mb-0">{{ (isPackage ? 'CATALOG.JOURNEYS_INCLUDED' : 'CATALOG.WHAT_YOU_DO') | translate }}</h2>
+        <a *ngIf="!isPackage" class="btn btn-outline-primary btn-sm" [routerLink]="['/journeys', d.entry.id, 'preview']" [queryParams]="{ from: 'catalog' }">
+          {{ (isStaff ? 'PREVIEW.ACTION' : 'PREVIEW.SAMPLE_ACTION') | translate }}
+        </a>
+      </div>
 
       <!-- A journey: units that open to show their items, then the final exam -->
       <div class="syllabus-units" *ngIf="d.units">

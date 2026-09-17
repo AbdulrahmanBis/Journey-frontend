@@ -15,7 +15,7 @@ const SLIDES: Record<string, Slide[]> = {
   learner: [
     { icon: '👋', key: 'INTRO.LEARNER_1' },
     { icon: '▶️', key: 'INTRO.LEARNER_2' },
-    { icon: '🔄', key: 'INTRO.LEARNER_3' },
+    { icon: '🧩', key: 'INTRO.LEARNER_3' },
     { icon: '📚', key: 'INTRO.LEARNER_4' },
     { icon: '🔔', key: 'INTRO.LEARNER_5' },
   ],
@@ -31,6 +31,7 @@ const SLIDES: Record<string, Slide[]> = {
     { icon: '⏰', key: 'INTRO.MANAGER_3' },
     { icon: '🧩', key: 'INTRO.MANAGER_4' },
     { icon: '👥', key: 'INTRO.MANAGER_5' },
+    { icon: '📣', key: 'INTRO.MANAGER_6' },
   ],
   org: [
     { icon: '👋', key: 'INTRO.ORG_1' },
@@ -38,6 +39,7 @@ const SLIDES: Record<string, Slide[]> = {
     { icon: '🏢', key: 'INTRO.ORG_3' },
     { icon: '📚', key: 'INTRO.ORG_4' },
     { icon: '⏰', key: 'INTRO.ORG_5' },
+    { icon: '📣', key: 'INTRO.ORG_6' },
   ],
 };
 

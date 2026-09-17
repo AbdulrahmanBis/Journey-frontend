@@ -6,7 +6,8 @@ import { CatalogService } from '../../../core/services/catalog.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CatalogDetail } from '../../../core/models/models';
-import { CatalogTypeCode, LearningStatusCode, codeOf, learningStatusChipClass } from '../../../core/models/enums';
+import { CatalogTypeCode, LearningStatusCode, STAFF_ROLES, codeOf, learningStatusChipClass } from '../../../core/models/enums';
+import { AuthService } from '../../../core/services/auth.service';
 import { CatalogActionComponent } from '../../../shared/components/catalog-action/catalog-action.component';
 
 /**
@@ -25,6 +26,7 @@ export class CatalogDetailComponent implements OnInit {
   private router = inject(Router);
   private catalog = inject(CatalogService);
   private toast = inject(ToastService);
+  private auth = inject(AuthService);
   private translate = inject(TranslateService);
   lang = inject(LanguageService);
 
@@ -36,6 +38,9 @@ export class CatalogDetailComponent implements OnInit {
   private id = '';
 
   get isPackage(): boolean { return this.type === CatalogTypeCode.Package; }
+
+  /** Staff preview everything; learners get a sample (the first unit). */
+  get isStaff(): boolean { return this.auth.hasRole(...STAFF_ROLES); }
 
   get statusClass(): string { return learningStatusChipClass(this.detail?.entry.mine?.status); }
 

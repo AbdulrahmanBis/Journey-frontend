@@ -1,0 +1,22 @@
+<section class="mb-4" *ngIf="items.length" [attr.aria-label]="'ANNOUNCEMENTS.TITLE' | translate">
+  <div class="d-flex flex-column gap-2">
+    <article class="card announcement-card" *ngFor="let a of visible">
+      <div class="card-body d-flex align-items-start gap-3">
+        <span class="announcement-icon" aria-hidden="true">📣</span>
+        <button type="button" class="announcement-open flex-grow-1 overflow-hidden" (click)="open(a)">
+          <span class="d-block fw-semibold user-content">{{ a.title }}</span>
+          <span class="d-block small text-body-secondary announcement-excerpt user-content">{{ a.excerpt }}</span>
+          <span class="d-block small text-body-tertiary mt-1">
+            <span class="user-content">{{ a.authorName }}</span> · {{ a.createdAt | timeAgo }} · <span class="link-primary">{{ 'ANNOUNCEMENTS.READ' | translate }}</span>
+          </span>
+        </button>
+        <button type="button" class="btn-close flex-shrink-0" [attr.aria-label]="'ANNOUNCEMENTS.DISMISS' | translate" [title]="'ANNOUNCEMENTS.DISMISS' | translate" (click)="dismiss(a)"></button>
+      </div>
+    </article>
+  </div>
+  <button type="button" class="btn btn-link btn-sm px-0 mt-1" *ngIf="items.length > collapsedCount" (click)="expanded = !expanded">
+    {{ (expanded ? 'ANNOUNCEMENTS.SHOW_LESS' : 'ANNOUNCEMENTS.SHOW_MORE') | translate: { count: items.length - collapsedCount } }}
+  </button>
+</section>
+
+<app-announcement-modal [announcement]="opened" [canDismiss]="openedIsListed" (closed)="close()" (followedLink)="opened = null" (dismissed)="dismiss(opened!)"></app-announcement-modal>

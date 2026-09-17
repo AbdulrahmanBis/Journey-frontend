@@ -8,6 +8,7 @@
 </div>
 
 <p class="form-text mt-0 mb-3" *ngIf="!isEdit">{{ 'JOURNEY.SAVE_FIRST_HINT' | translate }}</p>
+<a *ngIf="isEdit" [routerLink]="['/journeys', journeyId, 'preview']" class="btn btn-outline-secondary mb-3 me-2" [title]="'PREVIEW.SAVED_VERSION' | translate">{{ 'PREVIEW.ACTION' | translate }}</a>
 <a *ngIf="isEdit" [routerLink]="['/journeys', journeyId, 'exam']" class="btn btn-outline-secondary mb-3">
   {{ 'JOURNEY.MANAGE_EXAM' | translate }}
 </a>

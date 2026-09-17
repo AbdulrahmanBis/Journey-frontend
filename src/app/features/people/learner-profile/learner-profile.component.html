@@ -27,6 +27,8 @@
     </div>
   </div>
 
+  <app-certificate-list [learnerId]="s.learner.id"></app-certificate-list>
+
   <div class="card card-body mb-4" *ngIf="s.attention.length">
     <h2 class="h6 mb-3">{{ 'TEAM.NEEDS_ATTENTION' | translate }}</h2>
     <app-attention-list [items]="s.attention" [showLearner]="false"></app-attention-list>

@@ -1,0 +1,55 @@
+<ng-container *ngIf="certificate as c">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 no-print">
+    <button type="button" class="btn btn-link link-secondary px-0" (click)="back()">{{ 'COMMON.BACK_ARROW' | translate }} {{ 'COMMON.BACK' | translate }}</button>
+    <div class="d-flex flex-wrap gap-2">
+      <a *ngIf="c.learnerJourneyId" class="btn btn-outline-secondary btn-sm" [routerLink]="['/journey-log', c.learnerJourneyId]">{{ 'CERTIFICATE.OPEN_JOURNEY' | translate }}</a>
+      <button type="button" class="btn btn-primary btn-sm" (click)="print()">{{ 'CERTIFICATE.DOWNLOAD' | translate }}</button>
+    </div>
+  </div>
+  <p class="small text-body-tertiary no-print">{{ 'CERTIFICATE.DOWNLOAD_HINT' | translate }}</p>
+
+  <article class="certificate" [attr.aria-label]="'CERTIFICATE.OF_COMPLETION' | translate">
+    <div class="certificate-frame">
+      <div class="certificate-brand">
+        <span class="certificate-mark" aria-hidden="true">J</span>
+        <span>{{ 'NAV.BRAND' | translate }}</span>
+      </div>
+
+      <p class="certificate-eyebrow">{{ 'CERTIFICATE.OF_COMPLETION' | translate }}</p>
+      <p class="certificate-lead">{{ 'CERTIFICATE.CERTIFIES' | translate }}</p>
+      <h1 class="certificate-name user-content">{{ c.learnerName }}</h1>
+      <p class="certificate-lead" *ngIf="c.department">{{ lang.label(c.department) }}</p>
+
+      <p class="certificate-lead mt-3">{{ (isPackage ? 'CERTIFICATE.COMPLETED_PACKAGE' : 'CERTIFICATE.COMPLETED_JOURNEY') | translate }}</p>
+      <h2 class="certificate-title user-content">{{ c.title }}</h2>
+      <p class="certificate-journeys user-content" *ngIf="c.journeys?.length">{{ c.journeys!.join(' · ') }}</p>
+
+      <dl class="certificate-facts">
+        <div>
+          <dt>{{ 'CERTIFICATE.COMPLETED_ON' | translate }}</dt>
+          <dd>{{ date(c.completedAt) }}</dd>
+        </div>
+        <div *ngIf="c.examScorePercent != null">
+          <dt>{{ 'CERTIFICATE.EXAM_SCORE' | translate }}</dt>
+          <dd dir="ltr">{{ c.examScorePercent }}%</dd>
+        </div>
+        <div *ngIf="c.hours">
+          <dt>{{ 'CERTIFICATE.LEARNING_TIME' | translate }}</dt>
+          <dd>{{ 'CERTIFICATE.HOURS' | translate: { hours: c.hours } }}</dd>
+        </div>
+      </dl>
+
+      <div class="certificate-footer">
+        <div class="certificate-signature" *ngIf="c.reviewerName">
+          <span class="certificate-signature-name user-content">{{ c.reviewerName }}</span>
+          <span class="certificate-small">{{ (isPackage ? 'CERTIFICATE.ASSIGNED_BY' : 'CERTIFICATE.REVIEWED_BY') | translate }}</span>
+        </div>
+        <div class="certificate-code">
+          <span class="certificate-small">{{ 'CERTIFICATE.CODE' | translate }}</span>
+          <span class="certificate-code-value" dir="ltr">{{ c.code }}</span>
+          <span class="certificate-small">{{ 'CERTIFICATE.ISSUED_ON' | translate: { date: date(c.issuedAt) } }}</span>
+        </div>
+      </div>
+    </div>
+  </article>
+</ng-container>

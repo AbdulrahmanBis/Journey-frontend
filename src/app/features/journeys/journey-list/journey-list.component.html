@@ -14,17 +14,20 @@
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3" *ngIf="!loading">
   <div class="col" *ngFor="let j of journeys">
     <div class="card card-body h-100 gap-3">
-      <span class="badge rounded-pill bg-light text-navy align-self-start">{{ j.techTag }}</span>
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <span class="badge rounded-pill bg-light text-navy">{{ j.techTag }}</span>
+        <button type="button" class="btn btn-sm btn-outline-danger py-0" [title]="'COMMON.DELETE' | translate" [attr.aria-label]="'COMMON.DELETE' | translate" (click)="askDelete(j)">✕</button>
+      </div>
       <h3 class="fs-5 mb-0 user-content">{{ j.title }}</h3>
       <p class="text-body-secondary text-clamp-2 user-content">{{ j.description }}</p>
       <p class="small text-body-tertiary" dir="auto">{{ 'JOURNEY.BY_AUTHOR' | translate: { name: j.createdByName } }}</p>
       <div class="d-flex flex-wrap align-items-center gap-2 mt-auto pt-2 border-top">
         <button class="btn btn-primary btn-sm" (click)="openAssign(j)">{{ 'COMMON.ASSIGN' | translate }}</button>
+        <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/journeys', j.id, 'preview']">{{ 'PREVIEW.ACTION' | translate }}</a>
         <button class="btn btn-outline-secondary btn-sm" (click)="edit(j)">{{ 'COMMON.EDIT' | translate }}</button>
         <a [routerLink]="['/journeys', j.id, 'exam']" class="btn btn-outline-secondary btn-sm">
-          {{ (hasExam(j.id) ? 'JOURNEY.EXAM' : 'JOURNEY.ADD_EXAM') | translate }}
+          {{ (j.hasExam ? 'JOURNEY.EXAM' : 'JOURNEY.ADD_EXAM') | translate }}
         </a>
-        <button class="btn btn-outline-danger btn-sm ms-auto" [title]="'COMMON.DELETE' | translate" (click)="askDelete(j)">✕</button>
       </div>
     </div>
   </div>

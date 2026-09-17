@@ -1,0 +1,74 @@
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <span class="page-eyebrow">{{ 'ANNOUNCEMENTS.EYEBROW' | translate }}</span>
+    <h1 class="page-title">{{ 'ANNOUNCEMENTS.TITLE' | translate }}</h1>
+    <p class="text-body-secondary mt-1 mb-0">{{ (isOrgWide ? 'ANNOUNCEMENTS.SUB_ORG' : 'ANNOUNCEMENTS.SUB_MANAGER') | translate }}</p>
+  </div>
+  <div class="d-flex flex-wrap align-items-end gap-2">
+    <div class="page-filter" *ngIf="isOrgWide">
+      <app-department-picker
+        inputId="announcement-department"
+        [label]="'DEPARTMENT.LABEL' | translate"
+        [small]="true"
+        [value]="departmentId"
+        (valueChange)="onDepartmentChange($event)"
+      ></app-department-picker>
+    </div>
+    <a routerLink="/announcements/new" class="btn btn-primary">{{ 'ANNOUNCEMENTS.NEW' | translate }}</a>
+  </div>
+</div>
+
+<ul class="nav nav-underline mb-3">
+  <li class="nav-item">
+    <button type="button" class="nav-link" [class.active]="view === 'current'" (click)="view = 'current'">
+      {{ 'ANNOUNCEMENTS.CURRENT' | translate: { count: current.length } }}
+    </button>
+  </li>
+  <li class="nav-item">
+    <button type="button" class="nav-link" [class.active]="view === 'past'" (click)="view = 'past'">
+      {{ 'ANNOUNCEMENTS.PAST' | translate: { count: past.length } }}
+    </button>
+  </li>
+</ul>
+
+<p class="text-body-secondary" *ngIf="loading && !items.length">{{ 'COMMON.LOADING' | translate }}</p>
+<div class="alert alert-danger" *ngIf="failed">{{ 'ANNOUNCEMENTS.LOAD_FAILED' | translate }}</div>
+
+<div class="d-flex flex-column gap-2" [class.opacity-50]="loading" *ngIf="!failed">
+  <article class="card card-body" *ngFor="let a of shown">
+    <div class="d-flex flex-wrap align-items-start gap-3">
+      <button type="button" class="row-link flex-grow-1 overflow-hidden text-start border-0 bg-transparent p-0" (click)="opened = a">
+        <span class="d-block fw-semibold user-content">{{ a.title }}</span>
+        <span class="d-block small text-body-secondary text-truncate user-content">{{ a.excerpt }}</span>
+        <span class="d-flex flex-wrap align-items-center gap-2 small text-body-tertiary mt-1">
+          <span class="badge rounded-pill" [ngClass]="a.orgWide ? 'bg-navy text-white' : 'bg-navy-subtle text-navy'">{{ audience(a) }}</span>
+          <span class="user-content">{{ a.authorName }}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ a.createdAt | timeAgo }}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ (a.active ? 'ANNOUNCEMENTS.SHOWS_UNTIL' : 'ANNOUNCEMENTS.SHOWED_UNTIL') | translate: { date: showUntil(a) } }}</span>
+        </span>
+      </button>
+      <div class="d-flex gap-2 flex-shrink-0" *ngIf="a.canEdit">
+        <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/announcements', a.id, 'edit']">{{ 'COMMON.EDIT' | translate }}</a>
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleting = a">{{ 'COMMON.DELETE' | translate }}</button>
+      </div>
+    </div>
+  </article>
+
+  <div class="card card-body text-center text-body-secondary" *ngIf="!loading && !shown.length">
+    {{ (view === 'current' ? 'ANNOUNCEMENTS.EMPTY_CURRENT' : 'ANNOUNCEMENTS.EMPTY_PAST') | translate }}
+  </div>
+</div>
+
+<app-announcement-modal [announcement]="opened" (closed)="opened = null" (followedLink)="opened = null"></app-announcement-modal>
+
+<app-confirm-dialog
+  [open]="!!deleting"
+  [title]="'ANNOUNCEMENTS.DELETE_TITLE' | translate"
+  [message]="'ANNOUNCEMENTS.DELETE_MESSAGE' | translate"
+  [confirmLabel]="'COMMON.DELETE' | translate"
+  [danger]="true"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleting = null"
+></app-confirm-dialog>

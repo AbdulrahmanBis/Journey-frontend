@@ -15,10 +15,12 @@ import { HomeTask, LearnerHome, learnerHome } from './learner-home';
 import { DueBadgeComponent } from '../../../shared/components/due-badge/due-badge.component';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 
+import { CertificateListComponent } from '../../../shared/components/certificate-list/certificate-list.component';
+
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, JourneyCardComponent, PackageGroupComponent, DueBadgeComponent, TimeAgoPipe, TranslatePipe],
+  imports: [CommonModule, RouterLink, CertificateListComponent, JourneyCardComponent, PackageGroupComponent, DueBadgeComponent, TimeAgoPipe, TranslatePipe],
   templateUrl: './learner-dashboard.component.html',
   styleUrl: './learner-dashboard.component.scss',
 })

@@ -6,6 +6,8 @@ import { NotificationService } from '../../core/services/notification.service';
 import { LanguageService } from '../../core/services/language.service';
 import { ToastService } from '../../core/services/toast.service';
 import { AppNotification } from '../../core/models/models';
+import { AuthService } from '../../core/services/auth.service';
+import { RoleCode } from '../../core/models/enums';
 
 const PAGE_SIZE = 20;
 
@@ -23,6 +25,13 @@ export class NotificationsComponent implements OnInit {
   private translate = inject(TranslateService);
   private toast = inject(ToastService);
   private lang = inject(LanguageService);
+  private auth = inject(AuthService);
+
+  /** Admin only: the email setup and a way to test it. */
+  mail: { enabled: boolean; configured: boolean; from: string } | null = null;
+  sendingTest = false;
+
+  get isAdmin(): boolean { return this.auth.hasRole(RoleCode.Admin); }
 
   items: AppNotification[] = [];
   loading = true;
@@ -33,6 +42,21 @@ export class NotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load(0);
+    if (this.isAdmin) this.notifications.mailStatus().subscribe({ next: (s) => (this.mail = s), error: () => undefined });
+  }
+
+  sendTestEmail(): void {
+    this.sendingTest = true;
+    this.notifications.sendTestEmail().subscribe({
+      next: ({ sentTo }) => {
+        this.sendingTest = false;
+        this.toast.success(this.translate.instant('NOTIFICATIONS.TEST_SENT', { email: sentTo }));
+      },
+      error: (err: any) => {
+        this.sendingTest = false;
+        this.toast.error(err?.error?.message ?? this.translate.instant('NOTIFICATIONS.TEST_FAILED'));
+      },
+    });
   }
 
   load(page: number): void {

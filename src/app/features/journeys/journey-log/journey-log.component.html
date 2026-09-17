@@ -14,6 +14,7 @@
           <a class="small link-body-emphasis" [routerLink]="['/people', o.learnerId]"><bdi>{{ o.learnerName }}</bdi></a>
         </div>
       </div>
+      <a *ngIf="certificateId" class="btn btn-primary btn-sm" [routerLink]="['/certificates', certificateId]">🏅 {{ 'CERTIFICATE.VIEW' | translate }}</a>
       <a *ngIf="!o.exam && isReviewer && finished" [routerLink]="['/journeys', o.journey.id, 'exam']" class="btn btn-outline-secondary btn-sm">
         {{ 'QUEST_LOG.SETUP_EXAM' | translate }}
       </a>
@@ -86,7 +87,7 @@
 
           <ng-container *ngIf="content && content.progressId === step.item.progressId">
             <!-- Rich HTML from the editor; Angular sanitizes it on the way in. -->
-            <div class="quest-rich user-content" *ngIf="isRichText(content.description)" [innerHTML]="content.description"></div>
+            <div class="rich-content user-content" appRichLinks *ngIf="isRichText(content.description)" [innerHTML]="content.description"></div>
             <ul class="quest-desc user-content" *ngIf="!isRichText(content.description)">
               <li *ngFor="let line of plainLines(content.description)">{{ line }}</li>
             </ul>

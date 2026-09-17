@@ -20,6 +20,9 @@
     <a *ngIf="canManageJourneys" routerLink="/journeys" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.JOURNEYS' | translate }}
     </a>
+    <a *ngIf="canManageUsers" routerLink="/announcements" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
+      <span class="nav-dot"></span> {{ 'NAV.ANNOUNCEMENTS' | translate }}
+    </a>
     <a *ngIf="canManageUsers" routerLink="/admin/users" routerLinkActive="active" class="nav-link d-flex align-items-center gap-2">
       <span class="nav-dot"></span> {{ 'NAV.USERS' | translate }}
     </a>

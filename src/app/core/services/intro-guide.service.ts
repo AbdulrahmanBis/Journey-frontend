@@ -7,7 +7,7 @@ import { API_BASE } from './api.config';
  * Bump when the guide changes enough that everyone should see it once more; people who dismissed an
  * older version get the new one on their next visit.
  */
-export const INTRO_GUIDE_VERSION = 1;
+export const INTRO_GUIDE_VERSION = 2;
 
 const SESSION_KEY = 'ioj_intro_closed';
 

@@ -286,6 +286,10 @@ export const TECH_TAGS = [
   'Angular / Express',
   'Operations Tools',
   'Splunk & Reporting',
+  'Security',
+  'Sales & CRM',
+  'People & Culture',
+  'Project Delivery',
   'General',
 ] as const;
 

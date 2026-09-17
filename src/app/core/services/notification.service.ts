@@ -69,6 +69,16 @@ export class NotificationService {
     );
   }
 
+  /** Admin: whether email is switched on and a mail server is set. */
+  mailStatus(): Observable<{ enabled: boolean; configured: boolean; from: string }> {
+    return this.http.get<{ enabled: boolean; configured: boolean; from: string }>(`${API_BASE}/notifications/mail-status`);
+  }
+
+  /** Admin: sends a test email to yourself now; fails with the reason (email off, no server, rejected). */
+  sendTestEmail(): Observable<{ sentTo: string }> {
+    return this.http.post<{ sentTo: string }>(`${API_BASE}/notifications/test-email`, {});
+  }
+
   markAllRead(): Observable<{ marked: number }> {
     return this.http.patch<{ marked: number }>(`${API_BASE}/notifications/read-all`, {});
   }

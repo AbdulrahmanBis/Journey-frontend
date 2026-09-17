@@ -1,0 +1,144 @@
+<p class="text-body-secondary" *ngIf="loading">{{ 'PREVIEW.LOADING' | translate }}</p>
+
+<ng-container *ngIf="!loading && preview as p">
+  <a [routerLink]="backLink" class="link-secondary small d-inline-block mb-2">{{ 'COMMON.BACK_ARROW' | translate }} {{ 'COMMON.BACK' | translate }}</a>
+
+  <!-- ── Journey header ─────────────────────────────────────────────────────── -->
+  <div class="card card-body mb-3 gap-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div class="overflow-hidden">
+        <span class="page-eyebrow">{{ p.journey.techTag }}</span>
+        <h1 class="page-title user-content mb-0">{{ p.journey.title }}</h1>
+        <p class="text-body-secondary user-content mt-1 mb-0" *ngIf="p.journey.description">{{ p.journey.description }}</p>
+      </div>
+      <div class="d-flex flex-wrap gap-2" *ngIf="isStaff">
+        <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/journeys', p.journey.id, 'edit']">{{ 'PREVIEW.EDIT' | translate }}</a>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-3 small text-body-tertiary" dir="auto">
+      <span>{{ 'PREVIEW.UNIT_COUNT' | translate: { count: p.units.length } }}</span>
+      <span>{{ 'CATALOG.ITEM_COUNT' | translate: { count: itemCount } }}</span>
+      <span *ngIf="p.exam">🎓 {{ 'CATALOG.HAS_EXAM' | translate }}</span>
+      <span *ngIf="p.journey.targetDays">{{ 'PREVIEW.TARGET_DAYS' | translate: { days: p.journey.targetDays } }}</span>
+    </div>
+    <div class="alert alert-info small mb-0 mt-1" role="note">
+      <strong>{{ 'PREVIEW.BADGE' | translate }}.</strong>
+      {{ (p.limited ? 'PREVIEW.LEARNER_NOTE' : 'PREVIEW.STAFF_NOTE') | translate }}
+    </div>
+  </div>
+
+  <div class="row g-3 align-items-start">
+    <!-- ── Contents ───────────────────────────────────────────────────────────── -->
+    <aside class="col-lg-4 col-xl-3 outline-column">
+      <app-side-panel [label]="'LOG.CONTENTS' | translate">
+        <app-journey-outline
+          *ngIf="outline"
+          [outline]="outline"
+          [preview]="true"
+          [lockedUnitIds]="lockedUnitIds"
+          [selectedKey]="selectedKey"
+          (select)="select($event)"
+          (openExam)="openExam()"
+        ></app-journey-outline>
+      </app-side-panel>
+    </aside>
+
+    <!-- ── The selected step ──────────────────────────────────────────────────── -->
+    <section class="col-lg-8 col-xl-9 d-flex flex-column gap-3" *ngIf="selection as step">
+      <!-- Item -->
+      <ng-container *ngIf="step.kind === 'item'">
+        <article class="card card-body">
+          <span class="page-eyebrow user-content">{{ 'LOG.UNIT_N' | translate: { n: step.unit.order } }} · {{ step.unit.title }}</span>
+          <h2 class="h3 mb-2 user-content">{{ step.item.title }}</h2>
+
+          <ng-container *ngIf="unitOf(step)?.locked; else itemContent">
+            <ng-container *ngTemplateOutlet="locked"></ng-container>
+          </ng-container>
+          <ng-template #itemContent>
+            <ng-container *ngIf="itemOf(step) as item">
+              <div class="rich-content user-content" appRichLinks *ngIf="isRichText(item.description)" [innerHTML]="item.description"></div>
+              <ul class="quest-desc user-content" *ngIf="!isRichText(item.description)">
+                <li *ngFor="let line of plainLines(item.description)">{{ line }}</li>
+              </ul>
+              <app-attachment-view [attachments]="item.attachments ?? []"></app-attachment-view>
+            </ng-container>
+          </ng-template>
+        </article>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
+      </ng-container>
+
+      <!-- Quiz -->
+      <ng-container *ngIf="step.kind === 'quiz'">
+        <ng-container *ngIf="unitOf(step)?.quiz?.length; else quizLocked">
+          <app-preview-questions
+            [questions]="unitOf(step)!.quiz!"
+            [title]="'LOG.QUIZ' | translate"
+            [eyebrow]="step.unit.title"
+            [idPrefix]="'quiz-' + step.unit.learnerUnitId"
+          ></app-preview-questions>
+        </ng-container>
+        <ng-template #quizLocked>
+          <div class="card card-body">
+            <span class="page-eyebrow user-content">{{ step.unit.title }}</span>
+            <h2 class="h4 mb-2">{{ 'LOG.QUIZ' | translate }}</h2>
+            <p class="text-body-secondary mb-0" dir="auto">{{ 'PREVIEW.QUIZ_LOCKED' | translate: { count: step.unit.quiz?.questionCount } }}</p>
+          </div>
+        </ng-template>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
+      </ng-container>
+
+      <!-- Unit overview -->
+      <ng-container *ngIf="step.kind === 'unit'">
+        <div class="card card-body gap-2">
+          <span class="page-eyebrow">{{ 'LOG.UNIT_N' | translate: { n: step.unit.order } }}</span>
+          <h2 class="h3 mb-0 user-content">{{ step.unit.title }}</h2>
+          <p class="text-body-secondary user-content mb-0" *ngIf="step.unit.description">{{ step.unit.description }}</p>
+          <ol class="mb-0 mt-1">
+            <li *ngFor="let item of step.unit.items" class="user-content">{{ item.title }}</li>
+          </ol>
+          <p class="small text-body-tertiary mb-0" *ngIf="step.unit.quiz" dir="auto">
+            {{ 'CATALOG.UNIT_QUIZ_COUNT' | translate: { count: step.unit.quiz.questionCount } }}
+          </p>
+          <p class="small text-body-tertiary mb-0" *ngIf="unitOf(step)?.locked">🔒 {{ 'PREVIEW.LOCKED_BODY' | translate }}</p>
+        </div>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
+      </ng-container>
+
+      <!-- Final exam (staff) -->
+      <ng-container *ngIf="step.kind === 'exam' && p.exam?.questions?.length">
+        <app-preview-questions
+          [questions]="p.exam!.questions!"
+          [title]="p.exam!.title"
+          [eyebrow]="'LOG.FINAL_EXAM' | translate"
+          [passingScorePercent]="p.exam!.passingScorePercent"
+          idPrefix="exam"
+        ></app-preview-questions>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
+      </ng-container>
+    </section>
+  </div>
+
+  <ng-template #locked>
+    <div class="border rounded p-4 text-center bg-body-tertiary">
+      <div class="fs-3 mb-2" aria-hidden="true">🔒</div>
+      <p class="fw-semibold mb-1">{{ 'PREVIEW.LOCKED_TITLE' | translate }}</p>
+      <p class="small text-body-secondary mb-3">{{ 'PREVIEW.LOCKED_BODY' | translate }}</p>
+      <a class="btn btn-primary btn-sm" [routerLink]="['/catalog/journeys', p.journey.id]">{{ 'PREVIEW.GO_ENROLL' | translate }}</a>
+    </div>
+  </ng-template>
+</ng-container>
+
+<!-- Previous / Continue — moves through the preview; nothing is recorded. -->
+<ng-template #stepNav>
+  <div class="d-flex flex-wrap align-items-stretch gap-2">
+    <button type="button" class="btn btn-outline-secondary" *ngIf="previousStep && selection?.kind !== 'unit'" (click)="select(previousStep!)">
+      <span aria-hidden="true">{{ 'COMMON.BACK_ARROW' | translate }}</span> {{ 'LOG.PREVIOUS' | translate }}
+    </button>
+    <button type="button" class="continue-banner flex-grow-1" *ngIf="nextStep" (click)="select(nextStep!)">
+      <span class="continue-label">{{ 'LOG.CONTINUE' | translate }}</span>
+      <span class="continue-title user-content">{{ stepTitle(nextStep) }}</span>
+      <span class="continue-arrow" aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
+    </button>
+    <a class="btn btn-primary flex-grow-1" *ngIf="!nextStep" [routerLink]="backLink">{{ 'PREVIEW.DONE' | translate }}</a>
+  </div>
+</ng-template>

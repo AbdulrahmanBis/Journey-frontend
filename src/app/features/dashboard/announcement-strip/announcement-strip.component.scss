@@ -1,0 +1,25 @@
+// An announcement card: accent on the reading-start edge, whole text area opens it.
+.announcement-card {
+  border-inline-start: 4px solid var(--bs-primary);
+}
+
+.announcement-icon {
+  font-size: 1.375rem;
+  line-height: 1;
+  padding-top: 0.125rem;
+}
+
+.announcement-open {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+}
+
+.announcement-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

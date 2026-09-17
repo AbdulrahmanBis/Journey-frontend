@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
 import { LearnerUnitService } from '../../../core/services/learner-unit.service';
 import { PackageService } from '../../../core/services/package.service';
+import { CertificateService } from '../../../core/services/certificate.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { ItemContent, JourneyOutline, OutlineUnit, PackageContext, User } from '../../../core/models/models';
@@ -29,6 +30,7 @@ import { DueBadgeComponent, todayIso } from '../../../shared/components/due-badg
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 import { JourneyOutlineComponent, LogStep, stepKey } from './journey-outline.component';
 import { UnitQuizComponent } from './unit-quiz.component';
+import { RichLinksDirective } from '../../../shared/directives/rich-links.directive';
 import { UnitReviewComponent } from './unit-review.component';
 
 /** How often active reading time is reported, and how recent an interaction must be to count. */
@@ -50,12 +52,12 @@ const IDLE_AFTER_MS = 60_000;
   selector: 'app-journey-log',
   standalone: true,
   imports: [
+    RichLinksDirective,
     CommonModule, FormsModule, RouterLink, TranslatePipe,
     StatusBadgeComponent, NoteThreadComponent, ConfirmDialogComponent, AttachmentViewComponent, DueBadgeComponent,
     SidePanelComponent, JourneyOutlineComponent, UnitQuizComponent, UnitReviewComponent,
   ],
   templateUrl: './journey-log.component.html',
-  styleUrl: './journey-log.component.scss',
 })
 export class JourneyLogComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
@@ -64,6 +66,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
   private assignments = inject(AssignmentService);
   private units = inject(LearnerUnitService);
   private packageService = inject(PackageService);
+  private certificates = inject(CertificateService);
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
@@ -83,6 +86,8 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
   busy = false;
 
   packages: PackageContext[] = [];
+  /** Set once the journey is completed and its certificate exists. */
+  certificateId: string | null = null;
   editingDue = false;
   dueDraft = '';
   showCancelConfirm = false;
@@ -178,6 +183,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.applySelection(this.route.snapshot.queryParamMap);
         this.loadPackages();
+        this.loadCertificate();
       },
       error: () => {
         this.toast.error(this.translate.instant('QUEST_LOG.NOT_FOUND'));
@@ -192,6 +198,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
       this.outline = outline;
       this.selection = this.resolve(this.selectedKey) ?? this.selection;
       this.loadPackages();
+      this.loadCertificate();
     });
   }
 
@@ -366,6 +373,16 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
   }
 
   get finished(): boolean { return (this.outline?.percentComplete ?? 0) >= 100; }
+
+  /** Completed journeys link to their certificate. */
+  private loadCertificate(): void {
+    const outline = this.outline;
+    if (!outline || codeOf(outline.status) !== StatusCode.Completed) { this.certificateId = null; return; }
+    this.certificates.list(outline.learnerId).subscribe({
+      next: (list) => (this.certificateId = list.find((c) => c.learnerJourneyId === outline.learnerJourneyId)?.id ?? null),
+      error: () => (this.certificateId = null),
+    });
+  }
 
   private loadPackages(): void {
     const id = this.journeyId;

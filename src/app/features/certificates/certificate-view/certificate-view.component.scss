@@ -1,0 +1,167 @@
+// A4 landscape certificate. On screen it scales to the page width; printed, it fills one sheet.
+
+.certificate {
+  max-width: 1040px;
+  margin-inline: auto;
+  aspect-ratio: 297 / 210;
+  padding: 1.25rem;
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--bs-navy);
+  box-shadow: var(--bs-box-shadow);
+  container-type: inline-size;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.certificate-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 3cqi 6cqi;
+  border: 2px solid rgba(var(--bs-primary-rgb), 0.5);
+  border-radius: var(--bs-border-radius);
+  outline: 1px solid var(--bs-border-color);
+  outline-offset: -0.75rem;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  text-align: center;
+}
+
+.certificate-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2.5cqi;
+  font-size: max(0.875rem, 1.6cqi);
+  font-weight: 600;
+  color: var(--bs-navy);
+}
+
+.certificate-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  background: var(--bs-navy);
+  color: var(--bs-white);
+}
+
+.certificate-eyebrow {
+  margin-bottom: 1.5cqi;
+  font-size: max(0.75rem, 1.5cqi);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bs-primary);
+}
+
+.certificate-lead {
+  margin-bottom: 0.5cqi;
+  font-size: max(0.8125rem, 1.6cqi);
+  color: var(--bs-secondary-color);
+}
+
+.certificate-name {
+  margin: 0.5cqi 0 0.75cqi;
+  font-size: max(1.5rem, 4.2cqi);
+  font-weight: 700;
+  color: var(--bs-navy);
+}
+
+.certificate-title {
+  margin: 0.25cqi 0 0.75cqi;
+  font-size: max(1.125rem, 2.8cqi);
+  font-weight: 600;
+}
+
+.certificate-journeys {
+  max-width: 80%;
+  margin-bottom: 0.5cqi;
+  font-size: max(0.75rem, 1.3cqi);
+  color: var(--bs-secondary-color);
+}
+
+.certificate-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem 5cqi;
+  margin: 2cqi 0 0;
+
+  div { min-width: 8rem; }
+
+  dt {
+    font-size: max(0.6875rem, 1.2cqi);
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+  }
+
+  dd {
+    margin: 0;
+    font-size: max(0.875rem, 1.7cqi);
+    font-weight: 600;
+  }
+}
+
+.certificate-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 2cqi;
+}
+
+.certificate-signature {
+  display: flex;
+  flex-direction: column;
+  min-width: 30%;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.certificate-signature-name {
+  font-size: max(0.875rem, 1.6cqi);
+  font-weight: 600;
+}
+
+.certificate-code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-inline-start: auto;
+}
+
+.certificate-code-value {
+  font-family: var(--bs-font-monospace);
+  font-size: max(0.8125rem, 1.5cqi);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.certificate-small {
+  font-size: max(0.6875rem, 1.15cqi);
+  color: var(--bs-secondary-color);
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  .certificate {
+    max-width: none;
+    width: 100%;
+    height: 190mm;
+    aspect-ratio: auto;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}

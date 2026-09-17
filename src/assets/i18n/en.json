@@ -36,7 +36,14 @@
     "MINUTES_AGO": "{{count}}m ago",
     "HOURS_AGO": "{{count}}h ago",
     "DAYS_AGO": "{{count}}d ago",
-    "LOAD_FAILED": "Could not load notifications."
+    "LOAD_FAILED": "Could not load notifications.",
+    "SEND_TEST": "Send test email",
+    "SENDING_TEST": "Sending…",
+    "TEST_SENT": "Test email sent to {{email}}. Check that inbox.",
+    "TEST_FAILED": "The test email could not be sent.",
+    "MAIL_ON": "Email is on — notifications are also emailed, from {{from}}.",
+    "MAIL_NO_SERVER": "Email is switched on but no mail server is set (SMTP_HOST), so nothing is emailed.",
+    "MAIL_OFF": "Email is off — notifications appear in the app only. Set MAIL_ENABLED and the SMTP settings to send email."
   },
   "NAV": {
     "BRAND": "Journey",
@@ -47,7 +54,8 @@
     "USERS": "Users",
     "LOGOUT": "Log out",
     "DEPARTMENTS": "Departments",
-    "CATALOG": "Catalog"
+    "CATALOG": "Catalog",
+    "ANNOUNCEMENTS": "Announcements"
   },
   "AUTH": {
     "SIGN_IN": "Sign in",
@@ -581,23 +589,23 @@
     "STEP": "Step {{n}} of {{total}}",
     "LEARNER_1": {
       "TITLE": "Welcome to Journey",
-      "BODY": "Your onboarding is a set of journeys. Each one is a list of quest items with material to read, watch or do — and sometimes an exam at the end."
+      "BODY": "Your onboarding is a set of journeys. Each one is made of units: things to read, watch or do, a short quiz at the end of each unit, and sometimes a final exam."
     },
     "LEARNER_2": {
       "TITLE": "Start from “Next up”",
       "BODY": "Your home page shows the one thing to do next, what else is your turn, and what is waiting on your reviewer."
     },
     "LEARNER_3": {
-      "TITLE": "Move items along",
-      "BODY": "Set an item to In progress while you work on it, then Waiting for review when you’re done. Your reviewer completes it or replies with a note."
+      "TITLE": "Work through a unit",
+      "BODY": "Open an item and press Continue when you are done — your progress saves itself. Answer the unit’s quiz, and your reviewer checks the unit or replies with a note."
     },
     "LEARNER_4": {
       "TITLE": "Find more in the catalog",
-      "BODY": "Browse the catalog — or press / anywhere to search — and enroll yourself in journeys and packages. Your senior reviews your work."
+      "BODY": "Browse the catalog — or press / anywhere to search. Preview the first unit of a journey, then enroll yourself. Your senior reviews your work."
     },
     "LEARNER_5": {
       "TITLE": "Stay in the loop",
-      "BODY": "The bell tells you about replies, reviews, new assignments and upcoming due dates. You can reopen this guide from the ? button."
+      "BODY": "Announcements from HR and your manager sit at the top of your home, and the bell tells you about replies, reviews and due dates. Reopen this guide from the ? button."
     },
     "SENIOR_1": {
       "TITLE": "Welcome to Journey",
@@ -608,12 +616,12 @@
       "BODY": "Your home lists what needs your attention — items to review, exams to grade, notes to answer, learners who went quiet — and every learner’s progress."
     },
     "SENIOR_3": {
-      "TITLE": "Review in one place",
-      "BODY": "When a learner marks an item Waiting for review, open it from the list, reply with a note, and complete it. Grade exams the same way."
+      "TITLE": "Review units",
+      "BODY": "When a learner finishes a unit’s items and quiz, it waits for your review. Complete it, or send it back with a note. Grade written exam answers the same way."
     },
     "SENIOR_4": {
-      "TITLE": "Build and assign",
-      "BODY": "Create journeys and packages under Journeys, then assign them — from there or the catalog — with an optional due date."
+      "TITLE": "Build, preview and assign",
+      "BODY": "Create journeys and packages under Journeys, use Preview to see exactly what learners get, then assign them with an optional due date."
     },
     "MANAGER_1": {
       "TITLE": "Welcome to Journey",
@@ -649,11 +657,19 @@
     },
     "ORG_4": {
       "TITLE": "The library",
-      "BODY": "Journeys and packages live under Journeys; everyone can browse them in the catalog, and learners can enroll themselves."
+      "BODY": "Journeys and packages live under Journeys, with Preview to try them as a learner. Everyone can browse the catalog, and learners can enroll themselves."
     },
     "ORG_5": {
       "TITLE": "Deadlines and reminders",
       "BODY": "Expected durations become due dates when assigned. Learners and their assigners are reminded before and after a due date."
+    },
+    "MANAGER_6": {
+      "TITLE": "Announcements",
+      "BODY": "Post news for your department under Announcements. It appears at the top of everyone’s home until the date you choose, and they are notified."
+    },
+    "ORG_6": {
+      "TITLE": "Announcements",
+      "BODY": "Post to the whole company or to chosen departments under Announcements. It shows at the top of each person’s home, and they are notified in the app and by email."
     }
   },
   "LOG": {
@@ -694,5 +710,171 @@
     "SEND_BACK_HINT": "To send it back, set it to in progress and say what to change below.",
     "UNIT_STATUS_SAVED": "Unit marked {{status}}.",
     "UNIT_DISCUSSION": "Unit discussion"
+  },
+  "ANNOUNCEMENTS": {
+    "EYEBROW": "Announcements",
+    "TITLE": "Announcements",
+    "SUB_ORG": "Messages to the whole company or to departments. Current ones sit at the top of everyone's dashboard.",
+    "SUB_MANAGER": "Messages that reached your department. Current ones sit at the top of everyone's dashboard.",
+    "NEW": "New announcement",
+    "CURRENT": "Current ({{count}})",
+    "PAST": "Past ({{count}})",
+    "LOAD_FAILED": "Could not load announcements.",
+    "EMPTY_CURRENT": "No announcements are showing right now.",
+    "EMPTY_PAST": "No past announcements.",
+    "SHOWS_UNTIL": "Shows until {{date}}",
+    "SHOWED_UNTIL": "Showed until {{date}}",
+    "EVERYONE": "Everyone",
+    "LIST_SEPARATOR": ", ",
+    "DELETE_TITLE": "Delete this announcement?",
+    "DELETE_MESSAGE": "It disappears from dashboards and its notifications are removed. This cannot be undone.",
+    "DELETED": "Announcement deleted.",
+    "READ": "Read",
+    "CLOSE": "Close",
+    "DISMISS": "Remove from my dashboard",
+    "DISMISS_FAILED": "Could not remove the announcement. Try again.",
+    "SHOW_MORE": "Show {{count}} more",
+    "SHOW_LESS": "Show less",
+    "GONE": "This announcement is no longer available.",
+    "NEW_TITLE": "New announcement",
+    "EDIT_TITLE": "Edit announcement",
+    "FORM_SUB": "Everyone in the audience is notified in the app and by email, and it shows on their dashboard.",
+    "BACK": "← Announcements",
+    "FIELD_TITLE": "Title",
+    "TITLE_PLACEHOLDER": "e.g. Office closed on National Day",
+    "FIELD_BODY": "Message",
+    "BODY_PLACEHOLDER": "Write the announcement…",
+    "LINK_HINT": "Tip: link to a page of this site (for example a catalog journey) and it opens right in the app.",
+    "AUDIENCE": "Who it is for",
+    "SOME_DEPARTMENTS": "Specific departments",
+    "MANAGER_AUDIENCE": "Everyone in your department ({{department}}).",
+    "SHOW_UNTIL": "Show on dashboards until",
+    "SHOW_UNTIL_HINT": "Two weeks by default. People can also remove it from their own dashboard.",
+    "NOTIFY_AGAIN": "Notify everyone again about this edit",
+    "NOTIFY_HINT": "Publishing notifies the audience in the app and by email.",
+    "PUBLISH": "Publish",
+    "PUBLISHED": "Announcement published.",
+    "UPDATED": "Announcement updated.",
+    "NEEDS_TITLE": "Give the announcement a title.",
+    "NEEDS_BODY": "Write the announcement.",
+    "NEEDS_AUDIENCE": "Choose at least one department."
+  },
+  "PREVIEW": {
+    "ACTION": "Preview",
+    "SAMPLE_ACTION": "Preview first unit",
+    "BADGE": "Preview",
+    "LOADING": "Loading preview…",
+    "NOT_FOUND": "That journey could not be previewed.",
+    "STAFF_NOTE": "This is what learners see. Try the quizzes and the exam — nothing you do here is saved.",
+    "LEARNER_NOTE": "You are looking at the first unit as a sample. Enroll from the catalog to open the rest.",
+    "EDIT": "Edit journey",
+    "SAVED_VERSION": "Shows the last saved version",
+    "UNIT_COUNT": "{{count}} units",
+    "TARGET_DAYS": "About {{days}} days",
+    "LOCKED_SHORT": "after enrolling",
+    "LOCKED_TITLE": "Available after you enroll",
+    "LOCKED_BODY": "This preview includes the first unit only.",
+    "GO_ENROLL": "Go to enrollment",
+    "QUIZ_LOCKED": "{{count}} quick questions to check what you learned — available after you enroll.",
+    "EXAM_TRY": "Try it — not saved",
+    "EXAM_LOCKED": "Available after you enroll",
+    "PASSING_SCORE": "Passing score: {{score}}%",
+    "SHOW_ANSWERS": "Show answers",
+    "RESULT": "You got {{score}}% of the auto-graded questions right.",
+    "CORRECT_IS": "Correct answer: {{answer}}",
+    "OPEN_NOTE": "Written answer — a reviewer marks this in a real attempt.",
+    "CHECK": "Check answers",
+    "NOT_SAVED": "Not saved",
+    "DONE": "Done"
+  },
+  "CERTIFICATE": {
+    "LIST_TITLE": "Certificates",
+    "NOT_FOUND": "That certificate could not be opened.",
+    "OPEN_JOURNEY": "Open the journey",
+    "DOWNLOAD": "Download PDF",
+    "DOWNLOAD_HINT": "Download PDF opens the print dialog — choose “Save as PDF” as the printer.",
+    "OF_COMPLETION": "Certificate of completion",
+    "CERTIFIES": "This certifies that",
+    "COMPLETED_JOURNEY": "has successfully completed the journey",
+    "COMPLETED_PACKAGE": "has successfully completed the onboarding package",
+    "COMPLETED_ON": "Completed on",
+    "EXAM_SCORE": "Exam score",
+    "LEARNING_TIME": "Learning time",
+    "HOURS": "{{hours}} hours",
+    "REVIEWED_BY": "Reviewed by",
+    "ASSIGNED_BY": "Assigned by",
+    "CODE": "Certificate code",
+    "ISSUED_ON": "Issued {{date}}",
+    "VIEW": "View certificate"
+  },
+  "START": {
+    "EYEBROW": "Getting started",
+    "TITLE": "Set up onboarding for your people",
+    "ALL_DONE": "You are all set",
+    "PROGRESS": "{{done}} of {{total}} done",
+    "HIDE": "Hide checklist",
+    "GO": "Go",
+    "MANAGER": {
+      "SENIORS": {
+        "TITLE": "Add seniors to your department",
+        "HINT": "Seniors review learners’ work. Add at least one under Users."
+      },
+      "LEARNERS_HAVE_SENIOR": {
+        "TITLE": "Give every learner a senior",
+        "HINT": "A learner without a senior has nobody to review their units."
+      },
+      "ASSIGNED": {
+        "TITLE": "Assign a first journey or package",
+        "HINT": "Pick one under Journeys — Preview shows what learners will get."
+      },
+      "DUE_DATES": {
+        "TITLE": "Set due dates on open journeys",
+        "HINT": "Due dates drive reminders and the overdue list. Edit them from a learner’s journey."
+      },
+      "ANNOUNCEMENT": {
+        "TITLE": "Post an announcement",
+        "HINT": "Welcome your team or share news; it tops everyone’s dashboard."
+      }
+    },
+    "SENIOR": {
+      "HAS_LEARNERS": {
+        "TITLE": "Have learners assigned to you",
+        "HINT": "Your manager links learners to you under Users."
+      },
+      "ASSIGNED": {
+        "TITLE": "Assign a journey to a learner",
+        "HINT": "Pick one under Journeys — use Preview to check it first."
+      },
+      "DUE_DATES": {
+        "TITLE": "Set due dates on open journeys",
+        "HINT": "Due dates drive reminders and the overdue list."
+      },
+      "REVIEWED_UNIT": {
+        "TITLE": "Review a unit",
+        "HINT": "When a learner finishes a unit it appears in your attention list; complete it or send it back."
+      }
+    },
+    "HR": {
+      "DEPARTMENTS_HAVE_MANAGER": {
+        "TITLE": "Give every department a manager",
+        "HINT": "Managers see and support their department’s onboarding."
+      },
+      "LEARNERS_HAVE_SENIOR": {
+        "TITLE": "Give every learner a senior",
+        "HINT": "Learners without a senior have nobody to review their work."
+      },
+      "PACKAGE": {
+        "TITLE": "Bundle journeys into a package",
+        "HINT": "A package is the onboarding a role always needs, assigned in one go."
+      },
+      "EVERYONE_ASSIGNED": {
+        "TITLE": "Make sure every learner has something assigned",
+        "HINT": "The team dashboard lists learners with nothing assigned."
+      },
+      "ORG_ANNOUNCEMENT": {
+        "TITLE": "Post a company-wide announcement",
+        "HINT": "Share news with everyone; it tops each person’s dashboard."
+      }
+    }
   }
 }

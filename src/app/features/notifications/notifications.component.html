@@ -5,9 +5,18 @@
     <span class="page-eyebrow">{{ 'NAV.BRAND' | translate }}</span>
     <h1 class="page-title">{{ 'NOTIFICATIONS.TITLE' | translate }}</h1>
   </div>
-  <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="unreadCount > 0" (click)="markAllRead()">
-    {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
-  </button>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="isAdmin" [disabled]="sendingTest" (click)="sendTestEmail()">
+      {{ (sendingTest ? 'NOTIFICATIONS.SENDING_TEST' : 'NOTIFICATIONS.SEND_TEST') | translate }}
+    </button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" *ngIf="unreadCount > 0" (click)="markAllRead()">
+      {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+    </button>
+  </div>
+</div>
+
+<div class="alert small" *ngIf="isAdmin && mail" [ngClass]="mail.enabled && mail.configured ? 'alert-success' : 'alert-warning'" dir="auto">
+  {{ (mail.enabled ? (mail.configured ? 'NOTIFICATIONS.MAIL_ON' : 'NOTIFICATIONS.MAIL_NO_SERVER') : 'NOTIFICATIONS.MAIL_OFF') | translate: { from: mail.from } }}
 </div>
 
 <p class="text-body-secondary" *ngIf="loading">{{ 'COMMON.LOADING' | translate }}</p>

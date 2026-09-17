@@ -1,6 +1,8 @@
 <nav class="card outline" [attr.aria-label]="'LOG.CONTENTS' | translate">
   <div class="card-body pb-2">
     <div class="fw-semibold user-content lh-sm">{{ outline.journey.title }}</div>
+    <span class="badge rounded-pill bg-navy-subtle text-navy mt-2" *ngIf="preview">{{ 'PREVIEW.BADGE' | translate }}</span>
+    <ng-container *ngIf="!preview">
     <div class="d-flex justify-content-between align-items-center small text-body-secondary mt-2" dir="auto">
       <span>{{ 'HOME.PERCENT_DONE' | translate: { percent: outline.percentComplete } }}</span>
       <app-due-badge [dueDate]="outline.dueDate"></app-due-badge>
@@ -8,6 +10,7 @@
     <div class="progress progress-thin mt-1" role="progressbar" [attr.aria-valuenow]="outline.percentComplete" aria-valuemin="0" aria-valuemax="100">
       <div class="progress-bar" [style.width.%]="outline.percentComplete"></div>
     </div>
+    </ng-container>
   </div>
 
   <div class="outline-units">
@@ -22,8 +25,11 @@
           <span class="unit-num" [class.done]="unitDone(unit)">{{ unitDone(unit) ? '✓' : u + 1 }}</span>
           <span class="flex-grow-1 overflow-hidden">
             <span class="d-block fw-semibold text-truncate user-content">{{ unit.title }}</span>
-            <span class="d-block small text-body-tertiary" dir="auto">
+            <span class="d-block small text-body-tertiary" dir="auto" *ngIf="!preview">
               {{ 'LOG.ITEMS_DONE' | translate: { done: unit.completedItems, total: unit.totalItems } }} · {{ lang.label(unit.status) }}
+            </span>
+            <span class="d-block small text-body-tertiary" dir="auto" *ngIf="preview">
+              {{ 'CATALOG.ITEM_COUNT' | translate: { count: unit.totalItems } }}<ng-container *ngIf="isLocked(unit)"> · 🔒 {{ 'PREVIEW.LOCKED_SHORT' | translate }}</ng-container>
             </span>
           </span>
         </button>
@@ -60,6 +66,7 @@
           <span class="step-icon step-quiz" [class.step-completed]="unit.quiz.answered" aria-hidden="true">{{ unit.quiz.answered ? '✓' : '?' }}</span>
           <span class="flex-grow-1 text-truncate">{{ 'LOG.QUIZ' | translate }}</span>
           <span class="small text-body-tertiary" *ngIf="unit.quiz.answered">{{ unit.quiz.scorePercent }}%</span>
+          <span aria-hidden="true" *ngIf="preview && isLocked(unit)">🔒</span>
         </button>
       </div>
     </div>
@@ -69,8 +76,11 @@
     <span aria-hidden="true">🎓</span>
     <span class="flex-grow-1">
       <span class="d-block fw-semibold">{{ 'LOG.FINAL_EXAM' | translate }}</span>
-      <span class="d-block small text-body-tertiary" dir="auto">
+      <span class="d-block small text-body-tertiary" dir="auto" *ngIf="!preview">
         {{ ('LOG.EXAM_' + examState!.toUpperCase()) | translate: { score: outline.exam?.scorePercent } }}
+      </span>
+      <span class="d-block small text-body-tertiary" dir="auto" *ngIf="preview">
+        {{ (examState === 'locked' ? 'PREVIEW.EXAM_LOCKED' : 'PREVIEW.EXAM_TRY') | translate }}
       </span>
     </span>
     <span aria-hidden="true" *ngIf="examState === 'locked'">🔒</span>

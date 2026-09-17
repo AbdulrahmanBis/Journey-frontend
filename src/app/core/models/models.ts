@@ -4,6 +4,47 @@ import { EnumValue, TechTag } from './enums';
  * A department. `english` / `arabic` deliberately match the enum triple, so the same
  * LanguageService.label() helper renders it in the current language.
  */
+/** Proof of a completed journey (exam passed, if any) or package; see CertificateService on the backend. */
+export interface Certificate {
+  id: string;
+  code: string;
+  /** CatalogTypeCode: journey or package. */
+  type: EnumValue;
+  title: string;
+  learnerId: string;
+  learnerName: string;
+  department?: Department;
+  learnerJourneyId?: string;
+  packageAssignmentId?: string;
+  examScorePercent?: number;
+  hours: number;
+  reviewerName?: string;
+  /** A package's completed journeys, in order. */
+  journeys?: string[];
+  completedAt: string;
+  issuedAt: string;
+}
+
+/** A message on everyone's dashboard in its audience; see AnnouncementService on the backend. */
+export interface Announcement {
+  id: string;
+  title: string;
+  /** Rich HTML from the editor. */
+  body: string;
+  /** Plain-text start of the body. */
+  excerpt: string;
+  orgWide: boolean;
+  departments: Department[];
+  /** Last day on dashboards (yyyy-MM-dd). */
+  showUntil: string;
+  active: boolean;
+  authorId?: string;
+  authorName?: string;
+  createdAt: string;
+  updatedAt: string;
+  canEdit: boolean;
+}
+
 export interface Department {
   id: string;
   english: string;
@@ -34,6 +75,8 @@ export interface Journey {
   techTag: TechTag;
   /** Expected duration in days; becomes the default due date when assigned. */
   targetDays?: number | null;
+  /** On the journeys list only. */
+  hasExam?: boolean;
   createdById: string;
   createdByName: string;
   createdAt: string;
@@ -214,6 +257,25 @@ export interface OutlineUnit {
   readyForReview: boolean;
   notes: Note[];
   items: OutlineItem[];
+}
+
+/** A journey without an assignment, for the preview page. Learners get the first unit only and no questions. */
+export interface JourneyPreview {
+  journey: Journey;
+  /** Content past the first unit, and every question, was left out. */
+  limited: boolean;
+  units: {
+    id: string;
+    title: string;
+    description?: string;
+    order: number;
+    locked: boolean;
+    items: JourneyItem[];
+    quizQuestionCount: number;
+    /** Staff only. */
+    quiz?: ExamQuestion[];
+  }[];
+  exam?: { title: string; passingScorePercent: number; questionCount: number; questions?: ExamQuestion[] };
 }
 
 /** The journey log's left panel: structure and statuses, no item content. */

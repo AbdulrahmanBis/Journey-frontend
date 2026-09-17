@@ -18,10 +18,12 @@ import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
  * searchable table (a Senior's own learners, a Manager's department, everyone for HR/Admin).
  * Clicking a learner opens their profile.
  */
+import { GettingStartedComponent } from '../getting-started/getting-started.component';
+
 @Component({
   selector: 'app-team-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, DepartmentPickerComponent, AttentionListComponent, DueBadgeComponent, TimeAgoPipe],
+  imports: [GettingStartedComponent, CommonModule, FormsModule, RouterLink, TranslatePipe, DepartmentPickerComponent, AttentionListComponent, DueBadgeComponent, TimeAgoPipe],
   templateUrl: './team-dashboard.component.html',
   styleUrl: './team-dashboard.component.scss',
 })

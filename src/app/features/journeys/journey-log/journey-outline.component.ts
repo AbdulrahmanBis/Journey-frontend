@@ -34,6 +34,10 @@ export class JourneyOutlineComponent implements OnChanges {
 
   @Input({ required: true }) outline!: JourneyOutline;
   @Input() selectedKey = '';
+  /** Preview of a journey: no progress, statuses or due date; locked units show a padlock. */
+  @Input() preview = false;
+  /** Preview only: units whose content the viewer cannot open. */
+  @Input() lockedUnitIds: readonly string[] = [];
   @Output() select = new EventEmitter<LogStep>();
   @Output() openExam = new EventEmitter<void>();
 
@@ -56,13 +60,16 @@ export class JourneyOutlineComponent implements OnChanges {
   isDone(item: OutlineItem): boolean { return codeOf(item.status) === StatusCode.Completed; }
   isStarted(item: OutlineItem): boolean { return codeOf(item.status) === StatusCode.Reflect; }
 
-  unitDone(unit: OutlineUnit): boolean { return codeOf(unit.status) === StatusCode.Completed; }
+  unitDone(unit: OutlineUnit): boolean { return !this.preview && codeOf(unit.status) === StatusCode.Completed; }
+
+  isLocked(unit: OutlineUnit): boolean { return this.lockedUnitIds.includes(unit.learnerUnitId); }
 
   key(kind: 'item' | 'quiz' | 'unit', id: string): string { return kind + ':' + id; }
 
   get examState(): 'locked' | 'open' | 'submitted' | 'passed' | 'failed' | null {
     const exam = this.outline.exam;
     if (!exam) return null;
+    if (this.preview) return exam.open ? 'open' : 'locked';
     if (exam.attemptStatus) {
       if (codeOf(exam.attemptStatus) === AttemptStatusCode.Graded) return exam.passed ? 'passed' : 'failed';
       if (codeOf(exam.attemptStatus) === AttemptStatusCode.Submitted) return 'submitted';

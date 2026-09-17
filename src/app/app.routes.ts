@@ -64,6 +64,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/journeys/journey-form/journey-form.component').then((m) => m.JourneyFormComponent),
   },
   {
+    // Staff see everything; learners see the first unit (the server decides).
+    path: 'journeys/:id/preview',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/journeys/journey-preview/journey-preview.component').then((m) => m.JourneyPreviewComponent),
+  },
+  {
     path: 'journeys/:id/edit',
     canActivate: [authGuard, roleGuard(STAFF_ROLES)],
     loadComponent: () => import('./features/journeys/journey-form/journey-form.component').then((m) => m.JourneyFormComponent),
@@ -84,9 +90,30 @@ export const routes: Routes = [
     loadComponent: () => import('./features/journeys/exam-attempt/exam-attempt.component').then((m) => m.ExamAttemptComponent),
   },
   {
+    // The learner, or staff who can see them (the server decides).
+    path: 'certificates/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/certificates/certificate-view/certificate-view.component').then((m) => m.CertificateViewComponent),
+  },
+  {
     path: 'notifications',
     canActivate: [authGuard],
     loadComponent: () => import('./features/notifications/notifications.component').then((m) => m.NotificationsComponent),
+  },
+  {
+    path: 'announcements',
+    canActivate: [authGuard, roleGuard(USER_ADMIN_ROLES)],
+    loadComponent: () => import('./features/announcements/announcement-list/announcement-list.component').then((m) => m.AnnouncementListComponent),
+  },
+  {
+    path: 'announcements/new',
+    canActivate: [authGuard, roleGuard(USER_ADMIN_ROLES)],
+    loadComponent: () => import('./features/announcements/announcement-form/announcement-form.component').then((m) => m.AnnouncementFormComponent),
+  },
+  {
+    path: 'announcements/:id/edit',
+    canActivate: [authGuard, roleGuard(USER_ADMIN_ROLES)],
+    loadComponent: () => import('./features/announcements/announcement-form/announcement-form.component').then((m) => m.AnnouncementFormComponent),
   },
   {
     path: 'admin/users',
