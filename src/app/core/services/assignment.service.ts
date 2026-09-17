@@ -5,9 +5,7 @@ import {
   LearnerJourney,
   LearnerJourneyItem,
   LearnerJourneyView,
-  LearnerSummary,
   Note,
-  SeniorSummary,
   User,
 } from '../models/models';
 import { API_BASE } from './api.config';
@@ -26,25 +24,22 @@ export class AssignmentService {
     return this.http.get<LearnerJourneyView>(`${API_BASE}/learner-journeys/${id}`);
   }
 
-  getSeniorOverview(seniorId: string): Observable<LearnerSummary[]> {
-    return this.http.get<LearnerSummary[]>(`${API_BASE}/dashboard/senior/${seniorId}`);
-  }
-
-  /** Managers are always pinned to their own department; HR/Admin may pass one, or omit it for all. */
-  getManagerOverview(departmentId?: string | null): Observable<SeniorSummary[]> {
-    const params: Record<string, string> = departmentId ? { departmentId } : {};
-    return this.http.get<SeniorSummary[]>(`${API_BASE}/dashboard/manager`, { params });
-  }
-
   // ----------------------------- Mutations -----------------------------
 
-  assignJourney(journeyId: string, learnerId: string, assignedBy: User): Observable<LearnerJourney> {
+  /** `dueDate` (YYYY-MM-DD) is optional; the server defaults it from the journey's target days. */
+  assignJourney(journeyId: string, learnerId: string, assignedBy: User, dueDate?: string | null): Observable<LearnerJourney> {
     return this.http.post<LearnerJourney>(`${API_BASE}/learner-journeys`, {
       journeyId,
       learnerId,
       assignedById: assignedBy.id,
       assignedByName: assignedBy.name,
+      dueDate: dueDate || null,
     });
+  }
+
+  /** Staff only. `null` clears the deadline. */
+  updateDueDate(learnerJourneyId: string, dueDate: string | null): Observable<LearnerJourneyView> {
+    return this.http.patch<LearnerJourneyView>(`${API_BASE}/learner-journeys/${learnerJourneyId}/due-date`, { dueDate });
   }
 
   /** `status` is the numeric ItemStatus code. */

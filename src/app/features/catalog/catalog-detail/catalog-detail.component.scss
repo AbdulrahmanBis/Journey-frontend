@@ -1,0 +1,75 @@
+// A journey's outline in the catalog: same look as the journey log's contents panel.
+.syllabus-units {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  overflow: hidden;
+}
+
+.syllabus-unit + .syllabus-unit { border-top: 1px solid var(--bs-border-color); }
+
+.syllabus-unit-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 0;
+  background: transparent;
+  text-align: start;
+  color: inherit;
+
+  &:hover { background: var(--bs-tertiary-bg); }
+}
+
+.unit-num {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--bs-tertiary-color);
+  font-size: 1.125rem;
+  transition: transform 0.15s ease;
+
+  &.open { transform: rotate(90deg); }
+}
+
+:host-context([dir='rtl']) .chevron { transform: scaleX(-1); }
+:host-context([dir='rtl']) .chevron.open { transform: scaleX(-1) rotate(-90deg); }
+
+.syllabus-unit-body {
+  padding: 0 1rem 0.875rem;
+  padding-inline-start: 3.5rem;
+}
+
+.syllabus-items {
+  margin: 0;
+  padding-inline-start: 1.125rem;
+
+  li { padding: 0.25rem 0; }
+}
+
+.syllabus-quiz {
+  list-style: none;
+  margin-inline-start: -1.125rem;
+  color: var(--bs-primary);
+  font-size: 0.875rem;
+}
+
+.syllabus-exam {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--bs-border-color);
+}

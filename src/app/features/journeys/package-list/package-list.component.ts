@@ -4,9 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PackageService } from '../../../core/services/package.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { JourneyPackage, User } from '../../../core/models/models';
+import { JourneyPackage } from '../../../core/models/models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
+import { AssignChoice, AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
 import { JourneysTabsComponent } from '../journeys-tabs/journeys-tabs.component';
 
 /** How many journey titles a card lists before collapsing the rest into "+N more". */
@@ -50,11 +50,11 @@ export class PackageListComponent implements OnInit {
 
   edit(pkg: JourneyPackage): void { this.router.navigate(['/journeys/packages', pkg.id, 'edit']); }
 
-  assign(learner: User): void {
+  assign({ learner, dueDate }: AssignChoice): void {
     if (!this.assigning) return;
     const title = this.assigning.title;
     this.saving = true;
-    this.packageService.assign(this.assigning.id, learner.id).subscribe({
+    this.packageService.assign(this.assigning.id, learner.id, dueDate).subscribe({
       next: () => {
         this.saving = false;
         this.assigning = null;

@@ -8,3 +8,6 @@
 
 // Signed-out screens (login, signup) are full-bleed.
 .app-main-bare { padding: 0; }
+
+// Same footprint as the notification bell beside it.
+.help-button { width: 2.5rem; height: 2.5rem; padding: 0; font-weight: 600; }

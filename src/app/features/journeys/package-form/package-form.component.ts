@@ -34,6 +34,7 @@ export class PackageFormComponent implements OnInit {
 
   title = '';
   description = '';
+  targetDays: number | null = null;
   /** The package's journeys, in order. */
   selected: Journey[] = [];
 
@@ -62,6 +63,7 @@ export class PackageFormComponent implements OnInit {
         if (pkg) {
           this.title = pkg.title;
           this.description = pkg.description ?? '';
+          this.targetDays = pkg.targetDays ?? null;
           this.hasAssignments = !pkg.deletable;
           const byId = new Map(journeys.map((j) => [j.id, j]));
           this.selected = pkg.journeys
@@ -97,6 +99,7 @@ export class PackageFormComponent implements OnInit {
     const payload = {
       title: this.title.trim(),
       description: this.description.trim() || undefined,
+      targetDays: this.targetDays || null,
       journeyIds: this.selected.map((j) => j.id),
     };
     this.saving = true;

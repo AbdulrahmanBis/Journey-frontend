@@ -7,9 +7,11 @@
     -->
     <header class="d-flex align-items-center gap-3 mb-3" *ngIf="auth.currentUser$ | async">
       <app-global-search></app-global-search>
-      <app-notification-bell class="ms-auto"></app-notification-bell>
+      <button type="button" class="btn btn-light rounded-circle help-button ms-auto" (click)="guide.open()" [title]="'INTRO.HELP' | translate" [attr.aria-label]="'INTRO.HELP' | translate">?</button>
+      <app-notification-bell></app-notification-bell>
     </header>
     <router-outlet></router-outlet>
   </main>
 </div>
 <app-toast-container></app-toast-container>
+<app-intro-guide *ngIf="auth.currentUser$ | async"></app-intro-guide>

@@ -1,0 +1,78 @@
+<nav class="card outline" [attr.aria-label]="'LOG.CONTENTS' | translate">
+  <div class="card-body pb-2">
+    <div class="fw-semibold user-content lh-sm">{{ outline.journey.title }}</div>
+    <div class="d-flex justify-content-between align-items-center small text-body-secondary mt-2" dir="auto">
+      <span>{{ 'HOME.PERCENT_DONE' | translate: { percent: outline.percentComplete } }}</span>
+      <app-due-badge [dueDate]="outline.dueDate"></app-due-badge>
+    </div>
+    <div class="progress progress-thin mt-1" role="progressbar" [attr.aria-valuenow]="outline.percentComplete" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" [style.width.%]="outline.percentComplete"></div>
+    </div>
+  </div>
+
+  <div class="outline-units">
+    <div class="outline-unit" *ngFor="let unit of outline.units; let u = index">
+      <div class="d-flex align-items-stretch">
+        <button
+          type="button"
+          class="outline-unit-head flex-grow-1"
+          [class.active]="selectedKey === key('unit', unit.learnerUnitId)"
+          (click)="select.emit({ kind: 'unit', unit: unit }); expanded.add(unit.learnerUnitId)"
+        >
+          <span class="unit-num" [class.done]="unitDone(unit)">{{ unitDone(unit) ? '✓' : u + 1 }}</span>
+          <span class="flex-grow-1 overflow-hidden">
+            <span class="d-block fw-semibold text-truncate user-content">{{ unit.title }}</span>
+            <span class="d-block small text-body-tertiary" dir="auto">
+              {{ 'LOG.ITEMS_DONE' | translate: { done: unit.completedItems, total: unit.totalItems } }} · {{ lang.label(unit.status) }}
+            </span>
+          </span>
+        </button>
+        <button
+          type="button"
+          class="outline-chevron"
+          [attr.aria-expanded]="expanded.has(unit.learnerUnitId)"
+          [attr.aria-label]="unit.title"
+          (click)="toggle(unit)"
+        >
+          <span [class.open]="expanded.has(unit.learnerUnitId)">›</span>
+        </button>
+      </div>
+
+      <div class="outline-steps" *ngIf="expanded.has(unit.learnerUnitId)">
+        <button
+          type="button"
+          class="outline-step"
+          *ngFor="let item of unit.items"
+          [class.active]="selectedKey === key('item', item.progressId)"
+          (click)="select.emit({ kind: 'item', unit: unit, item: item })"
+        >
+          <span class="step-icon" [ngClass]="'step-' + statusSlug(item.status)" aria-hidden="true">{{ isDone(item) ? '✓' : '' }}</span>
+          <span class="flex-grow-1 text-truncate user-content">{{ item.title }}</span>
+          <span class="small text-body-tertiary" *ngIf="item.noteCount" [title]="'LOG.NOTES_COUNT' | translate: { count: item.noteCount }">💬 {{ item.noteCount }}</span>
+        </button>
+        <button
+          type="button"
+          class="outline-step"
+          *ngIf="unit.quiz"
+          [class.active]="selectedKey === key('quiz', unit.learnerUnitId)"
+          (click)="select.emit({ kind: 'quiz', unit: unit })"
+        >
+          <span class="step-icon step-quiz" [class.step-completed]="unit.quiz.answered" aria-hidden="true">{{ unit.quiz.answered ? '✓' : '?' }}</span>
+          <span class="flex-grow-1 text-truncate">{{ 'LOG.QUIZ' | translate }}</span>
+          <span class="small text-body-tertiary" *ngIf="unit.quiz.answered">{{ unit.quiz.scorePercent }}%</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="outline-exam" *ngIf="examState" [disabled]="examState === 'locked'" (click)="openExam.emit()">
+    <span aria-hidden="true">🎓</span>
+    <span class="flex-grow-1">
+      <span class="d-block fw-semibold">{{ 'LOG.FINAL_EXAM' | translate }}</span>
+      <span class="d-block small text-body-tertiary" dir="auto">
+        {{ ('LOG.EXAM_' + examState!.toUpperCase()) | translate: { score: outline.exam?.scorePercent } }}
+      </span>
+    </span>
+    <span aria-hidden="true" *ngIf="examState === 'locked'">🔒</span>
+  </button>
+</nav>

@@ -32,6 +32,7 @@
 <div class="row g-3 align-items-start">
   <!-- Filters -->
   <aside class="col-xl-3" *ngIf="page">
+    <app-side-panel [label]="'CATALOG.FILTERS' | translate" breakpoint="xl">
     <div class="card card-body gap-3">
       <div>
         <h2 class="h6 text-uppercase small text-body-tertiary mb-2">{{ 'CATALOG.TYPE' | translate }}</h2>
@@ -74,6 +75,7 @@
         {{ 'CATALOG.CLEAR' | translate }}
       </button>
     </div>
+    </app-side-panel>
   </aside>
 
   <!-- Results -->

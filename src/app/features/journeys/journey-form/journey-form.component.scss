@@ -47,3 +47,19 @@ quill-editor { display: block; }
     unicode-bidi: plaintext;
   }
 }
+
+// Each unit reads as its own block; the number ties it to the learner's contents panel.
+.unit-card { border-inline-start: 0.25rem solid var(--bs-primary); }
+
+.unit-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+  font-weight: 600;
+}

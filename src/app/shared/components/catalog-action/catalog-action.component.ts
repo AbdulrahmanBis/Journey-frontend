@@ -8,10 +8,10 @@ import { AssignmentService } from '../../../core/services/assignment.service';
 import { PackageService } from '../../../core/services/package.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { CatalogEntry, User } from '../../../core/models/models';
+import { CatalogEntry } from '../../../core/models/models';
 import { CatalogTypeCode, LearningStatusCode, STAFF_ROLES, codeOf } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { AssignLearnerModalComponent } from '../assign-learner-modal/assign-learner-modal.component';
+import { AssignChoice, AssignLearnerModalComponent } from '../assign-learner-modal/assign-learner-modal.component';
 
 type Action = 'enroll' | 'continue' | 'review' | 'enrollAgain' | 'assign' | 'none';
 
@@ -60,6 +60,7 @@ type Action = 'enroll' | 'continue' | 'review' | 'enrollAgain' | 'assign' | 'non
       [title]="'PACKAGE.ASSIGN_TITLE' | translate: { title: entry.title }"
       [subtitle]="(isPackage ? 'PACKAGE.ASSIGN_SUB' : 'JOURNEY.ASSIGN_SUB') | translate"
       [busy]="busy"
+      [targetDays]="entry.targetDays"
       (confirmed)="assign($event)"
       (dismissed)="assigning = false"
     ></app-assign-learner-modal>
@@ -147,11 +148,11 @@ export class CatalogActionComponent {
     });
   }
 
-  assign(learner: User): void {
+  assign({ learner, dueDate }: AssignChoice): void {
     this.busy = true;
     const request: Observable<unknown> = this.isPackage
-      ? this.packages.assign(this.entry.id, learner.id)
-      : this.assignments.assignJourney(this.entry.id, learner.id, this.auth.currentUser!);
+      ? this.packages.assign(this.entry.id, learner.id, dueDate)
+      : this.assignments.assignJourney(this.entry.id, learner.id, this.auth.currentUser!, dueDate);
     request.subscribe({
       next: () => {
         this.busy = false;

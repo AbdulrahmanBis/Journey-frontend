@@ -1,66 +1,64 @@
-.log-desc { max-width: 35rem; }
-
-// ---------------------------------------------------------------------------
-// The journey rail — a vertical line of numbered nodes, one per item. It is the
-// app's signature visual and has no Bootstrap equivalent. Logical properties
-// throughout, so it sits on the reading-start side in both languages.
-// ---------------------------------------------------------------------------
-
-.rail {
-  position: relative;
-  padding-inline-start: 0.25rem;
+// The contents stay in view while an item is read on wide screens.
+@media (min-width: 992px) {
+  .outline-column {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
 }
 
-// Centred on the nodes: rail padding (0.25rem) + half a node (1.25rem) − half the line (1px).
-.rail-line {
-  position: absolute;
-  inset-inline-start: calc(1.5rem - 1px);
-  top: 0.5rem;
-  bottom: 0.5rem;
-  width: 2px;
-  background: rgba(var(--bs-navy-rgb), 0.15);
-}
+// ---------------------------------------------------------------------------
+// "Continue" — the one obvious way on, like a course player's next-lesson bar.
+// ---------------------------------------------------------------------------
 
-.rail-item:not(:last-child) { padding-bottom: 1.375rem; }
-
-.rail-node {
-  position: relative;
+.continue-banner {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 2px solid var(--node-colour);
-  border-radius: 50%;
-  background: var(--bs-white);
-  color: var(--node-colour);
-  font-family: var(--bs-font-monospace);
+  gap: 1rem;
+  min-height: 4rem;
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  border-radius: var(--bs-border-radius-lg);
+  background: linear-gradient(90deg, var(--bs-navy), var(--bs-primary));
+  color: var(--bs-white);
+  text-align: start;
+  box-shadow: var(--bs-box-shadow-sm);
+  transition: filter 0.15s ease;
+
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+  &:disabled { opacity: 0.7; }
+}
+
+// The gradient runs from the reading start in both languages.
+:host-context([dir='rtl']) .continue-banner {
+  background: linear-gradient(-90deg, var(--bs-navy), var(--bs-primary));
+}
+
+.continue-label {
+  flex-shrink: 0;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--bs-border-radius);
+  background: rgba(var(--bs-white-rgb), 0.15);
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
-// Each status colours its node from the theme.
-.rail-node-new { --node-colour: var(--bs-new); }
-.rail-node-reflect { --node-colour: var(--bs-reflect); }
-.rail-node-response { --node-colour: var(--bs-response); }
-.rail-node-cancelled { --node-colour: var(--bs-cancelled); }
-.rail-node-completed {
-  --node-colour: var(--bs-completed);
-  background: var(--bs-completed);
-  color: var(--bs-white);
+.continue-title {
+  flex-grow: 1;
+  font-size: 1.0625rem;
+  font-weight: 600;
 }
 
-// Long unbroken content (a URL, a wide embed) must not push the card past the rail.
-.quest-card { min-width: 0; }
+.continue-arrow { font-size: 1.25rem; }
 
 // ---------------------------------------------------------------------------
-// Item descriptions
+// Item content
 // ---------------------------------------------------------------------------
 
 .quest-desc {
   padding-inline-start: 1.25rem;
-  font-size: 0.84375rem;
-  line-height: 1.6;
+  line-height: 1.7;
 
   li { margin-bottom: 0.25rem; }
 }
@@ -71,23 +69,22 @@
 /* Rich HTML from the editor. Quill emits p / ul / ol / h2 / h3 / blockquote / pre / a.
    The markup is injected via [innerHTML], so these rules need ::ng-deep to reach it. */
 .quest-rich {
-  padding-inline-start: 0;
-  line-height: 1.7;
+  line-height: 1.75;
 
   ::ng-deep {
-    p { margin: 0 0 0.5rem; }
+    p { margin: 0 0 0.75rem; }
     p:last-child { margin-bottom: 0; }
 
-    ul, ol { margin: 0 0 0.5rem; padding-inline-start: 1.375rem; }
+    ul, ol { margin: 0 0 0.75rem; padding-inline-start: 1.375rem; }
     li { margin-bottom: 0.25rem; }
 
-    h2 { font-size: 1rem; margin: 0.75rem 0 0.375rem; }
-    h3 { font-size: 0.90625rem; margin: 0.625rem 0 0.375rem; }
+    h2 { font-size: 1.25rem; margin: 1rem 0 0.5rem; }
+    h3 { font-size: 1.0625rem; margin: 0.875rem 0 0.5rem; }
 
     a { text-decoration: underline; }
 
     blockquote {
-      margin: 0.5rem 0;
+      margin: 0.75rem 0;
       padding-inline-start: 0.75rem;
       border-inline-start: 3px solid var(--bs-border-color);
       color: var(--bs-secondary-color);
@@ -95,7 +92,7 @@
 
     pre, code {
       font-family: var(--bs-font-monospace);
-      font-size: 0.78125rem;
+      font-size: 0.8125rem;
       background: var(--bs-tertiary-bg);
       border-radius: var(--bs-border-radius);
     }

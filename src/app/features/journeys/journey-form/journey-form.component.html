@@ -29,6 +29,12 @@
         </select>
       </div>
 
+      <div class="mb-3">
+        <label for="target-days" class="form-label">{{ 'DUE.TARGET_DAYS' | translate }}</label>
+        <input id="target-days" type="number" min="1" max="730" class="form-control" [(ngModel)]="targetDays" name="targetDays" [placeholder]="'DUE.TARGET_PLACEHOLDER' | translate" />
+        <div class="form-text">{{ 'DUE.TARGET_HINT' | translate }}</div>
+      </div>
+
       <div>
         <label for="desc" class="form-label">{{ 'JOURNEY.DESCRIPTION' | translate }}</label>
         <textarea id="desc" class="form-control" rows="4" [(ngModel)]="description" name="desc" [placeholder]="'JOURNEY.DESCRIPTION_PLACEHOLDER' | translate"></textarea>
@@ -36,106 +42,143 @@
     </div>
   </div>
 
-  <div class="col-lg-7">
-    <div class="card card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="h5 mb-0">{{ 'JOURNEY.QUEST_ITEMS' | translate }}</h3>
-        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addItem()">{{ 'JOURNEY.ADD_ITEM' | translate }}</button>
+  <div class="col-lg-7 d-flex flex-column gap-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="h5 mb-0">{{ 'JOURNEY.UNITS' | translate }}</h3>
+        <p class="small text-body-secondary mb-0">{{ 'JOURNEY.UNITS_HINT' | translate }}</p>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addUnit()">{{ 'JOURNEY.ADD_UNIT' | translate }}</button>
+    </div>
+
+    <div class="card card-body unit-card" *ngFor="let unit of units; let ui = index; let ufirst = first; let ulast = last">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="unit-badge">{{ ui + 1 }}</span>
+        <input class="form-control fw-semibold" [(ngModel)]="unit.title" [name]="'unit-title-' + ui" [placeholder]="'JOURNEY.UNIT_TITLE_PLACEHOLDER' | translate" [attr.aria-label]="'JOURNEY.UNIT_TITLE_PLACEHOLDER' | translate" />
+        <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="ufirst" (click)="moveUnit(ui, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="ulast" (click)="moveUnit(ui, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
+        <button class="btn btn-outline-danger btn-sm" type="button" [disabled]="units.length === 1" (click)="removeUnit(ui)" [title]="'JOURNEY.REMOVE_UNIT' | translate">✕</button>
+      </div>
+      <textarea class="form-control mb-3" rows="2" [(ngModel)]="unit.description" [name]="'unit-desc-' + ui" [placeholder]="'JOURNEY.UNIT_DESC_PLACEHOLDER' | translate"></textarea>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="small fw-semibold text-body-secondary">{{ 'JOURNEY.QUEST_ITEMS' | translate }}</span>
+        <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addItem(unit)">{{ 'JOURNEY.ADD_ITEM' | translate }}</button>
       </div>
 
-      <div class="border rounded p-3 mb-3 bg-body-tertiary" *ngFor="let item of items; let i = index; let first = first; let last = last">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="small text-body-tertiary ltr-data">#{{ i + 1 }}</span>
-          <div class="d-flex gap-1">
-            <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="first" (click)="moveItem(i, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
-            <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="last" (click)="moveItem(i, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
-            <button class="btn btn-outline-danger btn-sm" type="button" (click)="removeItem(i)" [title]="'COMMON.REMOVE' | translate">✕</button>
-          </div>
-        </div>
-
-        <input class="form-control mb-3" [(ngModel)]="item.title" [name]="'item-title-' + i" [placeholder]="'JOURNEY.ITEM_TITLE_PLACEHOLDER' | translate" />
-
-        <quill-editor
-          [(ngModel)]="item.description"
-          [name]="'item-desc-' + i"
-          [modules]="quillModules"
-          [placeholder]="'JOURNEY.ITEM_DESC_PLACEHOLDER' | translate"
-          theme="snow"
-        ></quill-editor>
-
-        <!-- ───────────────────────── Attachments ───────────────────────── -->
-        <div class="mt-3 pt-3 border-top">
-          <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
-            <span class="small text-body-tertiary">{{ 'ATTACHMENT.TITLE' | translate }}</span>
-            <select
-              class="form-select form-select-sm w-auto"
-              [name]="'add-att-' + i"
-              [ngModel]="''"
-              (ngModelChange)="addAttachment(item, $event)"
-            >
-              <option value="" disabled>{{ 'ATTACHMENT.ADD' | translate }}</option>
-              <option *ngFor="let k of attachmentKinds" [ngValue]="k.code">{{ kindLabel(k) }}</option>
-            </select>
-          </div>
-
-          <div class="d-flex flex-column gap-2 p-2 mb-2 border rounded bg-body" *ngFor="let a of item.attachments; let ai = index; let afirst = first; let alast = last">
-            <div class="d-flex align-items-center justify-content-between gap-2">
-              <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">{{ draftKindLabel(a) }}</span>
+          <div class="border rounded p-3 mb-3 bg-body-tertiary" *ngFor="let item of unit.items; let i = index; let first = first; let last = last">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small text-body-tertiary ltr-data">{{ ui + 1 }}.{{ i + 1 }}</span>
               <div class="d-flex gap-1">
-                <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="afirst" (click)="moveAttachment(item, ai, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
-                <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="alast" (click)="moveAttachment(item, ai, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
-                <button class="btn btn-outline-danger btn-sm" type="button" (click)="removeAttachment(item, ai)" [title]="'COMMON.REMOVE' | translate">✕</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="first" (click)="moveItem(unit, i, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="last" (click)="moveItem(unit, i, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
+                <button class="btn btn-outline-danger btn-sm" type="button" (click)="removeItem(unit, i)" [title]="'COMMON.REMOVE' | translate">✕</button>
               </div>
             </div>
 
-            <input
-              class="form-control"
-              [(ngModel)]="a.label"
-              [name]="'att-label-' + i + '-' + ai"
-              [placeholder]="'ATTACHMENT.LABEL_PLACEHOLDER' | translate"
-            />
+            <input class="form-control mb-3" [(ngModel)]="item.title" [name]="'item-title-' + ui + '-' + i" [placeholder]="'JOURNEY.ITEM_TITLE_PLACEHOLDER' | translate" />
 
-            <!-- External kinds: a URL -->
-            <input
-              *ngIf="!isUploadedKind(a.kind)"
-              class="form-control ltr-data"
-              [(ngModel)]="a.url"
-              [name]="'att-url-' + i + '-' + ai"
-              [placeholder]="'ATTACHMENT.URL_PLACEHOLDER' | translate"
-            />
+            <quill-editor
+              [(ngModel)]="item.description"
+              [name]="'item-desc-' + ui + '-' + i"
+              [modules]="quillModules"
+              [placeholder]="'JOURNEY.ITEM_DESC_PLACEHOLDER' | translate"
+              theme="snow"
+            ></quill-editor>
 
-            <!-- Uploaded kinds: a file -->
-            <div class="d-flex flex-column gap-2" *ngIf="isUploadedKind(a.kind)">
-              <input
-                type="file"
-                class="form-control"
-                [accept]="acceptFor(a.kind)"
-                [name]="'att-file-' + i + '-' + ai"
-                (change)="onFileSelected($event, a)"
-              />
-              <div class="d-flex align-items-center gap-2" *ngIf="a.uploading">
-                <div
-                  class="progress upload-progress flex-grow-1"
-                  role="progressbar"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  [attr.aria-valuenow]="a.progress || 0"
+            <!-- ───────────────────────── Attachments ───────────────────────── -->
+            <div class="mt-3 pt-3 border-top">
+              <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
+                <span class="small text-body-tertiary">{{ 'ATTACHMENT.TITLE' | translate }}</span>
+                <select
+                  class="form-select form-select-sm w-auto"
+                  [name]="'add-att-' + ui + '-' + i"
+                  [ngModel]="''"
+                  (ngModelChange)="addAttachment(item, $event)"
                 >
-                  <div class="progress-bar" [style.width.%]="a.progress || 0"></div>
-                </div>
-                <span class="small text-body-tertiary ltr-data">{{ a.progress || 0 }}%</span>
+                  <option value="" disabled>{{ 'ATTACHMENT.ADD' | translate }}</option>
+                  <option *ngFor="let k of attachmentKinds" [ngValue]="k.code">{{ kindLabel(k) }}</option>
+                </select>
               </div>
-              <p class="small text-completed" *ngIf="!a.uploading && a.storageKey">
-                ✓ <span dir="auto">{{ fileName(a) }}</span>
-                <span class="ltr-data" *ngIf="fileSize(a)"> · {{ fileSize(a) }}</span>
-              </p>
-              <p class="invalid-feedback d-block mt-0" *ngIf="a.error">{{ a.error }}</p>
+
+              <div class="d-flex flex-column gap-2 p-2 mb-2 border rounded bg-body" *ngFor="let a of item.attachments; let ai = index; let afirst = first; let alast = last">
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">{{ draftKindLabel(a) }}</span>
+                  <div class="d-flex gap-1">
+                    <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="afirst" (click)="moveAttachment(item, ai, -1)" [title]="'JOURNEY.MOVE_UP' | translate">↑</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="alast" (click)="moveAttachment(item, ai, 1)" [title]="'JOURNEY.MOVE_DOWN' | translate">↓</button>
+                    <button class="btn btn-outline-danger btn-sm" type="button" (click)="removeAttachment(item, ai)" [title]="'COMMON.REMOVE' | translate">✕</button>
+                  </div>
+                </div>
+
+                <input
+                  class="form-control"
+                  [(ngModel)]="a.label"
+                  [name]="'att-label-' + ui + '-' + i + '-' + ai"
+                  [placeholder]="'ATTACHMENT.LABEL_PLACEHOLDER' | translate"
+                />
+
+                <!-- External kinds: a URL -->
+                <input
+                  *ngIf="!isUploadedKind(a.kind)"
+                  class="form-control ltr-data"
+                  [(ngModel)]="a.url"
+                  [name]="'att-url-' + ui + '-' + i + '-' + ai"
+                  [placeholder]="'ATTACHMENT.URL_PLACEHOLDER' | translate"
+                />
+
+                <!-- Uploaded kinds: a file -->
+                <div class="d-flex flex-column gap-2" *ngIf="isUploadedKind(a.kind)">
+                  <input
+                    type="file"
+                    class="form-control"
+                    [accept]="acceptFor(a.kind)"
+                    [name]="'att-file-' + ui + '-' + i + '-' + ai"
+                    (change)="onFileSelected($event, a)"
+                  />
+                  <div class="d-flex align-items-center gap-2" *ngIf="a.uploading">
+                    <div
+                      class="progress upload-progress flex-grow-1"
+                      role="progressbar"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                      [attr.aria-valuenow]="a.progress || 0"
+                    >
+                      <div class="progress-bar" [style.width.%]="a.progress || 0"></div>
+                    </div>
+                    <span class="small text-body-tertiary ltr-data">{{ a.progress || 0 }}%</span>
+                  </div>
+                  <p class="small text-completed" *ngIf="!a.uploading && a.storageKey">
+                    ✓ <span dir="auto">{{ fileName(a) }}</span>
+                    <span class="ltr-data" *ngIf="fileSize(a)"> · {{ fileSize(a) }}</span>
+                  </p>
+                  <p class="invalid-feedback d-block mt-0" *ngIf="a.error">{{ a.error }}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <p class="small text-body-tertiary py-2" *ngIf="!items.length">{{ 'JOURNEY.NO_ITEMS_YET' | translate }}</p>
+
+      <p class="small text-body-tertiary py-2" *ngIf="!unit.items.length">{{ 'JOURNEY.NO_ITEMS_YET' | translate }}</p>
+
+      <!-- ───────────────────────── Unit quiz ───────────────────────── -->
+      <div class="mt-2 pt-3 border-top">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div>
+            <span class="small fw-semibold text-body-secondary">{{ 'JOURNEY.UNIT_QUIZ' | translate }}</span>
+            <div class="form-text mt-0">{{ 'JOURNEY.UNIT_QUIZ_HINT' | translate }}</div>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="unit.quiz.length >= maxQuizQuestions" (click)="addQuizQuestion(unit)">{{ 'JOURNEY.ADD_QUIZ_QUESTION' | translate }}</button>
+        </div>
+        <app-question-editor
+          *ngFor="let q of unit.quiz; let qi = index"
+          [question]="q"
+          [index]="qi"
+          [idPrefix]="'unit' + ui + '-q' + qi"
+          [allowOpen]="false"
+          (remove)="unit.quiz.splice(qi, 1)"
+        ></app-question-editor>
+      </div>
     </div>
   </div>
 </div>

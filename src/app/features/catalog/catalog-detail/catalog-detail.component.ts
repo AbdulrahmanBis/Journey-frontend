@@ -18,6 +18,7 @@ import { CatalogActionComponent } from '../../../shared/components/catalog-actio
   standalone: true,
   imports: [CommonModule, RouterLink, TranslatePipe, CatalogActionComponent],
   templateUrl: './catalog-detail.component.html',
+  styleUrl: './catalog-detail.component.scss',
 })
 export class CatalogDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -28,6 +29,8 @@ export class CatalogDetailComponent implements OnInit {
   lang = inject(LanguageService);
 
   detail: CatalogDetail | null = null;
+  /** Unit orders that are expanded; the first unit starts open. */
+  private openUnits = new Set<number>();
   loading = true;
   private type: CatalogTypeCode = CatalogTypeCode.Journey;
   private id = '';
@@ -53,7 +56,11 @@ export class CatalogDetailComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.catalog.detail(this.type, this.id).subscribe({
-      next: (detail) => { this.detail = detail; this.loading = false; },
+      next: (detail) => {
+        this.detail = detail;
+        this.openUnits = new Set(detail.units?.length ? [detail.units[0].order] : []);
+        this.loading = false;
+      },
       error: () => {
         this.toast.error(this.translate.instant('CATALOG.NOT_FOUND'));
         this.router.navigate(['/catalog']);
@@ -61,8 +68,15 @@ export class CatalogDetailComponent implements OnInit {
     });
   }
 
+  isOpen(order: number): boolean { return this.openUnits.has(order); }
+
+  toggle(order: number): void {
+    this.openUnits.has(order) ? this.openUnits.delete(order) : this.openUnits.add(order);
+  }
+
   /** Quest item descriptions are one bullet per line; the outline shows only the first. */
   firstLine(text?: string): string {
-    return (text ?? '').split('\n').map((l) => l.trim()).find((l) => !!l) ?? '';
+    const plain = (text ?? '').replace(/<\/(p|li|h[1-6]|div)>/gi, '\n').replace(/<[^>]+>/g, '');
+    return plain.split('\n').map((l) => l.trim()).find((l) => !!l) ?? '';
   }
 }

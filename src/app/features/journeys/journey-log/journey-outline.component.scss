@@ -1,0 +1,104 @@
+// The journey contents panel. Rows are buttons (keyboard reachable) styled as list lines.
+// Logical properties only, so the indent and chevron mirror in Arabic.
+
+.outline { overflow: hidden; }
+
+.outline-units { border-top: 1px solid var(--bs-border-color); }
+
+.outline-unit + .outline-unit { border-top: 1px solid var(--bs-border-color); }
+
+.outline-unit-head,
+.outline-chevron,
+.outline-step,
+.outline-exam {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border: 0;
+  background: transparent;
+  text-align: start;
+  color: inherit;
+
+  &:hover { background: var(--bs-tertiary-bg); }
+}
+
+.outline-unit-head {
+  min-width: 0;
+  padding: 0.75rem 0.5rem;
+  padding-inline-start: 1rem;
+
+  &.active { background: var(--bs-primary-bg-subtle); }
+}
+
+.outline-chevron {
+  padding: 0 0.875rem;
+  color: var(--bs-tertiary-color);
+  font-size: 1.125rem;
+
+  span { display: inline-block; transition: transform 0.15s ease; }
+  span.open { transform: rotate(90deg); }
+}
+
+:host-context([dir='rtl']) .outline-chevron span { transform: scaleX(-1); }
+:host-context([dir='rtl']) .outline-chevron span.open { transform: scaleX(-1) rotate(-90deg); }
+
+.unit-num {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &.done { background: var(--bs-completed); color: var(--bs-white); }
+}
+
+.outline-steps { padding-bottom: 0.375rem; }
+
+.outline-step {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  padding-inline-start: 3.375rem;
+  font-size: 0.875rem;
+
+  &.active {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary);
+    box-shadow: inset 3px 0 0 var(--bs-primary);
+  }
+}
+
+:host-context([dir='rtl']) .outline-step.active { box-shadow: inset -3px 0 0 var(--bs-primary); }
+
+// Status dot: hollow when new, ringed when in progress, filled with a tick when done.
+.step-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid var(--bs-border-color);
+  border-radius: 50%;
+  font-size: 0.625rem;
+  color: var(--bs-white);
+}
+
+.step-reflect { border-color: var(--bs-reflect); }
+.step-response { border-color: var(--bs-response); }
+.step-cancelled { border-color: var(--bs-cancelled); }
+.step-completed { border-color: var(--bs-completed); background: var(--bs-completed); }
+.step-quiz:not(.step-completed) { border-color: var(--bs-primary); color: var(--bs-primary); }
+
+.outline-exam {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid var(--bs-border-color);
+
+  &:disabled { opacity: 0.65; }
+}

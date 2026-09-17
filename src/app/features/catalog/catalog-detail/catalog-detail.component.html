@@ -22,7 +22,41 @@
 
     <div class="card card-body">
       <h2 class="h5 mb-3">{{ (isPackage ? 'CATALOG.JOURNEYS_INCLUDED' : 'CATALOG.WHAT_YOU_DO') | translate }}</h2>
-      <ol class="list-group list-group-numbered">
+
+      <!-- A journey: units that open to show their items, then the final exam -->
+      <div class="syllabus-units" *ngIf="d.units">
+        <div class="syllabus-unit" *ngFor="let unit of d.units">
+          <button type="button" class="syllabus-unit-head" [attr.aria-expanded]="isOpen(unit.order)" (click)="toggle(unit.order)">
+            <span class="unit-num" aria-hidden="true">{{ unit.order }}</span>
+            <span class="flex-grow-1 overflow-hidden">
+              <span class="d-block fw-semibold user-content">{{ unit.title }}</span>
+              <span class="d-block small text-body-tertiary" dir="auto">
+                {{ 'CATALOG.ITEM_COUNT' | translate: { count: unit.items.length } }}<ng-container *ngIf="unit.quizQuestions"> · {{ 'CATALOG.UNIT_QUIZ_COUNT' | translate: { count: unit.quizQuestions } }}</ng-container>
+              </span>
+            </span>
+            <span class="chevron" [class.open]="isOpen(unit.order)" aria-hidden="true">›</span>
+          </button>
+          <div class="syllabus-unit-body" *ngIf="isOpen(unit.order)">
+            <p class="small text-body-secondary user-content mb-2" *ngIf="unit.description">{{ unit.description }}</p>
+            <ol class="syllabus-items">
+              <li *ngFor="let s of unit.items">
+                <div class="fw-semibold user-content">{{ s.title }}</div>
+                <div class="small text-body-secondary text-truncate user-content" *ngIf="firstLine(s.description)">{{ firstLine(s.description) }}</div>
+              </li>
+              <li class="syllabus-quiz" *ngIf="unit.quizQuestions">
+                <span aria-hidden="true">?</span> {{ 'LOG.QUIZ' | translate }}
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="syllabus-exam" *ngIf="d.entry.hasExam">
+          <span aria-hidden="true">🎓</span>
+          <span class="fw-semibold">{{ 'LOG.FINAL_EXAM' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- A package: its journeys, each linking to its own page -->
+      <ol class="list-group list-group-numbered" *ngIf="d.syllabus">
         <li class="list-group-item d-flex gap-2" *ngFor="let s of d.syllabus">
           <div class="ms-1 flex-grow-1 overflow-hidden">
             <ng-container *ngIf="s.journeyId; else itemTitle">

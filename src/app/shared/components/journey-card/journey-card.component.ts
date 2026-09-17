@@ -5,6 +5,8 @@ import { LearnerJourneyView } from '../../../core/models/models';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { ProgressRingComponent } from '../progress-ring/progress-ring.component';
 import { ExamGradeBadgeComponent } from '../exam-grade-badge/exam-grade-badge.component';
+import { DueBadgeComponent } from '../due-badge/due-badge.component';
+import { StatusCode, isStatus } from '../../../core/models/enums';
 
 /**
  * One learner's journey as a card: tag, status, title, exam state, progress and hours.
@@ -16,7 +18,7 @@ import { ExamGradeBadgeComponent } from '../exam-grade-badge/exam-grade-badge.co
 @Component({
   selector: 'app-journey-card',
   standalone: true,
-  imports: [NgIf, TranslatePipe, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent],
+  imports: [NgIf, TranslatePipe, StatusBadgeComponent, ProgressRingComponent, ExamGradeBadgeComponent, DueBadgeComponent],
   templateUrl: './journey-card.component.html',
 })
 export class JourneyCardComponent {
@@ -24,4 +26,8 @@ export class JourneyCardComponent {
   /** Smaller ring and no description — used inside the team overview's nested rows. */
   @Input() compact = false;
   @Output() opened = new EventEmitter<LearnerJourneyView>();
+
+  get closed(): boolean {
+    return isStatus(this.view.status, StatusCode.Completed) || isStatus(this.view.status, StatusCode.Cancelled);
+  }
 }

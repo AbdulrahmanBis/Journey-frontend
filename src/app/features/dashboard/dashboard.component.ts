@@ -3,15 +3,15 @@ import { NgIf } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { RoleCode } from '../../core/models/enums';
 import { LearnerDashboardComponent } from './learner-dashboard/learner-dashboard.component';
-import { TeamOverviewComponent } from './team-overview/team-overview.component';
+import { TeamDashboardComponent } from './team-dashboard/team-dashboard.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgIf, LearnerDashboardComponent, TeamOverviewComponent],
+  imports: [NgIf, LearnerDashboardComponent, TeamDashboardComponent],
   template: `
     <app-learner-dashboard *ngIf="isLearner"></app-learner-dashboard>
-    <app-team-overview *ngIf="!isLearner" [scope]="scope"></app-team-overview>
+    <app-team-dashboard *ngIf="!isLearner"></app-team-dashboard>
   `,
 })
 export class DashboardComponent {
@@ -19,9 +19,5 @@ export class DashboardComponent {
 
   get isLearner(): boolean {
     return this.auth.hasRole(RoleCode.Learner);
-  }
-
-  get scope(): 'senior' | 'manager' {
-    return this.auth.hasRole(RoleCode.Senior) ? 'senior' : 'manager';
   }
 }

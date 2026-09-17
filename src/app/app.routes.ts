@@ -104,6 +104,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/user-form/user-form.component').then((m) => m.UserFormComponent),
   },
   {
+    path: 'people/:id',
+    canActivate: [authGuard, roleGuard(STAFF_ROLES)],
+    loadComponent: () => import('./features/people/learner-profile/learner-profile.component').then((m) => m.LearnerProfileComponent),
+  },
+  {
     path: 'admin/departments',
     canActivate: [authGuard, roleGuard(ORG_WIDE_ROLES)],
     loadComponent: () => import('./features/admin/department-list/department-list.component').then((m) => m.DepartmentListComponent),

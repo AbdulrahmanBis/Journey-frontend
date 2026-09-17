@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CatalogPage, Facet } from '../../core/models/models';
 import { RoleCode } from '../../core/models/enums';
 import { CatalogCardComponent } from '../../shared/components/catalog-card/catalog-card.component';
+import { SidePanelComponent } from '../../shared/components/side-panel/side-panel.component';
 
 const SORTS: readonly CatalogSort[] = ['relevance', 'title', 'newest', 'popular'];
 
@@ -22,7 +23,7 @@ const SORTS: readonly CatalogSort[] = ['relevance', 'title', 'newest', 'popular'
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe, CatalogCardComponent],
+  imports: [CommonModule, FormsModule, TranslatePipe, CatalogCardComponent, SidePanelComponent],
   templateUrl: './catalog.component.html',
 })
 export class CatalogComponent implements OnInit {

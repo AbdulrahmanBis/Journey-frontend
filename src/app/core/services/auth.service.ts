@@ -62,6 +62,15 @@ export class AuthService {
     try { localStorage.removeItem(USER_KEY); } catch { /* ignore */ }
   }
 
+  /** Applies a change the server has already saved to the cached session user. */
+  updateCurrentUser(changes: Partial<User>): void {
+    const user = this.currentUser;
+    if (!user) return;
+    const updated = { ...user, ...changes };
+    this.currentUserSubject.next(updated);
+    try { localStorage.setItem(USER_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+  }
+
   private persist(res: AuthResponse): void {
     TokenStore.set(res.token);
     this.currentUserSubject.next(res.user);

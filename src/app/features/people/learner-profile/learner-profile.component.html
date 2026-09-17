@@ -1,0 +1,68 @@
+<a routerLink="/dashboard" class="link-secondary small d-inline-block mb-2">{{ 'TEAM.BACK' | translate }}</a>
+
+<p class="text-body-secondary" *ngIf="loading && !snapshot">{{ 'TEAM.LOADING' | translate }}</p>
+
+<ng-container *ngIf="snapshot as s">
+  <div class="card card-body mb-3">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div class="avatar avatar-lg">{{ s.learner.name.charAt(0) }}</div>
+      <div class="flex-grow-1 overflow-hidden">
+        <h1 class="page-title mb-0">{{ s.learner.name }}</h1>
+        <div class="small text-body-secondary" dir="auto">
+          <span class="ltr-data">{{ s.learner.email }}</span>
+          <span *ngIf="s.learner.department"> · {{ lang.label(s.learner.department) }}</span>
+          <span> · {{ 'USER.SENIOR' | translate }}: {{ s.learner.seniorName ?? '—' }}</span>
+        </div>
+      </div>
+      <span class="badge rounded-pill fs-6" [ngClass]="healthChipClass(s.learner.health)">{{ lang.label(s.learner.health) }}</span>
+      <a routerLink="/catalog" class="btn btn-primary btn-sm">{{ 'TEAM.ASSIGN_MORE' | translate }}</a>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-5 g-3 mt-2 pt-3 border-top">
+      <div class="col"><div class="stat-num">{{ s.learner.openJourneys }}</div><div class="small text-body-secondary">{{ 'TEAM.OPEN' | translate }}</div></div>
+      <div class="col"><div class="stat-num">{{ s.learner.completedJourneys }}</div><div class="small text-body-secondary">{{ 'DASHBOARD.COMPLETED' | translate }}</div></div>
+      <div class="col"><div class="stat-num" [class.text-danger]="s.learner.overdueJourneys">{{ s.learner.overdueJourneys }}</div><div class="small text-body-secondary">{{ 'TEAM.KPI_OVERDUE' | translate }}</div></div>
+      <div class="col"><div class="stat-num">{{ s.learner.averageProgress }}%</div><div class="small text-body-secondary">{{ 'TEAM.AVG_PROGRESS' | translate }}</div></div>
+      <div class="col"><div class="stat-num fs-5">{{ s.learner.lastActivityAt | timeAgo }}</div><div class="small text-body-secondary">{{ 'TEAM.COL_ACTIVITY' | translate }}</div></div>
+    </div>
+  </div>
+
+  <div class="card card-body mb-4" *ngIf="s.attention.length">
+    <h2 class="h6 mb-3">{{ 'TEAM.NEEDS_ATTENTION' | translate }}</h2>
+    <app-attention-list [items]="s.attention" [showLearner]="false"></app-attention-list>
+  </div>
+
+  <div class="d-flex flex-column gap-3 mb-4" *ngIf="groups.packages.length">
+    <app-package-group
+      *ngFor="let g of groups.packages"
+      [assignment]="g.assignment"
+      [views]="g.views"
+      [compact]="true"
+      [canCancel]="canCancelPackages"
+      (opened)="openJourney($event)"
+      (cancel)="cancelling = $event"
+    ></app-package-group>
+  </div>
+
+  <h2 class="h6 text-body-secondary mb-3" *ngIf="groups.packages.length && groups.standalone.length">{{ 'PACKAGE.OTHER_JOURNEYS' | translate }}</h2>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+    <div class="col" *ngFor="let j of groups.standalone">
+      <app-journey-card [view]="j" [compact]="true" (opened)="openJourney($event)"></app-journey-card>
+    </div>
+  </div>
+  <div class="card text-center text-body-secondary py-5 px-4" *ngIf="!groups.packages.length && !groups.standalone.length">
+    <h3 class="h5 text-body mb-2">{{ 'TEAM.NOTHING_OPEN' | translate }}</h3>
+    <p class="mb-3">{{ 'TEAM.NOTHING_ASSIGNED_SUB' | translate }}</p>
+    <div><a routerLink="/catalog" class="btn btn-primary">{{ 'TEAM.ASSIGN_MORE' | translate }}</a></div>
+  </div>
+</ng-container>
+
+<app-confirm-dialog
+  [open]="!!cancelling"
+  [title]="'PACKAGE.CANCEL_TITLE' | translate"
+  [message]="cancelMessage"
+  [confirmLabel]="'PACKAGE.CANCEL' | translate"
+  [danger]="true"
+  (confirmed)="confirmCancel()"
+  (cancelled)="cancelling = null"
+></app-confirm-dialog>

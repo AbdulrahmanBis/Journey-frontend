@@ -1,107 +1,148 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
-import { UserService } from '../../../core/services/user.service';
+import { LearnerUnitService } from '../../../core/services/learner-unit.service';
+import { PackageService } from '../../../core/services/package.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LanguageService } from '../../../core/services/language.service';
-import { JourneyItemView, LearnerJourneyView, PackageContext, User } from '../../../core/models/models';
-import { PackageService } from '../../../core/services/package.service';
+import { ItemContent, JourneyOutline, OutlineUnit, PackageContext, User } from '../../../core/models/models';
 import {
-  AttemptStatusCode,
   EnumValue,
   ORG_VIEW_ROLES,
-  RoleCode,
   STAFF_ROLES,
   STATUS_ORDER,
   StatusCode,
   codeOf,
-  isStatus,
   statusSlug,
   toggleButtonClass,
 } from '../../../core/models/enums';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { ProgressRingComponent } from '../../../shared/components/progress-ring/progress-ring.component';
 import { NoteThreadComponent } from '../../../shared/components/note-thread/note-thread.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { ExamGradeBadgeComponent } from '../../../shared/components/exam-grade-badge/exam-grade-badge.component';
 import { AttachmentViewComponent } from '../../../shared/components/attachment-view/attachment-view.component';
+import { DueBadgeComponent, todayIso } from '../../../shared/components/due-badge/due-badge.component';
+import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
+import { JourneyOutlineComponent, LogStep, stepKey } from './journey-outline.component';
+import { UnitQuizComponent } from './unit-quiz.component';
+import { UnitReviewComponent } from './unit-review.component';
 
+/** How often active reading time is reported, and how recent an interaction must be to count. */
+const HEARTBEAT_SECONDS = 30;
+const IDLE_AFTER_MS = 60_000;
+
+/**
+ * A journey, one step at a time: the contents on the side (units → items, quiz; final exam), the
+ * selected item's content in the middle, and "Continue" to move on.
+ *
+ * <p>For the learner, opening an item marks it in progress, Continue marks it completed, and time is
+ * recorded while the page is open and they are active. A unit goes to review by itself once its items
+ * and quiz are done. Reviewers read the same page and act on units (complete, or send back with a note).
+ *
+ * <p>The selection lives in the URL (?item= / ?quiz= / ?unit=), so the learner home and notifications can
+ * link straight to a step, and Back works.
+ */
 @Component({
   selector: 'app-journey-log',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, StatusBadgeComponent, ProgressRingComponent, NoteThreadComponent, ConfirmDialogComponent, ModalComponent, ExamGradeBadgeComponent, AttachmentViewComponent, TranslatePipe],
+  imports: [
+    CommonModule, FormsModule, RouterLink, TranslatePipe,
+    StatusBadgeComponent, NoteThreadComponent, ConfirmDialogComponent, AttachmentViewComponent, DueBadgeComponent,
+    SidePanelComponent, JourneyOutlineComponent, UnitQuizComponent, UnitReviewComponent,
+  ],
   templateUrl: './journey-log.component.html',
   styleUrl: './journey-log.component.scss',
 })
-export class JourneyLogComponent implements OnInit {
+export class JourneyLogComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
   private assignments = inject(AssignmentService);
-  private userService = inject(UserService);
+  private units = inject(LearnerUnitService);
+  private packageService = inject(PackageService);
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
-  private lang = inject(LanguageService);
-  private packageService = inject(PackageService);
+  private destroyRef = inject(DestroyRef);
+  lang = inject(LanguageService);
 
-  STATUS_ORDER = STATUS_ORDER;
-  StatusCode = StatusCode;
-  statusSlug = statusSlug;
-  toggleButtonClass = toggleButtonClass;
+  readonly STATUS_ORDER = STATUS_ORDER;
+  readonly statusSlug = statusSlug;
+  readonly toggleButtonClass = toggleButtonClass;
+  readonly minDueDate = todayIso();
 
-  view: LearnerJourneyView | null = null;
-  /** The live packages this journey belongs to — drives the "next journey" strip. */
-  packages: PackageContext[] = [];
-  learner: User | null = null;
+  outline: JourneyOutline | null = null;
   loading = true;
-  notAllowed = false;
+  selection: LogStep | null = null;
+  content: ItemContent | null = null;
+  contentLoading = false;
+  showNotes = false;
+  busy = false;
 
-  expandedNotes = new Set<string>();
-  completingItem: JourneyItemView | null = null;
-  completingHours: number | null = null;
+  packages: PackageContext[] = [];
+  editingDue = false;
+  dueDraft = '';
   showCancelConfirm = false;
+
+  private journeyId = '';
+  private heartbeat: ReturnType<typeof setInterval> | null = null;
+  private lastInteraction = Date.now();
 
   get currentUser(): User { return this.auth.currentUser!; }
 
-  /** Status wording comes from the enum triple, so it follows the active language. */
-  statusLabel(status: EnumValue | null | undefined): string {
-    return this.lang.label(status);
+  /** The signed-in person is the learner on this journey. */
+  get isLearner(): boolean { return !!this.outline && this.outline.learnerId === this.currentUser.id; }
+
+  /** Anyone else from staff who can open it reviews (the server decides who actually may). */
+  get isReviewer(): boolean { return !this.isLearner && this.auth.hasRole(...STAFF_ROLES); }
+
+  get canOverrideJourneyStatus(): boolean { return !this.isLearner && this.auth.hasRole(...ORG_VIEW_ROLES); }
+
+  get selectedKey(): string { return stepKey(this.selection); }
+
+  /** Items and quizzes in order: what Previous / Continue walk through. */
+  get steps(): LogStep[] {
+    if (!this.outline) return [];
+    const steps: LogStep[] = [];
+    for (const unit of this.outline.units) {
+      for (const item of unit.items) steps.push({ kind: 'item', unit, item });
+      if (unit.quiz) steps.push({ kind: 'quiz', unit });
+    }
+    return steps;
   }
 
-  get completedCount(): number {
-    return this.view?.items.filter((i) => isStatus(i.progress.status, StatusCode.Completed)).length ?? 0;
+  get stepIndex(): number {
+    const key = this.selectedKey;
+    return this.steps.findIndex((s) => stepKey(s) === key);
   }
 
-  get isOwnView(): boolean { return this.auth.hasRole(RoleCode.Learner); }
-
-  get canOverrideJourneyStatus(): boolean {
-    return this.auth.hasRole(...ORG_VIEW_ROLES);
+  get previousStep(): LogStep | null {
+    const i = this.stepIndex;
+    return i > 0 ? this.steps[i - 1] : null;
   }
 
-  get canManageExam(): boolean {
-    return this.auth.hasRole(...STAFF_ROLES);
+  get nextStep(): LogStep | null {
+    const i = this.stepIndex;
+    return i >= 0 && i < this.steps.length - 1 ? this.steps[i + 1] : null;
   }
 
-  get isReviewer(): boolean { return !this.auth.hasRole(RoleCode.Learner); }
-
-  isCompleted(item: JourneyItemView): boolean {
-    return isStatus(item.progress.status, StatusCode.Completed);
+  stepTitle(step: LogStep | null): string {
+    if (!step) return '';
+    if (step.kind === 'item') return step.item.title;
+    return this.translate.instant(step.kind === 'quiz' ? 'LOG.QUIZ_OF' : 'LOG.UNIT_OF', { unit: step.unit.title });
   }
 
-  isCurrent(status: EnumValue, current: EnumValue | undefined): boolean {
-    return codeOf(current) === status.code;
+  /** The selected unit, current and fresh from the latest outline. */
+  get selectedUnit(): OutlineUnit | null { return this.selection?.unit ?? null; }
+
+  unitClosed(unit: OutlineUnit): boolean {
+    const code = codeOf(unit.status);
+    return code === StatusCode.Completed || code === StatusCode.Cancelled;
   }
 
-  /**
-   * Item descriptions used to be plain text with one bullet per line; the editor now produces HTML.
-   * Both shapes exist in the database, so legacy text keeps its bullet rendering instead of having
-   * its line breaks collapse. Angular sanitizes the HTML branch, stripping scripts and handlers.
-   */
   isRichText(description: string | null | undefined): boolean {
     return /<[a-z][\s\S]*>/i.test(description ?? '');
   }
@@ -110,35 +151,33 @@ export class JourneyLogComponent implements OnInit {
     return (description ?? '').split('\n').filter((line) => line.trim().length > 0);
   }
 
-  get completeModalTitle(): string {
-    return this.translate.instant('QUEST_LOG.COMPLETE_TITLE', { title: this.completingItem?.title ?? '' });
-  }
-
-  get examCtaLabel(): string {
-    if (!this.view?.exam || this.view.percentComplete < 100) return '';
-    const attempt = this.view.examAttempt;
-    if (!attempt) return this.isReviewer ? '' : this.translate.instant('QUEST_LOG.TAKE_EXAM');
-    if (codeOf(attempt.status) === AttemptStatusCode.Submitted) {
-      return this.translate.instant(this.isReviewer ? 'QUEST_LOG.REVIEW_EXAM' : 'QUEST_LOG.VIEW_SUBMISSION');
-    }
-    return this.translate.instant('QUEST_LOG.VIEW_RESULT');
-  }
+  // ─── Loading and selection ───────────────────────────────────────────────
 
   ngOnInit(): void {
-    // Subscribed, not a snapshot: "Next journey" navigates to this same route with another id.
-    this.route.paramMap.subscribe((params) => this.load(params.get('id')!));
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => this.load(params.get('id')!));
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      if (this.outline) this.applySelection(params);
+    });
+    this.heartbeat = setInterval(() => this.reportTime(), HEARTBEAT_SECONDS * 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.heartbeat) clearInterval(this.heartbeat);
   }
 
   private load(id: string): void {
+    this.journeyId = id;
     this.loading = true;
+    this.outline = null;
+    this.selection = null;
+    this.content = null;
     this.packages = [];
-    this.expandedNotes.clear();
-    this.assignments.getLearnerJourneyView(id).subscribe({
-      next: (view) => {
-        this.view = view;
-        this.userService.getById(view.learnerId).subscribe((u) => (this.learner = u));
-        this.loadPackages();
+    this.units.outline(id).subscribe({
+      next: (outline) => {
+        this.outline = outline;
         this.loading = false;
+        this.applySelection(this.route.snapshot.queryParamMap);
+        this.loadPackages();
       },
       error: () => {
         this.toast.error(this.translate.instant('QUEST_LOG.NOT_FOUND'));
@@ -147,92 +186,196 @@ export class JourneyLogComponent implements OnInit {
     });
   }
 
-  private refresh(): void {
-    if (!this.view) return;
-    this.assignments.getLearnerJourneyView(this.view.id).subscribe((view) => {
-      this.view = view;
+  /** Refreshes statuses after a change, keeping the selection. */
+  reloadOutline(): void {
+    this.units.outline(this.journeyId).subscribe((outline) => {
+      this.outline = outline;
+      this.selection = this.resolve(this.selectedKey) ?? this.selection;
       this.loadPackages();
     });
   }
 
-  private loadPackages(): void {
-    if (!this.view) return;
-    const id = this.view.id;
-    this.packageService.contextFor(id).subscribe({
-      next: (contexts) => { if (this.view?.id === id) this.packages = contexts; },
-      error: () => (this.packages = []),
-    });
+  select(step: LogStep): void {
+    const queryParams = step.kind === 'item' ? { item: step.item.progressId }
+      : step.kind === 'quiz' ? { quiz: step.unit.learnerUnitId } : { unit: step.unit.learnerUnitId };
+    this.router.navigate([], { relativeTo: this.route, queryParams });
   }
 
-  get finished(): boolean { return (this.view?.percentComplete ?? 0) >= 100; }
-
-  openNext(context: PackageContext): void {
-    if (context.nextLearnerJourneyId) this.router.navigate(['/journey-log', context.nextLearnerJourneyId]);
+  private applySelection(params: ParamMap): void {
+    const key = params.get('item') ? 'item:' + params.get('item')
+      : params.get('quiz') ? 'quiz:' + params.get('quiz')
+      : params.get('unit') ? 'unit:' + params.get('unit') : '';
+    const step = (key && this.resolve(key)) || this.defaultStep();
+    if (!step) return;
+    this.selection = step;
+    this.showNotes = false;
+    if (step.kind === 'item') this.openItem(step);
+    else this.content = null;
   }
 
-  toggleNotes(itemId: string): void {
-    this.expandedNotes.has(itemId) ? this.expandedNotes.delete(itemId) : this.expandedNotes.add(itemId);
+  private resolve(key: string): LogStep | null {
+    if (!this.outline || !key) return null;
+    const [kind, id] = key.split(':');
+    for (const unit of this.outline.units) {
+      if (kind === 'item') {
+        const item = unit.items.find((i) => i.progressId === id);
+        if (item) return { kind: 'item', unit, item };
+      } else if (unit.learnerUnitId === id) {
+        return kind === 'quiz' && unit.quiz ? { kind: 'quiz', unit } : { kind: 'unit', unit };
+      }
+    }
+    return null;
   }
 
-  setItemStatus(item: JourneyItemView, status: EnumValue): void {
-    if (codeOf(item.progress.status) === status.code) return;
-    if (status.code === StatusCode.Completed) { this.completingItem = item; this.completingHours = null; return; }
-    this.assignments.updateItemStatus(item.progress.id, status.code, this.currentUser).subscribe({
-      next: () => {
-        this.toast.success(this.translate.instant('QUEST_LOG.MARKED_STATUS', {
-          status: this.statusLabel(status).toLowerCase(),
-        }));
-        this.refresh();
+  /**
+   * Where to start: the learner's first unfinished step; for a reviewer, the first unit waiting for
+   * review; otherwise the first item.
+   */
+  private defaultStep(): LogStep | null {
+    if (!this.outline) return null;
+    if (this.isLearner) {
+      const todo = this.steps.find((s) =>
+        s.kind === 'item' ? codeOf(s.item.status) !== StatusCode.Completed : !s.unit.quiz?.answered);
+      if (todo) return todo;
+    } else {
+      const waiting = this.outline.units.find((u) => codeOf(u.status) === StatusCode.Response);
+      if (waiting) return { kind: 'unit', unit: waiting };
+    }
+    return this.steps[0] ?? null;
+  }
+
+  private openItem(step: Extract<LogStep, { kind: 'item' }>): void {
+    this.contentLoading = true;
+    const progressId = step.item.progressId;
+    this.units.item(progressId).subscribe({
+      next: (content) => {
+        if (this.selection?.kind !== 'item' || this.selection.item.progressId !== progressId) return;
+        this.content = content;
+        this.contentLoading = false;
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')),
+      error: () => { this.contentLoading = false; },
     });
+    if (this.isLearner && codeOf(step.item.status) === StatusCode.New) {
+      this.units.open(progressId).subscribe({ next: () => this.reloadOutline(), error: () => undefined });
+    }
   }
 
-  confirmCompletion(): void {
-    if (!this.completingItem || !this.completingHours || this.completingHours <= 0) return;
-    const title = this.completingItem.title;
-    const hours = this.completingHours;
-    this.assignments.updateItemStatus(this.completingItem.progress.id, StatusCode.Completed, this.currentUser, hours).subscribe({
+  // ─── Moving on ───────────────────────────────────────────────────────────
+
+  /** Learner: completes the current item on the way. Everyone: goes to the next step. */
+  continue(): void {
+    const next = this.nextStep;
+    const current = this.selection;
+    const done = () => {
+      if (next) this.select(next);
+      else this.reloadOutline();
+    };
+    if (this.isLearner && current?.kind === 'item' && codeOf(current.item.status) !== StatusCode.Completed) {
+      this.busy = true;
+      this.units.complete(current.item.progressId).subscribe({
+        next: () => { this.busy = false; this.reloadOutline(); done(); },
+        error: (err: any) => { this.busy = false; this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
+      });
+      return;
+    }
+    done();
+  }
+
+  previous(): void {
+    const prev = this.previousStep;
+    if (prev) this.select(prev);
+  }
+
+  openExam(): void {
+    this.router.navigate(['/exam', this.journeyId]);
+  }
+
+  onQuizSubmitted(): void {
+    this.reloadOutline();
+  }
+
+  // ─── Time on item ────────────────────────────────────────────────────────
+
+  @HostListener('document:mousemove')
+  @HostListener('document:keydown')
+  @HostListener('document:scroll')
+  @HostListener('document:touchstart')
+  markActive(): void {
+    this.lastInteraction = Date.now();
+  }
+
+  /** Counts time only while the learner has an item open, the tab is visible and they were recently active. */
+  private reportTime(): void {
+    if (!this.isLearner || this.selection?.kind !== 'item') return;
+    if (document.visibilityState !== 'visible' || Date.now() - this.lastInteraction > IDLE_AFTER_MS) return;
+    this.units.addTime(this.selection.item.progressId, HEARTBEAT_SECONDS).subscribe({ error: () => undefined });
+  }
+
+  // ─── Notes, journey status, due date, packages ───────────────────────────
+
+  addItemNote(message: string): void {
+    if (!this.content) return;
+    const progressId = this.content.progressId;
+    this.assignments.addNote(progressId, message, this.currentUser).subscribe({
       next: () => {
-        this.toast.success(this.translate.instant('QUEST_LOG.COMPLETED_IN', { title, hours }));
-        this.completingItem = null;
-        this.completingHours = null;
-        this.refresh();
+        this.toast.success(this.translate.instant('QUEST_LOG.NOTE_ADDED'));
+        this.units.item(progressId).subscribe((content) => { if (this.content?.progressId === progressId) this.content = content; });
+        this.reloadOutline();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')),
-    });
-  }
-
-  cancelCompletionModal(): void { this.completingItem = null; this.completingHours = null; }
-
-  addNote(item: JourneyItemView, message: string): void {
-    this.assignments.addNote(item.progress.id, message, this.currentUser).subscribe({
-      next: () => { this.toast.success(this.translate.instant('QUEST_LOG.NOTE_ADDED')); this.refresh(); },
       error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('QUEST_LOG.NOTE_FAILED')),
     });
   }
 
   setJourneyStatus(status: EnumValue): void {
-    if (!this.view) return;
+    if (!this.outline || codeOf(this.outline.status) === status.code) return;
     if (status.code === StatusCode.Cancelled) { this.showCancelConfirm = true; return; }
-    this.assignments.updateJourneyStatus(this.view.id, status.code).subscribe({
+    this.assignments.updateJourneyStatus(this.journeyId, status.code).subscribe({
       next: () => {
-        this.toast.success(this.translate.instant('QUEST_LOG.STATUS_CHANGED', { status: this.statusLabel(status) }));
-        this.refresh();
+        this.toast.success(this.translate.instant('QUEST_LOG.STATUS_CHANGED', { status: this.lang.label(status) }));
+        this.reloadOutline();
       },
       error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')),
     });
   }
 
   confirmCancelJourney(): void {
-    if (!this.view) return;
-    this.assignments.updateJourneyStatus(this.view.id, StatusCode.Cancelled).subscribe({
+    this.assignments.updateJourneyStatus(this.journeyId, StatusCode.Cancelled).subscribe({
       next: () => {
         this.toast.success(this.translate.instant('QUEST_LOG.CANCELLED'));
         this.showCancelConfirm = false;
-        this.refresh();
+        this.reloadOutline();
       },
       error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('QUEST_LOG.CANCEL_FAILED')),
     });
+  }
+
+  startDueEdit(): void {
+    this.dueDraft = this.outline?.dueDate ?? '';
+    this.editingDue = true;
+  }
+
+  saveDue(): void {
+    this.assignments.updateDueDate(this.journeyId, this.dueDraft || null).subscribe({
+      next: () => {
+        this.editingDue = false;
+        this.toast.success(this.translate.instant('DUE.SAVED'));
+        this.reloadOutline();
+      },
+      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED')),
+    });
+  }
+
+  get finished(): boolean { return (this.outline?.percentComplete ?? 0) >= 100; }
+
+  private loadPackages(): void {
+    const id = this.journeyId;
+    this.packageService.contextFor(id).subscribe({
+      next: (contexts) => { if (this.journeyId === id) this.packages = contexts; },
+      error: () => (this.packages = []),
+    });
+  }
+
+  openNextJourney(context: PackageContext): void {
+    if (context.nextLearnerJourneyId) this.router.navigate(['/journey-log', context.nextLearnerJourneyId]);
   }
 }

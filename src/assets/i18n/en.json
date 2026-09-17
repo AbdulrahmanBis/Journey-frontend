@@ -23,7 +23,8 @@
     "UPDATE_FAILED": "Update failed.",
     "PREVIOUS": "Previous",
     "NEXT": "Next",
-    "FORWARD_ARROW": "→"
+    "FORWARD_ARROW": "→",
+    "BACK_ARROW": "←"
   },
   "NOTIFICATIONS": {
     "TITLE": "Notifications",
@@ -141,7 +142,7 @@
     "NEW_EYEBROW": "New journey",
     "UPDATE_TITLE": "Update journey",
     "CREATE_TITLE": "Create a journey",
-    "FORM_SUB": "Define the journey, then lay out each quest item learners will work through in order.",
+    "FORM_SUB": "Split the journey into units. Each unit holds the items learners work through in order, and can end with a short quiz.",
     "BACK_TO_JOURNEYS": "← Back to journeys",
     "SAVE_FIRST_HINT": "Save the journey first, then you can add a checkpoint exam.",
     "MANAGE_EXAM": "🎓 Manage exam",
@@ -168,41 +169,37 @@
     "ASSIGNED": "Assigned \"{{title}}\" to {{name}}.",
     "ASSIGN_FAILED": "Assignment failed.",
     "LOAD_FAILED": "Could not load journeys.",
-    "NOT_FOUND": "Journey not found."
+    "NOT_FOUND": "Journey not found.",
+    "UNITS": "Units",
+    "UNITS_HINT": "Learners see these as sections in the journey’s contents.",
+    "ADD_UNIT": "+ Add unit",
+    "REMOVE_UNIT": "Remove unit",
+    "UNIT_DEFAULT_TITLE": "Unit {{n}}",
+    "UNIT_TITLE_PLACEHOLDER": "Unit title",
+    "UNIT_DESC_PLACEHOLDER": "What this unit covers (optional)",
+    "UNIT_QUIZ": "Unit quiz",
+    "UNIT_QUIZ_HINT": "Optional. 1–2 multiple-choice or yes/no questions; learners see their result right away.",
+    "ADD_QUIZ_QUESTION": "+ Add question",
+    "NEEDS_UNIT_TITLE": "Give unit {{n}} a title.",
+    "NEEDS_UNIT_ITEM": "“{{unit}}” needs at least one item."
   },
   "QUEST_LOG": {
     "LOADING": "Loading quest log…",
-    "NO_ACCESS_TITLE": "You don't have access to this quest log",
-    "NO_ACCESS_SUB": "It belongs to a learner outside your team.",
     "BACK_TO_DASHBOARD": "← Back to dashboard",
     "SETUP_EXAM": "+ Set up exam",
-    "TAKE_EXAM": "Take exam",
-    "REVIEW_EXAM": "Review exam",
-    "VIEW_SUBMISSION": "View submission",
-    "VIEW_RESULT": "View exam result",
     "STATUS": "Status",
     "ASSIGNED_BY": "Assigned by",
-    "ITEMS_COMPLETED": "Items completed",
-    "EXAM": "Exam",
     "OVERRIDE_STATUS": "Override journey status:",
     "HOURS_LOGGED": "{{hours}}h logged",
     "NOTES": "Notes",
     "HIDE_NOTES": "Hide notes",
-    "COMPLETE_TITLE": "Mark \"{{title}}\" complete",
-    "COMPLETE_SUB": "How long did this quest item take?",
-    "TIME_SPENT": "Time spent (hours)",
-    "TIME_PLACEHOLDER": "e.g. 2.5",
-    "MARK_COMPLETE": "Mark complete",
     "CANCEL_TITLE": "Cancel this journey?",
     "CANCEL_MESSAGE": "The learner's progress on individual items is kept, but the journey will be marked cancelled.",
     "CANCEL_CONFIRM": "Cancel journey",
-    "MARKED_STATUS": "Marked {{status}}.",
-    "COMPLETED_IN": "\"{{title}}\" completed in {{hours}}h!",
     "STATUS_CHANGED": "Journey status → {{status}}.",
     "CANCELLED": "Journey cancelled.",
     "NOTE_ADDED": "Note added.",
     "NOT_FOUND": "Quest log not found.",
-    "UPDATE_FAILED": "Update failed.",
     "NOTE_FAILED": "Note failed.",
     "CANCEL_FAILED": "Cancel failed."
   },
@@ -256,7 +253,7 @@
     "CHECKPOINT": "Checkpoint exam",
     "FOR_LEARNER": "For {{name}}",
     "LOCKED_TITLE": "Not unlocked yet",
-    "LOCKED_SUB": "This exam opens once every quest item in the journey is marked complete ({{percent}}% so far).",
+    "LOCKED_SUB": "This exam opens once every unit is finished — all items done and each unit quiz answered ({{percent}}% of items so far).",
     "NO_EXAM_TITLE": "No exam on this journey",
     "NO_EXAM_SUB": "This journey doesn't have a checkpoint exam configured.",
     "AWAITING_TITLE": "Waiting on the learner",
@@ -296,25 +293,7 @@
     "TIME_LOGGED": "Time logged",
     "LOADING": "Loading your journeys…",
     "NO_JOURNEYS_TITLE": "No journeys yet",
-    "NO_JOURNEYS_SUB": "Your assigned senior will set up your first quest log soon.",
-    "ORG_OVERVIEW": "Org overview",
-    "YOUR_TEAM": "Your team",
-    "SENIORS_AND_LEARNERS": "Seniors & their learners",
-    "LEARNERS_ASSIGNED": "Learners assigned to you",
-    "MANAGER_SUB": "Expand a senior to see their learners, then a learner to see their journeys.",
-    "SENIOR_SUB": "Expand a learner to see their journey progress.",
-    "LOADING_TEAM": "Loading team overview…",
-    "NO_LEARNERS_TITLE": "No learners assigned yet",
-    "NO_LEARNERS_SUB": "Your manager will assign new hires to you when they're ready to start.",
-    "NO_SENIORS_TITLE": "No seniors yet",
-    "NO_SENIORS_SUB": "Add senior accounts from User Management to start building teams.",
-    "LEARNER_COUNT": "{{count}} learner",
-    "LEARNER_COUNT_PLURAL": "{{count}} learners",
-    "NO_LEARNERS_FOR_SENIOR": "No learners assigned to this senior yet.",
-    "ACTIVE_AVG": "{{active}} active · avg {{percent}}%",
-    "NO_JOURNEYS_ASSIGNED": "No journeys assigned yet.",
-    "DEPARTMENT_OVERVIEW": "Department overview",
-    "ORG_WIDE_SUB": "Pick a department or view everyone. Expand a senior to see their learners, then a learner to see their journeys."
+    "NO_JOURNEYS_SUB": "Your assigned senior will set up your first quest log soon."
   },
   "METRICS": {
     "EYEBROW": "Metrics",
@@ -502,6 +481,218 @@
     "STAFF_NOTE": "Assign this to a learner you look after.",
     "SELF_ENROLLED": "Self-enrolled",
     "REVIEWER": "Reviewer",
-    "SELF_ENROLLED_REVIEWER": "Self-enrolled · reviewer {{reviewer}}"
+    "SELF_ENROLLED_REVIEWER": "Self-enrolled · reviewer {{reviewer}}",
+    "FILTERS": "Filters",
+    "UNIT_QUIZ_COUNT": "{{count}} quiz questions"
+  },
+  "TEAM": {
+    "TITLE": "Your team",
+    "EYEBROW_SENIOR": "My learners",
+    "EYEBROW_DEPARTMENT": "Department",
+    "EYEBROW_ORG": "Organisation",
+    "SUB": "Who needs a nudge, who is waiting on you, and where everyone stands.",
+    "LOADING": "Loading your team…",
+    "LOAD_FAILED": "Could not load the team.",
+    "KPI_LEARNERS": "Learners",
+    "KPI_ON_TRACK": "On track",
+    "KPI_AT_RISK": "At risk",
+    "KPI_OVERDUE": "Overdue",
+    "KPI_REVIEW": "Waiting for review",
+    "KPI_COMPLETED_MONTH": "Journeys completed this month",
+    "NEEDS_ATTENTION": "Needs your attention",
+    "ALL_CLEAR": "All clear — nothing is waiting on you.",
+    "SHOW_ALL": "Show all ({{count}})",
+    "SHOW_LESS": "Show less",
+    "ATTN_OVERDUE": "{{journey}} is {{days}} day(s) overdue",
+    "ATTN_EXAM": "submitted the exam for {{journey}}",
+    "ATTN_REVIEW": "“{{item}}” in {{journey}} is waiting for review",
+    "ATTN_NOTE": "left a note on “{{item}}” ({{journey}})",
+    "ATTN_INACTIVE": "no activity for {{days}} days (on {{journey}})",
+    "ATTN_NOTHING": "has nothing assigned yet",
+    "ATTN_NO_SENIOR": "has no senior to review their work",
+    "ATTN_OPEN": "needs a look",
+    "ACT_OPEN": "Open",
+    "ACT_GRADE": "Grade",
+    "ACT_REVIEW": "Review",
+    "ACT_REPLY": "Reply",
+    "ACT_ASSIGN": "Assign",
+    "ACT_SET_SENIOR": "Set senior",
+    "LEARNERS": "Learners",
+    "SEARCH": "Search learners…",
+    "ALL_SENIORS": "All seniors",
+    "COL_LEARNER": "Learner",
+    "COL_CURRENT": "Working on",
+    "COL_ACTIVITY": "Last activity",
+    "COL_STATUS": "Status",
+    "MORE_OPEN": "+{{count}} more open",
+    "NOTHING_OPEN": "Nothing in progress",
+    "NO_MATCH": "No learners match these filters.",
+    "NO_LEARNERS": "No learners here yet.",
+    "BACK": "← Back to team",
+    "LEARNER_NOT_FOUND": "That learner could not be opened.",
+    "ASSIGN_MORE": "Assign from catalog",
+    "OPEN": "Open journeys",
+    "AVG_PROGRESS": "Average progress",
+    "NOTHING_ASSIGNED_SUB": "Pick a journey or package from the catalog to get them started."
+  },
+  "DUE": {
+    "LABEL": "Due date",
+    "NONE": "No deadline",
+    "OVERDUE": "Overdue {{days}}d",
+    "TODAY": "Due today",
+    "IN_DAYS": "Due in {{days}}d",
+    "ON": "Due {{date}}",
+    "DEFAULT_HINT": "Suggested from the expected duration ({{days}} days). Clear it for no deadline.",
+    "OPTIONAL_HINT": "Optional. Leave empty for no deadline.",
+    "TARGET_DAYS": "Expected duration (days)",
+    "TARGET_PLACEHOLDER": "e.g. 14",
+    "TARGET_HINT": "Optional. Sets a due date this many days after it is assigned.",
+    "PACKAGE_TARGET_HINT": "Optional. The whole package is due this many days after it is assigned.",
+    "SAVED": "Due date updated."
+  },
+  "HOME": {
+    "NEXT_UP": "Next up",
+    "CONTINUE": "Continue",
+    "START_EXAM": "Start exam",
+    "TAKE_EXAM": "Take the exam",
+    "PERCENT_DONE": "{{percent}}% done",
+    "NOTHING_NOW": "Nothing to do right now",
+    "NOTHING_NOW_WAITING": "You’re waiting on your reviewer",
+    "NOTHING_NOW_SUB": "Browse the catalog for something new, or check back after your reviewer responds.",
+    "BROWSE_CATALOG": "Browse catalog",
+    "YOUR_TURN": "Your turn",
+    "WAITING_ON_REVIEWER": "Waiting on your reviewer",
+    "NOTHING_MINE": "Nothing else waiting on you.",
+    "NOTHING_WAITING": "Nothing waiting for review.",
+    "TASK_ITEM": "Continue {{item}} in {{journey}}",
+    "TASK_EXAM": "Take the exam for {{journey}}",
+    "TASK_REPLY": "Your reviewer replied on {{item}} ({{journey}})",
+    "WAIT_ITEM": "{{item}} in {{journey}} is waiting for review",
+    "WAIT_EXAM": "Your exam for {{journey}} is waiting to be graded",
+    "TASK_QUIZ": "Take the quiz for {{item}} ({{journey}})",
+    "TAKE_QUIZ": "Quiz: {{unit}}"
+  },
+  "INTRO": {
+    "HELP": "How Journey works",
+    "SKIP": "Skip",
+    "GET_STARTED": "Get started",
+    "DONT_SHOW": "Don’t show this again",
+    "STEPS": "Guide steps",
+    "STEP": "Step {{n}} of {{total}}",
+    "LEARNER_1": {
+      "TITLE": "Welcome to Journey",
+      "BODY": "Your onboarding is a set of journeys. Each one is a list of quest items with material to read, watch or do — and sometimes an exam at the end."
+    },
+    "LEARNER_2": {
+      "TITLE": "Start from “Next up”",
+      "BODY": "Your home page shows the one thing to do next, what else is your turn, and what is waiting on your reviewer."
+    },
+    "LEARNER_3": {
+      "TITLE": "Move items along",
+      "BODY": "Set an item to In progress while you work on it, then Waiting for review when you’re done. Your reviewer completes it or replies with a note."
+    },
+    "LEARNER_4": {
+      "TITLE": "Find more in the catalog",
+      "BODY": "Browse the catalog — or press / anywhere to search — and enroll yourself in journeys and packages. Your senior reviews your work."
+    },
+    "LEARNER_5": {
+      "TITLE": "Stay in the loop",
+      "BODY": "The bell tells you about replies, reviews, new assignments and upcoming due dates. You can reopen this guide from the ? button."
+    },
+    "SENIOR_1": {
+      "TITLE": "Welcome to Journey",
+      "BODY": "You guide your learners through their onboarding journeys and review their work."
+    },
+    "SENIOR_2": {
+      "TITLE": "Your team at a glance",
+      "BODY": "Your home lists what needs your attention — items to review, exams to grade, notes to answer, learners who went quiet — and every learner’s progress."
+    },
+    "SENIOR_3": {
+      "TITLE": "Review in one place",
+      "BODY": "When a learner marks an item Waiting for review, open it from the list, reply with a note, and complete it. Grade exams the same way."
+    },
+    "SENIOR_4": {
+      "TITLE": "Build and assign",
+      "BODY": "Create journeys and packages under Journeys, then assign them — from there or the catalog — with an optional due date."
+    },
+    "MANAGER_1": {
+      "TITLE": "Welcome to Journey",
+      "BODY": "You see every senior and learner in your department, and how their onboarding is going."
+    },
+    "MANAGER_2": {
+      "TITLE": "Start with what needs attention",
+      "BODY": "Your home shows overdue and at-risk learners, work waiting for review, and a searchable table of everyone. Click a learner to see their whole picture."
+    },
+    "MANAGER_3": {
+      "TITLE": "Deadlines that nudge",
+      "BODY": "Give journeys and packages an expected duration. Due dates are suggested when assigning, and reminders go out before and after they pass."
+    },
+    "MANAGER_4": {
+      "TITLE": "Bundle with packages",
+      "BODY": "A package groups journeys a role always needs. Assign it once; progress shows as one card and learners get a “next journey” button."
+    },
+    "MANAGER_5": {
+      "TITLE": "Your people",
+      "BODY": "Add people to your department under Users and give each learner a senior to review their work."
+    },
+    "ORG_1": {
+      "TITLE": "Welcome to Journey",
+      "BODY": "You see onboarding across every department, and can narrow any view to one."
+    },
+    "ORG_2": {
+      "TITLE": "The whole organisation, flat",
+      "BODY": "Your home shows who is overdue or at risk and what’s waiting for review. Pick a department to focus, or click a learner for their profile."
+    },
+    "ORG_3": {
+      "TITLE": "Departments and people",
+      "BODY": "Manage departments and accounts from the menu. Managers only ever see their own department."
+    },
+    "ORG_4": {
+      "TITLE": "The library",
+      "BODY": "Journeys and packages live under Journeys; everyone can browse them in the catalog, and learners can enroll themselves."
+    },
+    "ORG_5": {
+      "TITLE": "Deadlines and reminders",
+      "BODY": "Expected durations become due dates when assigned. Learners and their assigners are reminded before and after a due date."
+    }
+  },
+  "LOG": {
+    "CONTENTS": "Contents",
+    "LOADING": "Loading…",
+    "UNIT_N": "Unit {{n}}",
+    "ITEMS_DONE": "{{done}}/{{total}} items",
+    "QUIZ": "Unit quiz",
+    "QUIZ_OF": "Quiz: {{unit}}",
+    "UNIT_OF": "Unit: {{unit}}",
+    "FINAL_EXAM": "Final exam",
+    "EXAM_LOCKED": "Opens when every unit is finished",
+    "EXAM_OPEN": "Ready to take",
+    "EXAM_SUBMITTED": "Submitted, waiting to be graded",
+    "EXAM_PASSED": "Passed · {{score}}%",
+    "EXAM_FAILED": "Not passed · {{score}}%",
+    "NOTES_COUNT": "{{count}} notes",
+    "TIME_SPENT": "Time spent",
+    "PREVIOUS": "Previous",
+    "CONTINUE": "Continue",
+    "FINISH": "Finish this item",
+    "START_UNIT": "Start this unit",
+    "QUIZ_INTRO": "Answer every question to finish the unit. You’ll see your result straight away and can try again.",
+    "QUIZ_SUBMIT": "Check my answers",
+    "QUIZ_RETAKE": "Try again",
+    "QUIZ_RESULT": "You scored {{score}}%.",
+    "QUIZ_CORRECT": "Correct.",
+    "QUIZ_WRONG": "Not quite — the answer is {{answer}}.",
+    "QUIZ_ANSWER_ALL": "Answer every question first.",
+    "QUIZ_NOT_TAKEN": "The learner hasn’t taken this quiz yet.",
+    "QUIZ_NOT_TAKEN_SHORT": "not taken",
+    "WAITING_REVIEW": "Finished — waiting for your reviewer.",
+    "UNIT_COMPLETED": "Your reviewer completed this unit.",
+    "READY_HINT": "Everything in this unit is done.",
+    "SEND_FOR_REVIEW": "Send for review",
+    "SENT_FOR_REVIEW": "Sent for review.",
+    "SET_UNIT_STATUS": "Unit status",
+    "SEND_BACK_HINT": "To send it back, set it to in progress and say what to change below.",
+    "UNIT_STATUS_SAVED": "Unit marked {{status}}.",
+    "UNIT_DISCUSSION": "Unit discussion"
   }
 }

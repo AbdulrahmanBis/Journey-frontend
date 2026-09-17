@@ -7,6 +7,8 @@ import { API_BASE } from './api.config';
 export interface PackagePayload {
   title: string;
   description?: string;
+  /** Expected duration in days; the default due date when assigned. */
+  targetDays?: number | null;
   /** In the order learners should take them. */
   journeyIds: string[];
 }
@@ -41,8 +43,9 @@ export class PackageService {
     return this.http.delete<void>(`${API_BASE}/packages/${id}`);
   }
 
-  assign(packageId: string, learnerId: string): Observable<PackageAssignment> {
-    return this.http.post<PackageAssignment>(`${API_BASE}/package-assignments`, { packageId, learnerId });
+  /** `dueDate` (YYYY-MM-DD) is optional; the server defaults it from the package's target days. */
+  assign(packageId: string, learnerId: string, dueDate?: string | null): Observable<PackageAssignment> {
+    return this.http.post<PackageAssignment>(`${API_BASE}/package-assignments`, { packageId, learnerId, dueDate: dueDate || null });
   }
 
   assignmentsFor(learnerId: string): Observable<PackageAssignment[]> {

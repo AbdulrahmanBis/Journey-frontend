@@ -38,66 +38,13 @@
         <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addQuestion()">{{ 'EXAM.ADD_QUESTION' | translate }}</button>
       </div>
 
-      <div class="border rounded p-3 mb-3 bg-body-tertiary" *ngFor="let q of questions; let i = index">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="small text-body-tertiary" dir="auto">{{ 'EXAM.QUESTION_SHORT' | translate: { n: i + 1 } }}</span>
-          <button class="btn btn-outline-danger btn-sm" type="button" (click)="removeQuestion(i)" [title]="'EXAM.REMOVE_QUESTION' | translate">✕</button>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" [for]="'type-' + i">{{ 'EXAM.QUESTION_TYPE' | translate }}</label>
-          <select class="form-select" [id]="'type-' + i" [(ngModel)]="q.type" [name]="'type-' + i" (ngModelChange)="onTypeChange(q)">
-            <option *ngFor="let t of questionTypes" [ngValue]="t.code">{{ typeLabel(t) }}</option>
-          </select>
-        </div>
-
-        <textarea class="form-control user-content" [(ngModel)]="q.prompt" [name]="'prompt-' + i" [placeholder]="'EXAM.PROMPT_PLACEHOLDER' | translate" rows="2"></textarea>
-
-        <!-- Multiple choice options -->
-        <div *ngIf="q.type === QuestionTypeCode.MultipleChoice" class="mt-3 pt-3 border-top">
-          <div class="form-text mt-0 mb-2">{{ 'EXAM.PICK_CORRECT' | translate }}</div>
-          <div class="d-flex align-items-center gap-2 mb-2" *ngFor="let opt of q.options; let oi = index">
-            <input
-              type="radio"
-              class="form-check-input mt-0 flex-shrink-0"
-              [name]="'correct-' + i"
-              [checked]="q.correctOptionIndex === optionCodeFor(oi)"
-              (change)="q.correctOptionIndex = optionCodeFor(oi)"
-            />
-            <input class="form-control user-content" [(ngModel)]="q.options[oi]" [name]="'opt-' + i + '-' + oi" [placeholder]="'EXAM.OPTION_PLACEHOLDER' | translate" />
-            <button class="btn btn-outline-secondary btn-sm" type="button" [disabled]="q.options.length <= 2" (click)="removeOption(q, oi)" [title]="'EXAM.REMOVE_OPTION' | translate">✕</button>
-          </div>
-          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="addOption(q)">{{ 'EXAM.ADD_OPTION' | translate }}</button>
-        </div>
-
-        <!-- Yes / No -->
-        <div *ngIf="q.type === QuestionTypeCode.YesNo" class="mt-3 pt-3 border-top">
-          <div class="form-text mt-0 mb-2">{{ 'EXAM.CORRECT_ANSWER' | translate }}</div>
-          <div class="d-flex gap-2">
-            <button
-              type="button"
-              class="btn btn-sm rounded-pill"
-              [ngClass]="q.correctBoolAnswer === true ? 'btn-completed' : 'btn-outline-completed'"
-              (click)="q.correctBoolAnswer = true"
-            >
-              {{ 'COMMON.YES' | translate }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm rounded-pill"
-              [ngClass]="q.correctBoolAnswer === false ? 'btn-cancelled' : 'btn-outline-cancelled'"
-              (click)="q.correctBoolAnswer = false"
-            >
-              {{ 'COMMON.NO' | translate }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Open question -->
-        <p class="form-text mb-0" *ngIf="q.type === QuestionTypeCode.Open">
-          {{ 'EXAM.OPEN_NOTE' | translate }}
-        </p>
-      </div>
+      <app-question-editor
+        *ngFor="let q of questions; let i = index"
+        [question]="q"
+        [index]="i"
+        [idPrefix]="'exam-q' + i"
+        (remove)="removeQuestion(i)"
+      ></app-question-editor>
 
       <p class="small text-body-tertiary py-2" *ngIf="!questions.length">{{ 'EXAM.NO_QUESTIONS' | translate }}</p>
     </div>

@@ -7,14 +7,23 @@ import { UserService } from '../../../core/services/user.service';
 import { RoleCode } from '../../../core/models/enums';
 import { User } from '../../../core/models/models';
 import { ModalComponent } from '../modal/modal.component';
+import { isoInDays, todayIso } from '../due-badge/due-badge.component';
+
+/** What the dialog hands back: who, and by when (YYYY-MM-DD, or null for no deadline). */
+export interface AssignChoice {
+  learner: User;
+  dueDate: string | null;
+}
 
 /**
  * "Pick a learner" dialog for assigning a journey or a package. It loads the learners the caller
  * may assign to (a Senior their own; others whoever the server lets them see) each time it opens.
  * Performing the assignment is the parent's job:
  *
- *   <app-assign-learner-modal [open]="!!assigning" [title]="…" [busy]="saving"
+ *   <app-assign-learner-modal [open]="!!assigning" [title]="…" [busy]="saving" [targetDays]="journey.targetDays"
  *     (confirmed)="assign($event)" (dismissed)="assigning = null"></app-assign-learner-modal>
+ *
+ * The due date starts at today + targetDays when the journey or package has one; it can be changed or cleared.
  */
 @Component({
   selector: 'app-assign-learner-modal',
@@ -31,6 +40,10 @@ import { ModalComponent } from '../modal/modal.component';
         <option *ngFor="let l of learners" [value]="l.id">{{ l.name }}</option>
       </select>
       <p class="form-text" *ngIf="loaded && !learners.length">{{ 'JOURNEY.NO_LEARNERS' | translate }}</p>
+
+      <label for="assign-due" class="form-label mt-3">{{ 'DUE.LABEL' | translate }}</label>
+      <input id="assign-due" type="date" class="form-control" [min]="minDate" [(ngModel)]="dueDate" />
+      <p class="form-text mb-0">{{ (targetDays ? 'DUE.DEFAULT_HINT' : 'DUE.OPTIONAL_HINT') | translate: { days: targetDays } }}</p>
 
       <div modal-actions>
         <button class="btn btn-outline-secondary flex-fill" (click)="dismissed.emit()">{{ 'COMMON.CANCEL' | translate }}</button>
@@ -49,22 +62,27 @@ export class AssignLearnerModalComponent implements OnChanges {
   @Input() title = '';
   @Input() subtitle = '';
   @Input() busy = false;
-  @Output() confirmed = new EventEmitter<User>();
+  /** The journey's or package's expected duration, used to prefill the due date. */
+  @Input() targetDays?: number | null;
+  @Output() confirmed = new EventEmitter<AssignChoice>();
   @Output() dismissed = new EventEmitter<void>();
 
   learners: User[] = [];
   learnerId = '';
   loaded = false;
+  dueDate = '';
+  readonly minDate = todayIso();
 
   confirm(): void {
     const learner = this.learners.find((l) => l.id === this.learnerId);
-    if (learner) this.confirmed.emit(learner);
+    if (learner) this.confirmed.emit({ learner, dueDate: this.dueDate || null });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open'] && this.open) {
       this.learnerId = '';
       this.loaded = false;
+      this.dueDate = this.targetDays ? isoInDays(this.targetDays) : '';
       const me = this.auth.currentUser!;
       const source = this.auth.hasRole(RoleCode.Senior)
         ? this.userService.getLearnersBySenior(me.id)

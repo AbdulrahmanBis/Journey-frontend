@@ -10,11 +10,15 @@ import { JourneyCardComponent } from '../../../shared/components/journey-card/jo
 import { JourneyGroups, PackageGroupComponent, groupByPackage } from '../../../shared/components/package-group/package-group.component';
 import { PackageService } from '../../../core/services/package.service';
 import { forkJoin } from 'rxjs';
+import { RouterLink } from '@angular/router';
+import { HomeTask, LearnerHome, learnerHome } from './learner-home';
+import { DueBadgeComponent } from '../../../shared/components/due-badge/due-badge.component';
+import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-learner-dashboard',
   standalone: true,
-  imports: [CommonModule, JourneyCardComponent, PackageGroupComponent, TranslatePipe],
+  imports: [CommonModule, RouterLink, JourneyCardComponent, PackageGroupComponent, DueBadgeComponent, TimeAgoPipe, TranslatePipe],
   templateUrl: './learner-dashboard.component.html',
   styleUrl: './learner-dashboard.component.scss',
 })
@@ -26,6 +30,9 @@ export class LearnerDashboardComponent implements OnInit {
 
   journeys: LearnerJourneyView[] = [];
   groups: JourneyGroups = { packages: [], standalone: [] };
+  home: LearnerHome = { nextUp: null, myTurn: [], waiting: [] };
+  /** Lists stay short; the journeys below hold everything. */
+  readonly listLimit = 5;
   loading = true;
 
   get user() {
@@ -53,8 +60,34 @@ export class LearnerDashboardComponent implements OnInit {
     }).subscribe(({ views, packages }) => {
       this.journeys = views;
       this.groups = groupByPackage(views, packages);
+      this.home = learnerHome(views, this.user.id);
       this.loading = false;
     });
+  }
+
+  /** Where a task is done: the exam page, or the journey log scrolled to the item. */
+  go(task: HomeTask): void {
+    if (task.kind === 'exam' || task.kind === 'examReview') {
+      this.router.navigate(['/exam', task.view.id]);
+      return;
+    }
+    const queryParams = task.item ? { item: task.item.progress.id }
+      : task.kind === 'quiz' && task.unit?.learnerUnitId ? { quiz: task.unit.learnerUnitId }
+      : task.unit?.learnerUnitId ? { unit: task.unit.learnerUnitId } : {};
+    this.router.navigate(['/journey-log', task.view.id], { queryParams });
+  }
+
+  taskKey(task: HomeTask): string {
+    return {
+      item: 'HOME.TASK_ITEM', quiz: 'HOME.TASK_QUIZ', exam: 'HOME.TASK_EXAM', reply: 'HOME.TASK_REPLY',
+      unitReview: 'HOME.WAIT_ITEM', examReview: 'HOME.WAIT_EXAM',
+    }[task.kind];
+  }
+
+  /** Titles isolated so an English title keeps its shape inside an Arabic sentence. */
+  taskParams(task: HomeTask): Record<string, string> {
+    const iso = (t?: string) => (t ? '\u2068' + t + '\u2069' : '');
+    return { journey: iso(task.view.journey.title), item: iso(task.item?.title ?? task.unit?.title) };
   }
 
   open(view: LearnerJourneyView): void {

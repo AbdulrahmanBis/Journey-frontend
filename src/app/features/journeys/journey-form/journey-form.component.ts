@@ -19,7 +19,9 @@ import {
   codeOf,
   isUploadedKind,
 } from '../../../core/models/enums';
-import { Journey, JourneyItem } from '../../../core/models/models';
+import { Journey, JourneyItem, JourneyUnit } from '../../../core/models/models';
+import { QuestionEditorComponent, QuestionRow, blankQuestion, toQuestionDraft } from '../../../shared/components/question-editor/question-editor.component';
+import { QuestionTypeCode, optionCodeFor } from '../../../core/models/enums';
 import { forkJoin } from 'rxjs';
 
 interface AttachmentDraft {
@@ -44,10 +46,19 @@ interface ItemDraft {
   attachments: AttachmentDraft[];
 }
 
+interface UnitDraft {
+  /** Present for saved units, so learners' progress on them is kept. */
+  id?: string;
+  title: string;
+  description: string;
+  items: ItemDraft[];
+  quiz: QuestionRow[];
+}
+
 @Component({
   selector: 'app-journey-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, QuillEditorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, QuillEditorComponent, QuestionEditorComponent],
   templateUrl: './journey-form.component.html',
   styleUrl: './journey-form.component.scss',
 })
@@ -76,7 +87,11 @@ export class JourneyFormComponent implements OnInit {
   title = '';
   description = '';
   techTag: TechTag = TECH_TAGS[0];
-  items: ItemDraft[] = [];
+  /** Expected duration in days; empty means no default deadline. */
+  targetDays: number | null = null;
+  units: UnitDraft[] = [];
+  /** Server limit; the hint suggests 1–2. */
+  readonly maxQuizQuestions = 5;
 
   /**
    * Deliberately no image button: Quill embeds inserted images as base64 directly in the HTML,
@@ -109,25 +124,25 @@ export class JourneyFormComponent implements OnInit {
     if (this.isEdit) {
       forkJoin({
         journey: this.journeyService.getJourneyById(this.journeyId!),
-        items: this.journeyService.getItemsForJourney(this.journeyId!),
+        units: this.journeyService.getUnitsForJourney(this.journeyId!),
       }).subscribe({
-        next: ({ journey, items }: { journey: Journey; items: JourneyItem[] }) => {
+        next: ({ journey, units }: { journey: Journey; units: JourneyUnit[] }) => {
           this.title = journey.title;
           this.description = journey.description;
           this.techTag = journey.techTag;
-          this.items = items.map((i) => ({
-            id: i.id,
-            title: i.title,
-            description: i.description,
-            attachments: (i.attachments ?? []).map((a) => ({
-              id: a.id,
-              kind: codeOf(a.kind) ?? AttachmentKindCode.Link,
-              label: a.label ?? '',
-              url: a.url ?? '',
-              storageKey: a.storageKey,
-              mimeType: a.mimeType,
-              sizeBytes: a.sizeBytes,
-              originalName: a.originalName,
+          this.targetDays = journey.targetDays ?? null;
+          this.units = units.map((u) => ({
+            id: u.id,
+            title: u.title,
+            description: u.description ?? '',
+            items: u.items.map((i) => this.itemDraft(i)),
+            quiz: u.quiz.map((q) => ({
+              id: q.id,
+              type: codeOf(q.type) ?? QuestionTypeCode.MultipleChoice,
+              prompt: q.prompt,
+              options: q.options?.length ? [...q.options] : ['', ''],
+              correctOptionIndex: q.correctOptionIndex ?? optionCodeFor(0),
+              correctBoolAnswer: q.correctBoolAnswer ?? true,
             })),
           }));
           this.loading = false;
@@ -138,21 +153,73 @@ export class JourneyFormComponent implements OnInit {
         },
       });
     } else {
-      this.items = [{ title: '', description: '', attachments: [] }];
+      this.units = [this.blankUnit(1)];
       this.loading = false;
+    }
+  }
+
+  private itemDraft(i: JourneyItem): ItemDraft {
+    return {
+      id: i.id,
+      title: i.title,
+      description: i.description,
+      attachments: (i.attachments ?? []).map((a) => ({
+        id: a.id,
+        kind: codeOf(a.kind) ?? AttachmentKindCode.Link,
+        label: a.label ?? '',
+        url: a.url ?? '',
+        storageKey: a.storageKey,
+        mimeType: a.mimeType,
+        sizeBytes: a.sizeBytes,
+        originalName: a.originalName,
+      })),
+    };
+  }
+
+  private blankUnit(n: number): UnitDraft {
+    return {
+      title: this.translate.instant('JOURNEY.UNIT_DEFAULT_TITLE', { n }),
+      description: '',
+      items: [{ title: '', description: '', attachments: [] }],
+      quiz: [],
+    };
+  }
+
+  private get allItems(): ItemDraft[] {
+    return this.units.flatMap((u) => u.items);
+  }
+
+  // ─── Units ────────────────────────────────────────────────────────────────
+
+  addUnit(): void { this.units.push(this.blankUnit(this.units.length + 1)); }
+
+  removeUnit(index: number): void {
+    if (this.units.length > 1) this.units.splice(index, 1);
+  }
+
+  moveUnit(index: number, dir: -1 | 1): void {
+    const target = index + dir;
+    if (target < 0 || target >= this.units.length) return;
+    [this.units[index], this.units[target]] = [this.units[target], this.units[index]];
+  }
+
+  addQuizQuestion(unit: UnitDraft): void {
+    if (unit.quiz.length < this.maxQuizQuestions) {
+      const q = blankQuestion();
+      unit.quiz.push(q);
     }
   }
 
   // ─── Items ────────────────────────────────────────────────────────────────
 
-  addItem(): void { this.items.push({ title: '', description: '', attachments: [] }); }
+  addItem(unit: UnitDraft): void { unit.items.push({ title: '', description: '', attachments: [] }); }
 
-  removeItem(index: number): void { this.items.splice(index, 1); }
+  removeItem(unit: UnitDraft, index: number): void { unit.items.splice(index, 1); }
 
-  moveItem(index: number, dir: -1 | 1): void {
+  moveItem(unit: UnitDraft, index: number, dir: -1 | 1): void {
     const target = index + dir;
-    if (target < 0 || target >= this.items.length) return;
-    [this.items[index], this.items[target]] = [this.items[target], this.items[index]];
+    if (target < 0 || target >= unit.items.length) return;
+    [unit.items[index], unit.items[target]] = [unit.items[target], unit.items[index]];
   }
 
   // ─── Attachments ──────────────────────────────────────────────────────────
@@ -223,14 +290,14 @@ export class JourneyFormComponent implements OnInit {
   }
 
   incompleteCount(): number {
-    return this.items.reduce(
+    return this.allItems.reduce(
       (n, i) => n + i.attachments.filter((a) => !this.isComplete(a) && !a.uploading).length,
       0,
     );
   }
 
   uploadingCount(): number {
-    return this.items.reduce((n, i) => n + i.attachments.filter((a) => a.uploading).length, 0);
+    return this.allItems.reduce((n, i) => n + i.attachments.filter((a) => a.uploading).length, 0);
   }
 
   // ─── Save ─────────────────────────────────────────────────────────────────
@@ -243,7 +310,7 @@ export class JourneyFormComponent implements OnInit {
       return;
     }
 
-    const cleanItems = this.items
+    const cleanItems = (items: ItemDraft[]) => items
       .map((i) => ({
         id: i.id,
         title: i.title.trim(),
@@ -265,7 +332,26 @@ export class JourneyFormComponent implements OnInit {
       .filter((i) => i.title.length > 0);
 
     if (!this.title.trim()) { this.error = this.translate.instant('JOURNEY.NEEDS_TITLE'); return; }
-    if (!cleanItems.length) { this.error = this.translate.instant('JOURNEY.NEEDS_ITEM'); return; }
+
+    const units = this.units.map((u) => ({
+      id: u.id,
+      title: u.title.trim(),
+      description: u.description.trim() || undefined,
+      items: cleanItems(u.items),
+      quiz: u.quiz.map(toQuestionDraft),
+    }));
+    for (const [index, unit] of units.entries()) {
+      const name = unit.title || this.translate.instant('JOURNEY.UNIT_DEFAULT_TITLE', { n: index + 1 });
+      if (!unit.title) { this.error = this.translate.instant('JOURNEY.NEEDS_UNIT_TITLE', { n: index + 1 }); return; }
+      if (!unit.items.length) { this.error = this.translate.instant('JOURNEY.NEEDS_UNIT_ITEM', { unit: name }); return; }
+      for (const q of unit.quiz) {
+        if (!q.prompt) { this.error = this.translate.instant('EXAM.NEEDS_PROMPT'); return; }
+        if (q.type === QuestionTypeCode.MultipleChoice && (q.options?.length ?? 0) < 2) {
+          this.error = this.translate.instant('EXAM.NEEDS_OPTIONS', { prompt: q.prompt });
+          return;
+        }
+      }
+    }
 
     this.saving = true;
     const user = this.auth.currentUser!;
@@ -273,7 +359,8 @@ export class JourneyFormComponent implements OnInit {
       title: this.title.trim(),
       description: this.description.trim(),
       techTag: this.techTag,
-      items: cleanItems,
+      targetDays: this.targetDays || null,
+      units,
       createdById: user.id,
       createdByName: user.name,
     };

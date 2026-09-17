@@ -1,2 +1,5 @@
 // Three small figures; left to stretch they would read as a banner, not a summary.
 .stat-row { max-width: 35rem; }
+
+// The one card that says where to go next; a primary-coloured edge sets it apart from the rest.
+.next-up { border-inline-start: 0.25rem solid var(--bs-primary); }

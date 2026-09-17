@@ -1,157 +1,193 @@
-<div *ngIf="loading"><p class="text-body-secondary">{{ 'QUEST_LOG.LOADING' | translate }}</p></div>
+<p class="text-body-secondary" *ngIf="loading">{{ 'QUEST_LOG.LOADING' | translate }}</p>
 
-<div class="card text-center text-body-secondary py-5 px-4" *ngIf="!loading && notAllowed">
-  <h3 class="h5 text-body mb-2">{{ 'QUEST_LOG.NO_ACCESS_TITLE' | translate }}</h3>
-  <p>{{ 'QUEST_LOG.NO_ACCESS_SUB' | translate }}</p>
-  <div><a routerLink="/dashboard" class="btn btn-outline-secondary mt-3">{{ 'QUEST_LOG.BACK_TO_DASHBOARD' | translate }}</a></div>
-</div>
+<ng-container *ngIf="!loading && outline as o">
+  <a routerLink="/dashboard" class="link-secondary small d-inline-block mb-2">← {{ 'COMMON.BACK' | translate }}</a>
 
-<ng-container *ngIf="!loading && view">
-  <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
-    <a routerLink="/dashboard" class="link-secondary small">← {{ 'COMMON.BACK' | translate }}</a>
-    <a *ngIf="examCtaLabel" [routerLink]="['/exam', view.id]" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">{{ examCtaLabel }} <span aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span></a>
-    <a
-      *ngIf="!examCtaLabel && canManageExam && view.percentComplete >= 100 && !view.exam"
-      [routerLink]="['/journeys', view.journeyId, 'exam']"
-      class="btn btn-outline-secondary btn-sm"
-    >
-      {{ 'QUEST_LOG.SETUP_EXAM' | translate }}
-    </a>
-  </div>
-
-  <div class="card card-body mb-4">
-    <div class="d-flex flex-column flex-sm-row justify-content-between gap-4">
-      <div>
-        <span class="page-eyebrow">{{ view.journey.techTag }}</span>
-        <h1 class="page-title user-content">{{ view.journey.title }}</h1>
-        <p class="log-desc text-body-secondary mt-1 user-content">{{ view.journey.description }}</p>
-
-        <div class="d-flex align-items-center gap-3 mt-3" *ngIf="learner && !isOwnView">
-          <div class="avatar avatar-sm">{{ learner.name.charAt(0) }}</div>
-          <span class="small text-body-tertiary" dir="auto">{{ learner.name }}</span>
+  <!-- ── Journey header ─────────────────────────────────────────────────────── -->
+  <div class="card card-body mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div class="overflow-hidden">
+        <span class="page-eyebrow">{{ o.journey.techTag }}</span>
+        <h1 class="page-title user-content mb-0">{{ o.journey.title }}</h1>
+        <div class="d-flex align-items-center gap-2 mt-2" *ngIf="!isLearner">
+          <div class="avatar avatar-sm">{{ o.learnerName.charAt(0) }}</div>
+          <a class="small link-body-emphasis" [routerLink]="['/people', o.learnerId]"><bdi>{{ o.learnerName }}</bdi></a>
         </div>
       </div>
-
-      <div class="d-flex flex-column align-items-center align-self-start align-self-sm-auto flex-shrink-0">
-        <app-progress-ring [percent]="view.percentComplete" [size]="76" [stroke]="7"></app-progress-ring>
-        <span class="small text-body-tertiary mt-2" dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: view.totalTimeSpentHours } }}</span>
-      </div>
+      <a *ngIf="!o.exam && isReviewer && finished" [routerLink]="['/journeys', o.journey.id, 'exam']" class="btn btn-outline-secondary btn-sm">
+        {{ 'QUEST_LOG.SETUP_EXAM' | translate }}
+      </a>
     </div>
 
-    <div class="d-flex flex-wrap gap-4 mt-3 pt-3 border-top">
-      <div class="d-flex flex-column gap-1 small">
+    <div class="d-flex flex-wrap gap-4 mt-3 pt-3 border-top small">
+      <div class="d-flex flex-column gap-1">
         <span class="text-body-tertiary">{{ 'QUEST_LOG.STATUS' | translate }}</span>
-        <app-status-badge [status]="view.status"></app-status-badge>
+        <app-status-badge [status]="o.status"></app-status-badge>
       </div>
-
-      <div class="d-flex flex-column gap-1 small">
-        <span class="text-body-tertiary">{{ (view.selfEnrolled ? 'CATALOG.REVIEWER' : 'QUEST_LOG.ASSIGNED_BY') | translate }}</span>
-        <span>{{ view.assignedByName }}<span class="text-body-tertiary" *ngIf="view.selfEnrolled"> · {{ 'CATALOG.SELF_ENROLLED' | translate }}</span></span>
+      <div class="d-flex flex-column gap-1">
+        <span class="text-body-tertiary">{{ (o.selfEnrolled ? 'CATALOG.REVIEWER' : 'QUEST_LOG.ASSIGNED_BY') | translate }}</span>
+        <span>{{ o.assignedByName }}<span class="text-body-tertiary" *ngIf="o.selfEnrolled"> · {{ 'CATALOG.SELF_ENROLLED' | translate }}</span></span>
       </div>
-      <div class="d-flex flex-column gap-1 small">
-        <span class="text-body-tertiary">{{ 'QUEST_LOG.ITEMS_COMPLETED' | translate }}</span>
-        <span class="ltr-data">{{ completedCount }} / {{ view.items.length }}</span>
+      <div class="d-flex flex-column gap-1">
+        <span class="text-body-tertiary">{{ 'DUE.LABEL' | translate }}</span>
+        <div class="d-flex align-items-center gap-2" *ngIf="!editingDue">
+          <span *ngIf="!o.dueDate">{{ 'DUE.NONE' | translate }}</span>
+          <app-due-badge [dueDate]="o.dueDate"></app-due-badge>
+          <button *ngIf="isReviewer" type="button" class="btn btn-link btn-sm p-0" (click)="startDueEdit()">{{ 'COMMON.EDIT' | translate }}</button>
+        </div>
+        <div class="d-flex align-items-center gap-2" *ngIf="editingDue">
+          <input type="date" class="form-control form-control-sm w-auto" [min]="minDueDate" [(ngModel)]="dueDraft" [attr.aria-label]="'DUE.LABEL' | translate" />
+          <button type="button" class="btn btn-sm btn-primary" (click)="saveDue()">{{ 'COMMON.SAVE' | translate }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="editingDue = false">{{ 'COMMON.CANCEL' | translate }}</button>
+        </div>
       </div>
-      <div class="d-flex flex-column gap-1 small" *ngIf="view.exam && (view.percentComplete >= 100 || view.examAttempt)">
-        <span class="text-body-tertiary">{{ 'QUEST_LOG.EXAM' | translate }}</span>
-        <app-exam-grade-badge [exam]="view.exam" [attempt]="view.examAttempt" [percentComplete]="view.percentComplete"></app-exam-grade-badge>
+      <div class="d-flex flex-column gap-1">
+        <span class="text-body-tertiary">{{ 'LOG.TIME_SPENT' | translate }}</span>
+        <span dir="auto">{{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: o.totalTimeSpentHours } }}</span>
       </div>
     </div>
 
     <div class="d-flex flex-wrap align-items-center gap-2 mt-3" *ngIf="canOverrideJourneyStatus">
       <span class="small text-body-tertiary me-2">{{ 'QUEST_LOG.OVERRIDE_STATUS' | translate }}</span>
       <button
+        type="button"
         class="btn btn-sm rounded-pill"
         *ngFor="let s of STATUS_ORDER"
-        [ngClass]="toggleButtonClass(isCurrent(s, view.status), statusSlug(s))"
+        [ngClass]="toggleButtonClass(s.code === o.status.code, statusSlug(s))"
         (click)="setJourneyStatus(s)"
       >
-        {{ statusLabel(s) }}
+        {{ lang.label(s) }}
       </button>
     </div>
   </div>
 
-  <!-- Package strip: where this journey sits in its packages, and the way on. Repeated under the
-       rail once the journey is finished, since that is where the learner's last click was. -->
   <ng-container *ngTemplateOutlet="packageStrip"></ng-container>
 
-  <div class="rail">
-    <div class="rail-line"></div>
+  <div class="row g-3 align-items-start">
+    <!-- ── Contents ───────────────────────────────────────────────────────────── -->
+    <aside class="col-lg-4 col-xl-3 outline-column">
+      <app-side-panel [label]="'LOG.CONTENTS' | translate">
+        <app-journey-outline [outline]="o" [selectedKey]="selectedKey" (select)="select($event)" (openExam)="openExam()"></app-journey-outline>
+      </app-side-panel>
+    </aside>
 
-    <div class="rail-item d-flex gap-3 position-relative" *ngFor="let item of view.items; let i = index">
-      <div class="rail-node" [ngClass]="'rail-node-' + statusSlug(item.progress.status)">
-        <span *ngIf="isCompleted(item)">✓</span>
-        <span *ngIf="!isCompleted(item)">{{ i + 1 }}</span>
-      </div>
+    <!-- ── The selected step ──────────────────────────────────────────────────── -->
+    <section class="col-lg-8 col-xl-9 d-flex flex-column gap-3" *ngIf="selection as step">
+      <!-- Item -->
+      <ng-container *ngIf="step.kind === 'item'">
+        <article class="card card-body">
+          <span class="page-eyebrow user-content">{{ 'LOG.UNIT_N' | translate: { n: step.unit.order } }} · {{ step.unit.title }}</span>
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+            <h2 class="h3 mb-0 user-content">{{ step.item.title }}</h2>
+            <app-status-badge [status]="step.item.status"></app-status-badge>
+          </div>
 
-      <div class="card card-body quest-card flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center gap-2">
-          <h3 class="fs-6 fw-semibold mb-0 user-content">{{ item.title }}</h3>
-          <app-status-badge [status]="item.progress.status"></app-status-badge>
-        </div>
+          <p class="text-body-secondary" *ngIf="contentLoading && !content">{{ 'LOG.LOADING' | translate }}</p>
 
-        <!-- Rich HTML from the editor; Angular sanitizes it on the way in. -->
-        <div class="quest-desc quest-rich my-2 user-content" *ngIf="isRichText(item.description)" [innerHTML]="item.description"></div>
+          <ng-container *ngIf="content && content.progressId === step.item.progressId">
+            <!-- Rich HTML from the editor; Angular sanitizes it on the way in. -->
+            <div class="quest-rich user-content" *ngIf="isRichText(content.description)" [innerHTML]="content.description"></div>
+            <ul class="quest-desc user-content" *ngIf="!isRichText(content.description)">
+              <li *ngFor="let line of plainLines(content.description)">{{ line }}</li>
+            </ul>
 
-        <!-- Legacy plain-text items keep their one-bullet-per-line rendering. -->
-        <ul class="quest-desc my-2 user-content" *ngIf="!isRichText(item.description)">
-          <li *ngFor="let line of plainLines(item.description)">{{ line }}</li>
-        </ul>
+            <app-attachment-view [attachments]="content.attachments"></app-attachment-view>
 
-        <app-attachment-view [attachments]="item.attachments"></app-attachment-view>
+            <p class="small text-body-tertiary mt-2 mb-0" dir="auto" *ngIf="!isLearner && content.timeSpentHours">
+              ⏱ {{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: content.timeSpentHours } }}
+            </p>
 
-        <p class="small text-body-tertiary" dir="auto" *ngIf="item.progress.timeSpentHours">
-          ⏱ {{ 'QUEST_LOG.HOURS_LOGGED' | translate: { hours: item.progress.timeSpentHours } }}
-        </p>
+            <div class="mt-3 pt-3 border-top">
+              <button type="button" class="btn btn-link btn-sm px-0 fw-semibold text-decoration-none" (click)="showNotes = !showNotes">
+                {{ (showNotes ? 'QUEST_LOG.HIDE_NOTES' : 'QUEST_LOG.NOTES') | translate }} ({{ content.notes.length }})
+              </button>
+              <div class="mt-2" *ngIf="showNotes">
+                <app-note-thread [notes]="content.notes" [currentUserId]="currentUser.id" (noteAdded)="addItemNote($event)"></app-note-thread>
+              </div>
+            </div>
+          </ng-container>
+        </article>
 
-        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-          <button
-            class="btn btn-sm rounded-pill"
-            *ngFor="let s of STATUS_ORDER"
-            [ngClass]="toggleButtonClass(isCurrent(s, item.progress.status), statusSlug(s))"
-            (click)="setItemStatus(item, s)"
-          >
-            {{ statusLabel(s) }}
-          </button>
-        </div>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
 
-        <div>
-          <button class="btn btn-link btn-sm px-0 mt-2 fw-semibold text-decoration-none" (click)="toggleNotes(item.progress.id)">
-            {{ (expandedNotes.has(item.progress.id) ? 'QUEST_LOG.HIDE_NOTES' : 'QUEST_LOG.NOTES') | translate }}
-            ({{ item.progress.notes.length }})
-          </button>
-        </div>
+        <!-- Reviewers act on the unit without leaving the item. -->
+        <app-unit-review
+          *ngIf="isReviewer"
+          [unit]="step.unit"
+          [isReviewer]="true"
+          [compact]="true"
+          [currentUserId]="currentUser.id"
+          (changed)="reloadOutline()"
+        ></app-unit-review>
+      </ng-container>
 
-        <div class="mt-2 pt-3 border-top" *ngIf="expandedNotes.has(item.progress.id)">
-          <app-note-thread
-            [notes]="item.progress.notes"
-            [currentUserId]="currentUser.id"
-            (noteAdded)="addNote(item, $event)"
-          ></app-note-thread>
-        </div>
-      </div>
-    </div>
-  </div>
+      <!-- Quiz -->
+      <ng-container *ngIf="step.kind === 'quiz'">
+        <app-unit-quiz
+          [learnerUnitId]="step.unit.learnerUnitId"
+          [unitTitle]="step.unit.title"
+          [canAnswer]="isLearner"
+          [closed]="unitClosed(step.unit)"
+          (submitted)="onQuizSubmitted()"
+        ></app-unit-quiz>
+        <ng-container *ngTemplateOutlet="stepNav"></ng-container>
+        <app-unit-review
+          *ngIf="isReviewer"
+          [unit]="step.unit"
+          [isReviewer]="true"
+          [compact]="true"
+          [currentUserId]="currentUser.id"
+          (changed)="reloadOutline()"
+        ></app-unit-review>
+      </ng-container>
 
-  <div class="mt-4" *ngIf="view.percentComplete >= 100">
-    <ng-container *ngTemplateOutlet="packageStrip"></ng-container>
+      <!-- Unit overview and review -->
+      <ng-container *ngIf="step.kind === 'unit'">
+        <app-unit-review
+          [unit]="step.unit"
+          [isLearner]="isLearner"
+          [isReviewer]="isReviewer"
+          [currentUserId]="currentUser.id"
+          (changed)="reloadOutline()"
+        ></app-unit-review>
+        <button type="button" class="btn btn-outline-primary align-self-start" *ngIf="step.unit.items.length" (click)="select({ kind: 'item', unit: step.unit, item: step.unit.items[0] })">
+          {{ 'LOG.START_UNIT' | translate }}
+        </button>
+      </ng-container>
+    </section>
   </div>
 </ng-container>
 
-<!-- Completion-time modal -->
-<app-modal [open]="!!completingItem" (dismissed)="cancelCompletionModal()">
-  <h3 class="h5 mb-2">{{ completeModalTitle }}</h3>
-  <p class="small text-body-secondary mb-3">{{ 'QUEST_LOG.COMPLETE_SUB' | translate }}</p>
-  <label for="hours" class="form-label">{{ 'QUEST_LOG.TIME_SPENT' | translate }}</label>
-  <input id="hours" class="form-control" type="number" min="0.25" step="0.25" [(ngModel)]="completingHours" name="hours" [placeholder]="'QUEST_LOG.TIME_PLACEHOLDER' | translate" />
-
-  <div modal-actions>
-    <button class="btn btn-outline-secondary flex-fill" (click)="cancelCompletionModal()">{{ 'COMMON.CANCEL' | translate }}</button>
-    <button class="btn btn-primary flex-fill" [disabled]="!completingHours || completingHours <= 0" (click)="confirmCompletion()">
-      {{ 'QUEST_LOG.MARK_COMPLETE' | translate }}
+<!-- Previous / Continue. Continue completes the item for the learner. -->
+<ng-template #stepNav>
+  <div class="d-flex flex-wrap align-items-stretch gap-2">
+    <button type="button" class="btn btn-outline-secondary" *ngIf="previousStep" (click)="previous()">
+      <span aria-hidden="true">{{ 'COMMON.BACK_ARROW' | translate }}</span> {{ 'LOG.PREVIOUS' | translate }}
     </button>
+
+    <button type="button" class="continue-banner flex-grow-1" *ngIf="nextStep" [disabled]="busy" (click)="continue()">
+      <span class="continue-label">{{ 'LOG.CONTINUE' | translate }}</span>
+      <span class="continue-title user-content">{{ stepTitle(nextStep) }}</span>
+      <span class="continue-arrow" aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
+    </button>
+
+    <ng-container *ngIf="!nextStep">
+      <button type="button" class="continue-banner flex-grow-1" *ngIf="outline?.exam?.open && isLearner && selection?.kind === 'item'" [disabled]="busy" (click)="continue(); openExam()">
+        <span class="continue-label">{{ 'LOG.CONTINUE' | translate }}</span>
+        <span class="continue-title">{{ 'LOG.FINAL_EXAM' | translate }}</span>
+        <span class="continue-arrow" aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
+      </button>
+      <button type="button" class="btn btn-primary flex-grow-1" *ngIf="isLearner && selection?.kind === 'item' && !outline?.exam?.open" [disabled]="busy" (click)="continue()">
+        {{ 'LOG.FINISH' | translate }}
+      </button>
+      <button type="button" class="continue-banner flex-grow-1" *ngIf="outline?.exam?.open && isLearner && selection?.kind === 'quiz'" (click)="openExam()">
+        <span class="continue-label">{{ 'LOG.CONTINUE' | translate }}</span>
+        <span class="continue-title">{{ 'LOG.FINAL_EXAM' | translate }}</span>
+        <span class="continue-arrow" aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
+      </button>
+    </ng-container>
   </div>
-</app-modal>
+</ng-template>
 
 <app-confirm-dialog
   [open]="showCancelConfirm"
@@ -164,10 +200,7 @@
 ></app-confirm-dialog>
 
 <ng-template #packageStrip>
-  <div
-    class="card card-body flex-row flex-wrap align-items-center gap-3 mb-4 border-navy-subtle"
-    *ngFor="let p of packages"
-  >
+  <div class="card card-body flex-row flex-wrap align-items-center gap-3 mb-3 border-navy-subtle" *ngFor="let p of packages">
     <div class="flex-grow-1 overflow-hidden">
       <span class="page-eyebrow">{{ 'PACKAGE.SINGULAR' | translate }}</span>
       <div class="fw-semibold user-content">{{ p.packageTitle }}</div>
@@ -176,20 +209,14 @@
       </div>
     </div>
     <ng-container *ngIf="p.nextLearnerJourneyId; else packageDone">
-      <button
-        class="btn btn-sm d-inline-flex align-items-center gap-1"
-        [ngClass]="finished ? 'btn-primary' : 'btn-outline-secondary'"
-        (click)="openNext(p)"
-      >
+      <button type="button" class="btn btn-sm d-inline-flex align-items-center gap-1" [ngClass]="finished ? 'btn-primary' : 'btn-outline-secondary'" (click)="openNextJourney(p)">
         <span>{{ (finished ? 'PACKAGE.NEXT_JOURNEY' : 'PACKAGE.UP_NEXT') | translate }}</span>
         <bdi>{{ p.nextJourneyTitle }}</bdi>
         <span aria-hidden="true">{{ 'COMMON.FORWARD_ARROW' | translate }}</span>
       </button>
     </ng-container>
     <ng-template #packageDone>
-      <span class="badge rounded-pill bg-completed-subtle text-completed-emphasis" *ngIf="p.completedJourneys === p.total">
-        {{ 'PACKAGE.ALL_DONE' | translate }}
-      </span>
+      <span class="badge rounded-pill bg-completed-subtle text-completed-emphasis" *ngIf="p.completedJourneys === p.total">{{ 'PACKAGE.ALL_DONE' | translate }}</span>
     </ng-template>
   </div>
 </ng-template>

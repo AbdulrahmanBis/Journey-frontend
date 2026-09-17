@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Journey, JourneyItem } from '../models/models';
+import { Journey, JourneyItem, JourneyUnit } from '../models/models';
 import { TechTag } from '../models/enums';
 import { API_BASE } from './api.config';
+import { QuestionDraft } from './exam.service';
 
 /** Attachments are sent as the complete set for an item — anything omitted is deleted. */
 export interface AttachmentPayload {
@@ -17,11 +18,23 @@ export interface AttachmentPayload {
   originalName?: string;
 }
 
+export interface UnitPayload {
+  /** Present for an existing unit, so learners' progress on it is kept. */
+  id?: string;
+  title: string;
+  description?: string;
+  items: { id?: string; title: string; description: string; attachments?: AttachmentPayload[] }[];
+  quiz: QuestionDraft[];
+}
+
 export interface JourneyPayload {
   title: string;
   description: string;
   techTag: TechTag;
-  items: {
+  targetDays?: number | null;
+  /** The journey's units, each with its items and quiz. Takes precedence over `items`. */
+  units?: UnitPayload[];
+  items?: {
     id?: string;
     title: string;
     description: string;
@@ -44,6 +57,11 @@ export class JourneyService {
   }
 
   // GET /api/journeys/:id/items → JourneyItem[]
+  /** Units with items and quiz answers, for the journey form (staff). */
+  getUnitsForJourney(journeyId: string): Observable<JourneyUnit[]> {
+    return this.http.get<JourneyUnit[]>(`${API_BASE}/journeys/${journeyId}/units`);
+  }
+
   getItemsForJourney(journeyId: string): Observable<JourneyItem[]> {
     return this.http.get<JourneyItem[]>(`${API_BASE}/journeys/${journeyId}/items`);
   }

@@ -22,6 +22,8 @@ export interface User {
   /** Set on learners only: which senior they report to for training. */
   seniorId?: string;
   createdAt: string;
+  /** Intro guide version this person dismissed for good; absent if never. */
+  introSeenVersion?: number;
 }
 
 /** A reusable training template, e.g. "AWS DevOps Fundamentals". */
@@ -30,6 +32,8 @@ export interface Journey {
   title: string;
   description: string;
   techTag: TechTag;
+  /** Expected duration in days; becomes the default due date when assigned. */
+  targetDays?: number | null;
   createdById: string;
   createdByName: string;
   createdAt: string;
@@ -64,6 +68,8 @@ export interface Attachment {
 export interface JourneyItem {
   id: string;
   journeyId: string;
+  /** The unit the item belongs to. */
+  unitId?: string;
   title: string;
   description: string;
   order: number;
@@ -88,6 +94,8 @@ export interface LearnerJourney {
   assignedById: string;
   assignedByName: string;
   assignedAt: string;
+  /** YYYY-MM-DD; absent when there is no deadline. */
+  dueDate?: string;
   /** Enrolled from the catalog; `assignedBy` is then the reviewer. */
   selfEnrolled?: boolean;
   status: EnumValue;
@@ -155,6 +163,117 @@ export interface ExamAttempt {
   passed?: boolean;
 }
 
+/* ----------------------------------- Units ---------------------------------- */
+
+/** A unit as authors edit it (GET /journeys/:id/units): items with content, quiz with answers. */
+export interface JourneyUnit {
+  id: string;
+  title: string;
+  description?: string;
+  order: number;
+  items: JourneyItem[];
+  quiz: ExamQuestion[];
+}
+
+/** A learner's unit in brief, on journey views. */
+export interface UnitProgressSummary {
+  learnerUnitId?: string;
+  unitId: string;
+  title: string;
+  order: number;
+  /** StatusCode — the unit carries the review workflow. */
+  status: EnumValue;
+  completedItems: number;
+  totalItems: number;
+  hasQuiz: boolean;
+  quizAnswered: boolean;
+  updatedAt?: string;
+}
+
+export interface OutlineItem {
+  progressId: string;
+  journeyItemId: string;
+  title: string;
+  order: number;
+  status: EnumValue;
+  timeSpentHours?: number;
+  noteCount: number;
+}
+
+export interface OutlineUnit {
+  learnerUnitId: string;
+  unitId: string;
+  title: string;
+  description?: string;
+  order: number;
+  status: EnumValue;
+  completedItems: number;
+  totalItems: number;
+  quiz?: { questionCount: number; answered: boolean; scorePercent?: number };
+  /** Items done and quiz answered: the learner can send it for review. */
+  readyForReview: boolean;
+  notes: Note[];
+  items: OutlineItem[];
+}
+
+/** The journey log's left panel: structure and statuses, no item content. */
+export interface JourneyOutline {
+  learnerJourneyId: string;
+  learnerId: string;
+  learnerName: string;
+  journey: Journey;
+  status: EnumValue;
+  percentComplete: number;
+  totalTimeSpentHours: number;
+  dueDate?: string;
+  selfEnrolled: boolean;
+  assignedById: string;
+  assignedByName: string;
+  units: OutlineUnit[];
+  /** Absent when the journey has no exam. `open` once every unit's items and quiz are done. */
+  exam?: { examId: string; title: string; open: boolean; attemptStatus?: EnumValue; scorePercent?: number; passed?: boolean };
+}
+
+/** One item's content, loaded when it is opened. */
+export interface ItemContent {
+  progressId: string;
+  journeyItemId: string;
+  learnerUnitId: string;
+  unitTitle: string;
+  title: string;
+  description: string;
+  attachments: Attachment[];
+  status: EnumValue;
+  timeSpentHours?: number;
+  notes: Note[];
+  previousProgressId?: string;
+  nextProgressId?: string;
+  nextTitle?: string;
+  lastInUnit: boolean;
+}
+
+export interface QuizQuestion {
+  id: string;
+  type: EnumValue;
+  prompt: string;
+  options: string[];
+  selectedOptionIndex?: number;
+  boolAnswer?: boolean;
+  /** Filled in once submitted. */
+  correct?: boolean;
+  correctOptionIndex?: number;
+  correctBoolAnswer?: boolean;
+}
+
+export interface UnitQuiz {
+  learnerUnitId: string;
+  unitTitle: string;
+  questions: QuizQuestion[];
+  submitted: boolean;
+  scorePercent?: number;
+  submittedAt?: string;
+}
+
 /* --------------------------- Composed view models --------------------------- */
 
 export interface JourneyItemView extends JourneyItem {
@@ -170,12 +289,8 @@ export interface LearnerJourneyView extends LearnerJourney {
   exam?: Exam;
   /** Present only once the learner has submitted. */
   examAttempt?: ExamAttempt;
-}
-
-export interface LearnerSummary extends User {
-  journeys: LearnerJourneyView[];
-  /** Packages grouping some of `journeys`; those journeys are in `journeys` too. */
-  packages?: PackageAssignment[];
+  /** The journey's units with this learner's status on each. */
+  units?: UnitProgressSummary[];
 }
 
 // ─── Packages ───────────────────────────────────────────────────────────────────
@@ -185,6 +300,7 @@ export interface JourneyPackage {
   id: string;
   title: string;
   description?: string;
+  targetDays?: number | null;
   createdById: string;
   createdByName: string;
   createdAt: string;
@@ -216,6 +332,7 @@ export interface PackageAssignment {
   assignedById: string;
   assignedByName: string;
   assignedAt: string;
+  dueDate?: string;
   selfEnrolled?: boolean;
   cancelledAt?: string;
   status: EnumValue;
@@ -245,6 +362,7 @@ export interface CatalogEntry {
   tags: string[];
   /** Quest items for a journey; journeys for a package. */
   itemCount: number;
+  targetDays?: number;
   hasExam: boolean;
   /** A package's journeys, in order. */
   journeyTitles?: string[];
@@ -282,10 +400,79 @@ export interface SyllabusEntry {
   journeyId?: string;
 }
 
+/** A unit in a journey's catalog outline. */
+export interface SyllabusUnit {
+  order: number;
+  title: string;
+  description?: string;
+  items: SyllabusEntry[];
+  quizQuestions: number;
+}
+
 export interface CatalogDetail {
   entry: CatalogEntry;
-  syllabus: SyllabusEntry[];
+  /** A package's journeys. */
+  syllabus?: SyllabusEntry[];
+  /** A journey's units. */
+  units?: SyllabusUnit[];
   reviewerName?: string;
+}
+
+// ─── Team dashboard ─────────────────────────────────────────────────────────────
+
+export interface TeamKpis {
+  learners: number;
+  onTrack: number;
+  atRisk: number;
+  overdue: number;
+  /** Exams to grade plus items waiting for a reviewer. */
+  awaitingReview: number;
+  completedThisMonth: number;
+}
+
+/** Something a staff member should act on (AttentionTypeCode). The UI writes the sentence. */
+export interface AttentionItem {
+  type: EnumValue;
+  learnerId: string;
+  learnerName: string;
+  journeyTitle?: string;
+  itemTitle?: string;
+  link: string;
+  since?: string;
+  dueDate?: string;
+  days?: number;
+}
+
+export interface TeamLearner {
+  id: string;
+  name: string;
+  email: string;
+  department?: Department;
+  seniorId?: string;
+  seniorName?: string;
+  /** LearnerHealthCode */
+  health: EnumValue;
+  openJourneys: number;
+  completedJourneys: number;
+  overdueJourneys: number;
+  averageProgress: number;
+  current?: { learnerJourneyId: string; title: string; percentComplete: number; status: EnumValue; dueDate?: string };
+  lastActivityAt?: string;
+  nextDueDate?: string;
+  attentionCount: number;
+}
+
+export interface TeamOverview {
+  kpis: TeamKpis;
+  attention: AttentionItem[];
+  learners: TeamLearner[];
+  /** Seniors in scope with their learner counts; empty for a Senior. */
+  seniors: { id: string; name: string; learnerCount: number }[];
+}
+
+export interface LearnerSnapshot {
+  learner: TeamLearner;
+  attention: AttentionItem[];
 }
 
 /** Where a learner journey sits in one of the learner's packages. */
@@ -298,10 +485,6 @@ export interface PackageContext {
   /** Next unfinished journey (wrapping round), or absent when the rest are done. */
   nextLearnerJourneyId?: string;
   nextJourneyTitle?: string;
-}
-
-export interface SeniorSummary extends User {
-  learners: LearnerSummary[];
 }
 
 /**

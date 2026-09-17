@@ -23,6 +23,27 @@ export function codeOf(value: EnumValue | number | null | undefined): number | u
   return typeof value === 'number' ? value : value.code;
 }
 
+/* ------------------------------- Team dashboard ------------------------------ */
+
+export const LearnerHealthCode = { Overdue: 1001, AtRisk: 1002, OnTrack: 1003, NotStarted: 1004, Done: 1005 } as const;
+export type LearnerHealthCode = (typeof LearnerHealthCode)[keyof typeof LearnerHealthCode];
+
+export function healthChipClass(health: EnumValue | number | null | undefined): string {
+  switch (codeOf(health)) {
+    case LearnerHealthCode.Overdue: return 'bg-danger-subtle text-danger-emphasis';
+    case LearnerHealthCode.AtRisk: return 'bg-warning-subtle text-warning-emphasis';
+    case LearnerHealthCode.OnTrack: return 'bg-completed-subtle text-completed-emphasis';
+    case LearnerHealthCode.Done: return 'bg-navy-subtle text-navy';
+    default: return 'bg-secondary-subtle text-secondary-emphasis';
+  }
+}
+
+export const AttentionTypeCode = {
+  Overdue: 1001, ExamToGrade: 1002, AwaitingReview: 1003, UnansweredNote: 1004,
+  Inactive: 1005, NothingAssigned: 1006, NoSenior: 1007,
+} as const;
+export type AttentionTypeCode = (typeof AttentionTypeCode)[keyof typeof AttentionTypeCode];
+
 /* ---------------------------------- Catalog --------------------------------- */
 
 export const CatalogTypeCode = { Journey: 1001, Package: 1002 } as const;
@@ -58,7 +79,7 @@ export type RoleCode = (typeof RoleCode)[keyof typeof RoleCode];
 export const USER_ROLES: readonly EnumValue[] = [
   { code: RoleCode.Admin, english: 'Admin', arabic: 'مدير النظام' },
   { code: RoleCode.Manager, english: 'Manager', arabic: 'مدير' },
-  { code: RoleCode.Senior, english: 'Senior', arabic: 'خبير' },
+  { code: RoleCode.Senior, english: 'Senior', arabic: 'مشرف' },
   { code: RoleCode.Learner, english: 'Learner', arabic: 'متعلم' },
   { code: RoleCode.Hr, english: 'HR', arabic: 'الموارد البشرية' },
 ];
@@ -118,8 +139,8 @@ export type StatusCode = (typeof StatusCode)[keyof typeof StatusCode];
 /** Local catalog, in the order used by dropdowns and the status-cycle control. */
 export const STATUS_ORDER: readonly EnumValue[] = [
   { code: StatusCode.New, english: 'new', arabic: 'جديد' },
-  { code: StatusCode.Reflect, english: 'reflect', arabic: 'راجع' },
-  { code: StatusCode.Response, english: 'response', arabic: 'إجابة' },
+  { code: StatusCode.Reflect, english: 'in progress', arabic: 'قيد التنفيذ' },
+  { code: StatusCode.Response, english: 'waiting for review', arabic: 'بانتظار المراجعة' },
   { code: StatusCode.Completed, english: 'completed', arabic: 'مكتمل' },
   { code: StatusCode.Cancelled, english: 'cancelled', arabic: 'ملغي' },
 ];

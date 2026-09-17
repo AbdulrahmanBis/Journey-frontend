@@ -60,6 +60,7 @@
   [title]="'PACKAGE.ASSIGN_TITLE' | translate: { title: assigning?.title ?? '' }"
   [subtitle]="'PACKAGE.ASSIGN_SUB' | translate"
   [busy]="saving"
+  [targetDays]="assigning?.targetDays"
   (confirmed)="assign($event)"
   (dismissed)="assigning = null"
 ></app-assign-learner-modal>

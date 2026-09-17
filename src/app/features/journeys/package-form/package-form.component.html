@@ -18,6 +18,11 @@
         <label for="pkg-title" class="form-label">{{ 'JOURNEY.FIELD_TITLE' | translate }}</label>
         <input id="pkg-title" class="form-control" maxlength="255" [(ngModel)]="title" name="title" [placeholder]="'PACKAGE.TITLE_PLACEHOLDER' | translate" />
       </div>
+      <div class="mb-3">
+        <label for="pkg-target-days" class="form-label">{{ 'DUE.TARGET_DAYS' | translate }}</label>
+        <input id="pkg-target-days" type="number" min="1" max="730" class="form-control" [(ngModel)]="targetDays" name="targetDays" [placeholder]="'DUE.TARGET_PLACEHOLDER' | translate" />
+        <div class="form-text">{{ 'DUE.PACKAGE_TARGET_HINT' | translate }}</div>
+      </div>
       <div>
         <label for="pkg-desc" class="form-label">{{ 'JOURNEY.DESCRIPTION' | translate }}</label>
         <textarea id="pkg-desc" class="form-control" rows="4" [(ngModel)]="description" name="desc" [placeholder]="'PACKAGE.DESCRIPTION_PLACEHOLDER' | translate"></textarea>

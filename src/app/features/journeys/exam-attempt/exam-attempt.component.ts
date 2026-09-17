@@ -54,6 +54,13 @@ export class ExamAttemptComponent implements OnInit {
   get exam(): Exam | undefined { return this.view?.exam; }
   get attempt() { return this.view?.examAttempt; }
 
+  /** Every unit's items completed and quiz answered — the same rule the journey log uses. */
+  get unitsReady(): boolean {
+    const units = this.view?.units ?? [];
+    if (!units.length) return (this.view?.percentComplete ?? 0) >= 100;
+    return units.every((u) => u.completedItems === u.totalItems && (!u.hasQuiz || u.quizAnswered));
+  }
+
   // ── Question-type helpers (the wire format is { code, english, arabic }) ──
   isMc(q: ExamQuestion): boolean { return codeOf(q.type) === QuestionTypeCode.MultipleChoice; }
   isYesNo(q: ExamQuestion): boolean { return codeOf(q.type) === QuestionTypeCode.YesNo; }
@@ -62,7 +69,7 @@ export class ExamAttemptComponent implements OnInit {
   get mode(): string {
     if (!this.view) return 'locked';
     if (!this.exam) return 'no-exam';
-    if (this.view.percentComplete < 100) return 'locked';
+    if (!this.unitsReady) return 'locked';
     if (!this.attempt) return this.isReviewer ? 'awaiting' : 'take';
     if (codeOf(this.attempt.status) === AttemptStatusCode.Submitted) {
       return this.isReviewer ? 'grading' : 'under-review';

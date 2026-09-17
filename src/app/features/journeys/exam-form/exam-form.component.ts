@@ -4,23 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { LanguageService } from '../../../core/services/language.service';
 import { JourneyService } from '../../../core/services/journey.service';
 import { ExamService, QuestionDraft } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Journey, Exam } from '../../../core/models/models';
-import { EnumValue, QUESTION_TYPES, QuestionTypeCode, codeOf, optionCodeFor, optionIndexOf } from '../../../core/models/enums';
+import { QuestionTypeCode, codeOf, optionCodeFor } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { QuestionEditorComponent, QuestionRow, blankQuestion, toQuestionDraft } from '../../../shared/components/question-editor/question-editor.component';
 import { forkJoin } from 'rxjs';
-
-interface QuestionRow extends QuestionDraft {
-  options: string[];
-}
 
 @Component({
   selector: 'app-exam-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogComponent, QuestionEditorComponent, TranslatePipe],
   templateUrl: './exam-form.component.html',
 })
 export class ExamFormComponent implements OnInit {
@@ -31,16 +27,6 @@ export class ExamFormComponent implements OnInit {
   private examService = inject(ExamService);
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
-  private lang = inject(LanguageService);
-
-  questionTypes = QUESTION_TYPES;
-  QuestionTypeCode = QuestionTypeCode;
-  optionCodeFor = optionCodeFor;
-
-  /** Question-type wording comes from the enum triple, so it follows the active language. */
-  typeLabel(type: EnumValue): string {
-    return this.lang.label(type);
-  }
 
   journey: Journey | null = null;
   isEdit = false;
@@ -76,7 +62,7 @@ export class ExamFormComponent implements OnInit {
           }));
         } else {
           this.title = `${journey.title} — checkpoint exam`;
-          this.questions = [this.blankQuestion()];
+          this.questions = [blankQuestion()];
         }
         this.loading = false;
       },
@@ -87,28 +73,8 @@ export class ExamFormComponent implements OnInit {
     });
   }
 
-  private blankQuestion(): QuestionRow {
-    return {
-      type: QuestionTypeCode.MultipleChoice,
-      prompt: '',
-      options: ['', ''],
-      correctOptionIndex: optionCodeFor(0),
-      correctBoolAnswer: true,
-    };
-  }
-
-  addQuestion(): void { this.questions.push(this.blankQuestion()); }
+  addQuestion(): void { this.questions.push(blankQuestion()); }
   removeQuestion(index: number): void { this.questions.splice(index, 1); }
-  addOption(q: QuestionRow): void { q.options.push(''); }
-  removeOption(q: QuestionRow, optIndex: number): void {
-    q.options.splice(optIndex, 1);
-    if ((optionIndexOf(q.correctOptionIndex) ?? 0) >= q.options.length) {
-      q.correctOptionIndex = optionCodeFor(0);
-    }
-  }
-  onTypeChange(q: QuestionRow): void {
-    if (q.type === QuestionTypeCode.MultipleChoice && q.options.length < 2) q.options = ['', ''];
-  }
 
   submit(): void {
     this.error = '';
@@ -124,14 +90,7 @@ export class ExamFormComponent implements OnInit {
     }
 
     this.saving = true;
-    const drafts: QuestionDraft[] = this.questions.map((q) => ({
-      id: q.id,
-      type: q.type,
-      prompt: q.prompt.trim(),
-      options: q.type === QuestionTypeCode.MultipleChoice ? q.options.map((o) => o.trim()).filter(Boolean) : undefined,
-      correctOptionIndex: q.type === QuestionTypeCode.MultipleChoice ? q.correctOptionIndex : undefined,
-      correctBoolAnswer: q.type === QuestionTypeCode.YesNo ? q.correctBoolAnswer : undefined,
-    }));
+    const drafts: QuestionDraft[] = this.questions.map(toQuestionDraft);
 
     this.examService.saveExam(this.journey.id, { title: this.title.trim(), passingScorePercent: this.passingScorePercent }, drafts, this.auth.currentUser!).subscribe({
       next: () => {

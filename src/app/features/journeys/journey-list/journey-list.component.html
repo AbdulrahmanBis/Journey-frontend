@@ -42,6 +42,7 @@
   [title]="'JOURNEY.ASSIGN_TITLE' | translate: { title: assigningJourney?.title ?? '' }"
   [subtitle]="'JOURNEY.ASSIGN_SUB' | translate"
   [busy]="assigning"
+  [targetDays]="assigningJourney?.targetDays"
   (confirmed)="confirmAssign($event)"
   (dismissed)="closeAssign()"
 ></app-assign-learner-modal>

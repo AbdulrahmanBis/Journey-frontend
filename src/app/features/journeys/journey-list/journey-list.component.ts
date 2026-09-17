@@ -8,9 +8,9 @@ import { JourneyService } from '../../../core/services/journey.service';
 import { AssignmentService } from '../../../core/services/assignment.service';
 import { ExamService } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Journey, User } from '../../../core/models/models';
+import { Journey } from '../../../core/models/models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
+import { AssignChoice, AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
 import { JourneysTabsComponent } from '../journeys-tabs/journeys-tabs.component';
 
 @Component({
@@ -91,11 +91,11 @@ export class JourneyListComponent implements OnInit {
 
   closeAssign(): void { this.assigningJourney = null; }
 
-  confirmAssign(learner: User): void {
+  confirmAssign({ learner, dueDate }: AssignChoice): void {
     if (!this.assigningJourney) return;
     this.assigning = true;
     const title = this.assigningJourney.title;
-    this.assignments.assignJourney(this.assigningJourney.id, learner.id, this.user).subscribe({
+    this.assignments.assignJourney(this.assigningJourney.id, learner.id, this.user, dueDate).subscribe({
       next: () => {
         this.assigning = false;
         this.toast.success(this.translate.instant('JOURNEY.ASSIGNED', { title, name: learner.name }));

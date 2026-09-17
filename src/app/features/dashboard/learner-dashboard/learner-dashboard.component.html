@@ -4,6 +4,70 @@
   <p class="text-body-secondary mt-1">{{ 'DASHBOARD.LEARNER_SUB' | translate }}</p>
 </div>
 
+<!-- ── Next up: the one thing to open first ─────────────────────────────────── -->
+<ng-container *ngIf="!loading">
+  <div class="card card-body next-up mb-3" *ngIf="home.nextUp as next; else nothingNext">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <div class="flex-grow-1 overflow-hidden">
+        <span class="page-eyebrow">{{ 'HOME.NEXT_UP' | translate }}</span>
+        <h2 class="h4 mb-1 user-content">{{ next.kind === 'exam' ? ('HOME.TAKE_EXAM' | translate) : next.kind === 'quiz' ? ('HOME.TAKE_QUIZ' | translate: { unit: next.unit?.title }) : next.item?.title }}</h2>
+        <div class="small text-body-secondary d-flex flex-wrap align-items-center gap-2">
+          <span class="user-content">{{ next.view.journey.title }}</span>
+          <span>·</span>
+          <span>{{ 'HOME.PERCENT_DONE' | translate: { percent: next.view.percentComplete } }}</span>
+          <app-due-badge [dueDate]="next.view.dueDate"></app-due-badge>
+        </div>
+        <div class="progress progress-thin mt-2" role="progressbar" [attr.aria-valuenow]="next.view.percentComplete" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar" [style.width.%]="next.view.percentComplete"></div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-lg" (click)="go(next)">
+        {{ (next.kind === 'exam' ? 'HOME.START_EXAM' : 'HOME.CONTINUE') | translate }}
+      </button>
+    </div>
+  </div>
+  <ng-template #nothingNext>
+    <div class="card card-body next-up mb-3">
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+          <span class="page-eyebrow">{{ 'HOME.NEXT_UP' | translate }}</span>
+          <h2 class="h5 mb-1">{{ (home.waiting.length ? 'HOME.NOTHING_NOW_WAITING' : 'HOME.NOTHING_NOW') | translate }}</h2>
+          <p class="small text-body-secondary mb-0">{{ 'HOME.NOTHING_NOW_SUB' | translate }}</p>
+        </div>
+        <a routerLink="/catalog" class="btn btn-outline-primary">{{ 'HOME.BROWSE_CATALOG' | translate }}</a>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ── Your turn / waiting on your reviewer ─────────────────────────────── -->
+  <div class="row g-3 mb-4" *ngIf="home.myTurn.length || home.waiting.length">
+    <div class="col-lg-6">
+      <div class="card card-body h-100">
+        <h2 class="h6 mb-2">{{ 'HOME.YOUR_TURN' | translate }} <span class="text-body-tertiary">({{ home.myTurn.length }})</span></h2>
+        <div class="list-group list-group-flush" *ngIf="home.myTurn.length; else nothingMine">
+          <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 px-0" *ngFor="let t of home.myTurn | slice: 0 : listLimit" (click)="go(t)">
+            <span class="small flex-grow-1">{{ taskKey(t) | translate: taskParams(t) }}</span>
+            <span class="small text-body-tertiary text-nowrap" *ngIf="t.since">{{ t.since | timeAgo }}</span>
+          </button>
+        </div>
+        <ng-template #nothingMine><p class="small text-body-secondary mb-0">{{ 'HOME.NOTHING_MINE' | translate }}</p></ng-template>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card card-body h-100">
+        <h2 class="h6 mb-2">{{ 'HOME.WAITING_ON_REVIEWER' | translate }} <span class="text-body-tertiary">({{ home.waiting.length }})</span></h2>
+        <div class="list-group list-group-flush" *ngIf="home.waiting.length; else nothingWaiting">
+          <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 px-0" *ngFor="let t of home.waiting | slice: 0 : listLimit" (click)="go(t)">
+            <span class="small flex-grow-1">{{ taskKey(t) | translate: taskParams(t) }}</span>
+            <span class="small text-body-tertiary text-nowrap" *ngIf="t.since">{{ t.since | timeAgo }}</span>
+          </button>
+        </div>
+        <ng-template #nothingWaiting><p class="small text-body-secondary mb-0">{{ 'HOME.NOTHING_WAITING' | translate }}</p></ng-template>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
 <div class="stat-row row row-cols-2 row-cols-sm-3 g-3 mb-4" *ngIf="!loading">
   <div class="col">
     <div class="card card-body h-100 gap-1">

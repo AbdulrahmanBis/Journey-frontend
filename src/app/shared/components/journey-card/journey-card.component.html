@@ -7,7 +7,10 @@
 >
   <div class="d-flex justify-content-between align-items-center gap-2">
     <span class="badge rounded-pill bg-light text-navy">{{ view.journey.techTag }}</span>
-    <app-status-badge [status]="view.status"></app-status-badge>
+    <div class="d-flex align-items-center gap-1">
+      <app-due-badge [dueDate]="view.dueDate" [closed]="closed"></app-due-badge>
+      <app-status-badge [status]="view.status"></app-status-badge>
+    </div>
   </div>
 
   <h3 class="fs-5 mb-0 user-content">{{ view.journey.title }}</h3>
