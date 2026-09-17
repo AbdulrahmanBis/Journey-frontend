@@ -8,6 +8,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { AppNotification } from '../../core/models/models';
 import { AuthService } from '../../core/services/auth.service';
 import { RoleCode } from '../../core/models/enums';
+import { apiErrorMessage } from '../../core/services/api-error';
 
 const PAGE_SIZE = 20;
 
@@ -54,7 +55,7 @@ export class NotificationsComponent implements OnInit {
       },
       error: (err: any) => {
         this.sendingTest = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('NOTIFICATIONS.TEST_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('NOTIFICATIONS.TEST_FAILED'));
       },
     });
   }

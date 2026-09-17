@@ -12,6 +12,7 @@ import { CatalogEntry } from '../../../core/models/models';
 import { CatalogTypeCode, LearningStatusCode, STAFF_ROLES, codeOf } from '../../../core/models/enums';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { AssignChoice, AssignLearnerModalComponent } from '../assign-learner-modal/assign-learner-modal.component';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 type Action = 'enroll' | 'continue' | 'review' | 'enrollAgain' | 'assign' | 'none';
 
@@ -143,7 +144,7 @@ export class CatalogActionComponent {
       },
       error: (err: any) => {
         this.busy = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('CATALOG.ENROLL_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('CATALOG.ENROLL_FAILED'));
       },
     });
   }
@@ -162,7 +163,7 @@ export class CatalogActionComponent {
       },
       error: (err: any) => {
         this.busy = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('JOURNEY.ASSIGN_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('JOURNEY.ASSIGN_FAILED'));
       },
     });
   }

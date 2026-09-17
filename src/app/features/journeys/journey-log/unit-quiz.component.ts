@@ -5,6 +5,7 @@ import { LearnerUnitService } from '../../../core/services/learner-unit.service'
 import { ToastService } from '../../../core/services/toast.service';
 import { QuizQuestion, UnitQuiz } from '../../../core/models/models';
 import { QuestionTypeCode, codeOf, optionCodeFor } from '../../../core/models/enums';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 /**
  * A unit's quiz. The learner answers and gets feedback on the spot (it grades itself), and may try
@@ -156,7 +157,7 @@ export class UnitQuizComponent implements OnChanges {
       },
       error: (err: any) => {
         this.submitting = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED'));
       },
     });
   }

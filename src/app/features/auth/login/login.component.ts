@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -16,6 +16,7 @@ import { ToastService } from '../../../core/services/toast.service';
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
   private translate = inject(TranslateService);
 
@@ -23,6 +24,12 @@ export class LoginComponent {
   password = '';
   loading = false;
   error = '';
+
+  /** Back to the page the session ended on — only ever a path inside this app. */
+  private returnUrl(): string {
+    const url = this.route.snapshot.queryParamMap.get('returnUrl');
+    return url && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/login') ? url : '/dashboard';
+  }
 
   submit(): void {
     if (!this.email || !this.password) return;
@@ -32,7 +39,7 @@ export class LoginComponent {
       next: (user) => {
         this.loading = false;
         this.toast.success(this.translate.instant('AUTH.WELCOME_TOAST', { name: user.name.split(' ')[0] }));
-        this.router.navigate(['/dashboard']);
+        this.router.navigateByUrl(this.returnUrl());
       },
       error: (err: Error) => { this.loading = false; this.error = err.message; },
     });

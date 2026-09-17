@@ -32,6 +32,7 @@ import { JourneyOutlineComponent, LogStep, stepKey } from './journey-outline.com
 import { UnitQuizComponent } from './unit-quiz.component';
 import { RichLinksDirective } from '../../../shared/directives/rich-links.directive';
 import { UnitReviewComponent } from './unit-review.component';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 /** How often active reading time is reported, and how recent an interaction must be to count. */
 const HEARTBEAT_SECONDS = 30;
@@ -185,10 +186,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.loadPackages();
         this.loadCertificate();
       },
-      error: () => {
-        this.toast.error(this.translate.instant('QUEST_LOG.NOT_FOUND'));
-        this.router.navigate(['/dashboard']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -281,7 +279,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
       this.busy = true;
       this.units.complete(current.item.progressId).subscribe({
         next: () => { this.busy = false; this.reloadOutline(); done(); },
-        error: (err: any) => { this.busy = false; this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
+        error: (err: any) => { this.busy = false; this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
       });
       return;
     }
@@ -329,7 +327,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.units.item(progressId).subscribe((content) => { if (this.content?.progressId === progressId) this.content = content; });
         this.reloadOutline();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('QUEST_LOG.NOTE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('QUEST_LOG.NOTE_FAILED')),
     });
   }
 
@@ -341,7 +339,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.toast.success(this.translate.instant('QUEST_LOG.STATUS_CHANGED', { status: this.lang.label(status) }));
         this.reloadOutline();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.UPDATE_FAILED')),
     });
   }
 
@@ -352,7 +350,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.showCancelConfirm = false;
         this.reloadOutline();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('QUEST_LOG.CANCEL_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('QUEST_LOG.CANCEL_FAILED')),
     });
   }
 
@@ -368,7 +366,7 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
         this.toast.success(this.translate.instant('DUE.SAVED'));
         this.reloadOutline();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED')),
     });
   }
 

@@ -7,6 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { Department } from '../../../core/models/models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 /** HR and Admin: the departments people belong to. Journeys are company-wide and not listed here. */
 @Component({
@@ -74,7 +75,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('DEPARTMENT.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('DEPARTMENT.SAVE_FAILED');
       },
     });
   }
@@ -93,7 +94,7 @@ export class DepartmentListComponent implements OnInit {
       error: (err: any) => {
         this.deleting = null;
         // 409 = people still belong to it; the server message says so.
-        this.toast.error(err?.error?.message ?? this.translate.instant('DEPARTMENT.DELETE_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('DEPARTMENT.DELETE_FAILED'));
       },
     });
   }

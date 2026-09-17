@@ -11,6 +11,7 @@ import { EnumValue, ORG_WIDE_ROLES, RoleCode, USER_ROLES } from '../../../core/m
 import { User } from '../../../core/models/models';
 import { DepartmentPickerComponent } from '../../../shared/components/department-picker/department-picker.component';
 import { Observable, forkJoin, of } from 'rxjs';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 /** Roles each account manager may hand out — mirrors AccessPolicy.requireCanAssign on the server. */
 const ASSIGNABLE_ROLES: Record<number, readonly number[]> = {
@@ -88,10 +89,7 @@ export class UserFormComponent implements OnInit {
         if (self) this.departmentId = self.department?.id ?? null;
         this.loadSeniors();
       },
-      error: () => {
-        this.toast.error(this.translate.instant('USER.NOT_FOUND'));
-        this.router.navigate(['/admin/users']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -164,7 +162,7 @@ export class UserFormComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('USER.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('USER.SAVE_FAILED');
       },
     });
   }

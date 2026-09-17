@@ -9,6 +9,7 @@ import { CatalogDetail } from '../../../core/models/models';
 import { CatalogTypeCode, LearningStatusCode, STAFF_ROLES, codeOf, learningStatusChipClass } from '../../../core/models/enums';
 import { AuthService } from '../../../core/services/auth.service';
 import { CatalogActionComponent } from '../../../shared/components/catalog-action/catalog-action.component';
+import { openErrorPage } from '../../../core/services/api-error';
 
 /**
  * A catalog entry's overview page: what it covers (quest items, or a package's journeys), who
@@ -66,10 +67,7 @@ export class CatalogDetailComponent implements OnInit {
         this.openUnits = new Set(detail.units?.length ? [detail.units[0].order] : []);
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('CATALOG.NOT_FOUND'));
-        this.router.navigate(['/catalog']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 

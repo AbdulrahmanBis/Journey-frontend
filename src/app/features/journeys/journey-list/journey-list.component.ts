@@ -11,6 +11,7 @@ import { Journey } from '../../../core/models/models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AssignChoice, AssignLearnerModalComponent } from '../../../shared/components/assign-learner-modal/assign-learner-modal.component';
 import { JourneysTabsComponent } from '../journeys-tabs/journeys-tabs.component';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 @Component({
   selector: 'app-journey-list',
@@ -69,7 +70,7 @@ export class JourneyListComponent implements OnInit {
         this.refresh();
       },
       error: (err: any) => {
-        this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.DELETE_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.DELETE_FAILED'));
       },
     });
   }
@@ -90,7 +91,7 @@ export class JourneyListComponent implements OnInit {
       },
       error: (err: any) => {
         this.assigning = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('JOURNEY.ASSIGN_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('JOURNEY.ASSIGN_FAILED'));
       },
     });
   }

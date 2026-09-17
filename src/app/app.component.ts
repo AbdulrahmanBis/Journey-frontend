@@ -8,6 +8,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 import { GlobalSearchComponent } from './shared/components/global-search/global-search.component';
 import { IntroGuideComponent } from './shared/components/intro-guide/intro-guide.component';
 import { IntroGuideService } from './core/services/intro-guide.service';
+import { SessionService } from './core/services/session.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -20,4 +21,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class AppComponent {
   auth = inject(AuthService);
   guide = inject(IntroGuideService);
+
+  constructor() {
+    inject(SessionService).start();
+  }
 }

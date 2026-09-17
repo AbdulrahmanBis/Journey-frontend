@@ -11,6 +11,7 @@ import { ORG_WIDE_ROLES, RoleCode, roleChipClass } from '../../../core/models/en
 import { AuthService } from '../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DepartmentPickerComponent } from '../../../shared/components/department-picker/department-picker.component';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 @Component({
   selector: 'app-user-list',
@@ -96,7 +97,7 @@ export class UserListComponent implements OnInit {
         this.toast.success(this.translate.instant('USER.REMOVED', { name }));
         this.refresh();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('USER.DELETE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('USER.DELETE_FAILED')),
     });
   }
 
@@ -106,7 +107,7 @@ export class UserListComponent implements OnInit {
         this.toast.success(this.translate.instant('USER.REASSIGNED', { name: learner.name }));
         this.refresh();
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('USER.REASSIGN_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('USER.REASSIGN_FAILED')),
     });
   }
 }

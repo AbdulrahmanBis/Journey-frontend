@@ -13,6 +13,7 @@ import { DepartmentService } from '../../../core/services/department.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { isoInDays, todayIso } from '../../../shared/components/due-badge/due-badge.component';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 /**
  * Write or edit an announcement. HR and Admin choose the audience; a Manager's always goes to their own
@@ -94,10 +95,7 @@ export class AnnouncementFormComponent implements OnInit {
         this.showUntil = a.showUntil;
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('ANNOUNCEMENTS.GONE'));
-        this.router.navigate(['/announcements']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -133,7 +131,7 @@ export class AnnouncementFormComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED');
       },
     });
   }

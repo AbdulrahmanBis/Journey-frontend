@@ -8,6 +8,7 @@ import { OutlineUnit } from '../../../core/models/models';
 import { EnumValue, STATUS_ORDER, StatusCode, codeOf, statusSlug, toggleButtonClass } from '../../../core/models/enums';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { NoteThreadComponent } from '../../../shared/components/note-thread/note-thread.component';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 /**
  * A unit's review: where it stands, the reviewer's status control, the learner's "send for review",
@@ -102,7 +103,7 @@ export class UnitReviewComponent {
     this.busy = true;
     this.units.submitUnit(this.unit.learnerUnitId).subscribe({
       next: () => { this.busy = false; this.toast.success(this.translate.instant('LOG.SENT_FOR_REVIEW')); this.changed.emit(); },
-      error: (err: any) => { this.busy = false; this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
+      error: (err: any) => { this.busy = false; this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
     });
   }
 
@@ -115,14 +116,14 @@ export class UnitReviewComponent {
         this.toast.success(this.translate.instant('LOG.UNIT_STATUS_SAVED', { status: this.lang.label(status) }));
         this.changed.emit();
       },
-      error: (err: any) => { this.busy = false; this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
+      error: (err: any) => { this.busy = false; this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.UPDATE_FAILED')); },
     });
   }
 
   addNote(message: string): void {
     this.units.addUnitNote(this.unit.learnerUnitId, message).subscribe({
       next: () => { this.toast.success(this.translate.instant('QUEST_LOG.NOTE_ADDED')); this.changed.emit(); },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('QUEST_LOG.NOTE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('QUEST_LOG.NOTE_FAILED')),
     });
   }
 }

@@ -13,6 +13,7 @@ import { SidePanelComponent } from '../../../shared/components/side-panel/side-p
 import { RichLinksDirective } from '../../../shared/directives/rich-links.directive';
 import { JourneyOutlineComponent, LogStep } from '../journey-log/journey-outline.component';
 import { PreviewQuestionsComponent } from './preview-questions.component';
+import { openErrorPage } from '../../../core/services/api-error';
 
 type PreviewStep = LogStep | { kind: 'exam' };
 type PreviewUnit = JourneyPreview['units'][number];
@@ -119,10 +120,7 @@ export class JourneyPreviewComponent implements OnInit {
         this.loading = false;
         this.applySelection(this.route.snapshot.queryParamMap);
       },
-      error: () => {
-        this.toast.error(this.translate.instant('PREVIEW.NOT_FOUND'));
-        this.router.navigate([this.isStaff ? '/journeys' : '/catalog']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 

@@ -140,5 +140,13 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(ORG_WIDE_ROLES)],
     loadComponent: () => import('./features/admin/department-list/department-list.component').then((m) => m.DepartmentListComponent),
   },
-  { path: '**', redirectTo: 'dashboard' },
+  // Unknown addresses, and records that could not be loaded (openErrorPage), show the error page in place.
+  {
+    path: 'not-found',
+    loadComponent: () => import('./features/errors/error-page.component').then((m) => m.ErrorPageComponent),
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./features/errors/error-page.component').then((m) => m.ErrorPageComponent),
+  },
 ];

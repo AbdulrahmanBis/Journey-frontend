@@ -12,6 +12,7 @@ import { AnnouncementModalComponent, audienceLabel } from '../../../shared/compo
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DepartmentPickerComponent } from '../../../shared/components/department-picker/department-picker.component';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
+import { apiErrorMessage } from '../../../core/services/api-error';
 
 /**
  * Past and current announcements. HR and Admin see every announcement and can narrow to what reached
@@ -93,7 +94,7 @@ export class AnnouncementListComponent implements OnInit {
         this.items = this.items.filter((a) => a.id !== target.id);
         this.toast.success(this.translate.instant('ANNOUNCEMENTS.DELETED'));
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.DELETE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.DELETE_FAILED')),
     });
   }
 }

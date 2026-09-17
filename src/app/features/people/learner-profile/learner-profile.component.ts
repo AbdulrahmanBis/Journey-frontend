@@ -19,6 +19,7 @@ import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 
 /** Everything about one learner on one page: status, what needs attention, packages and journeys. */
 import { CertificateListComponent } from '../../../shared/components/certificate-list/certificate-list.component';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 @Component({
   selector: 'app-learner-profile',
@@ -70,10 +71,7 @@ export class LearnerProfileComponent implements OnInit {
         this.groups = groupByPackage(views, packages);
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('TEAM.LEARNER_NOT_FOUND'));
-        this.router.navigate(['/dashboard']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -92,7 +90,7 @@ export class LearnerProfileComponent implements OnInit {
       },
       error: (err: any) => {
         this.cancelling = null;
-        this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.UPDATE_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.UPDATE_FAILED'));
       },
     });
   }

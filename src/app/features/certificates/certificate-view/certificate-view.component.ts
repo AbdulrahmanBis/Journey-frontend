@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CertificateService } from '../../../core/services/certificate.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { openErrorPage } from '../../../core/services/api-error';
 
 /**
  * One certificate, laid out as an A4 landscape page. "Download PDF" opens the browser's print dialog, where
@@ -40,10 +41,7 @@ export class CertificateViewComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       this.certificates.get(params.get('id')!).subscribe({
         next: (c) => (this.certificate = c),
-        error: () => {
-          this.toast.error(this.translate.instant('CERTIFICATE.NOT_FOUND'));
-          this.router.navigate(['/dashboard']);
-        },
+        error: (err) => openErrorPage(this.router, err),
       });
     });
   }

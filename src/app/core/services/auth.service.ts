@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { User } from '../models/models';
 import { API_BASE } from './api.config';
 import { TokenStore } from './auth.interceptor';
+import { apiErrorMessage } from './api-error';
 
 const USER_KEY = 'ioj_user';
 
@@ -43,7 +44,7 @@ export class AuthService {
       tap((res) => this.persist(res)),
       map((res) => res.user),
       catchError((err) => throwError(() =>
-        new Error(err?.error?.message ?? this.translate.instant('AUTH.INVALID_CREDENTIALS')))),
+        new Error(apiErrorMessage(err) ?? this.translate.instant('AUTH.INVALID_CREDENTIALS')))),
     );
   }
 
@@ -52,7 +53,7 @@ export class AuthService {
       tap((res) => this.persist(res)),
       map((res) => res.user),
       catchError((err) => throwError(() =>
-        new Error(err?.error?.message ?? this.translate.instant('AUTH.COULD_NOT_CREATE')))),
+        new Error(apiErrorMessage(err) ?? this.translate.instant('AUTH.COULD_NOT_CREATE')))),
     );
   }
 
@@ -73,6 +74,8 @@ export class AuthService {
 
   private persist(res: AuthResponse): void {
     TokenStore.set(res.token);
+    // A fresh session starts active; a timestamp left from an earlier one would end it at once (SessionService).
+    try { localStorage.setItem('ioj_last_activity', String(Date.now())); } catch { /* ignore */ }
     this.currentUserSubject.next(res.user);
     try { localStorage.setItem(USER_KEY, JSON.stringify(res.user)); } catch { /* ignore */ }
   }

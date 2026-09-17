@@ -876,5 +876,25 @@
         "HINT": "Share news with everyone; it tops each person’s dashboard."
       }
     }
+  },
+  "ERRORS": {
+    "NOT_FOUND": {
+      "TITLE": "Page not found",
+      "HINT": "The address may be mistyped, or what it pointed to was removed."
+    },
+    "FORBIDDEN": {
+      "TITLE": "You don't have access to this",
+      "HINT": "This belongs to someone outside your reach. Ask your manager or HR if you need it."
+    },
+    "FAILED": {
+      "TITLE": "This page couldn't load",
+      "HINT": "Something went wrong on our side. Try again in a moment."
+    },
+    "RETRY": "Try again",
+    "HOME": "Go to dashboard"
+  },
+  "SESSION": {
+    "IDLE": "You were signed out after 5 minutes without activity. Sign in to continue where you left off.",
+    "EXPIRED": "Your session has expired. Sign in to continue where you left off."
   }
 }

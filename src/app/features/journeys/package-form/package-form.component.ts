@@ -8,6 +8,7 @@ import { JourneyService } from '../../../core/services/journey.service';
 import { PackageService } from '../../../core/services/package.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Journey } from '../../../core/models/models';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 /** Create or edit a package: its details, and which journeys it holds in what order. */
 @Component({
@@ -72,10 +73,7 @@ export class PackageFormComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('PACKAGE.NOT_FOUND'));
-        this.router.navigate(['/journeys/packages']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -114,7 +112,7 @@ export class PackageFormComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED');
       },
     });
   }

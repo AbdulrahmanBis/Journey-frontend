@@ -10,6 +10,7 @@ import { ExamService, AnswerDraft } from '../../../core/services/exam.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Exam, ExamQuestion, LearnerJourneyView, User } from '../../../core/models/models';
 import { AttemptStatusCode, ORG_VIEW_ROLES, QuestionTypeCode, RoleCode, codeOf, optionCodeFor, optionIndexOf, toggleButtonClass } from '../../../core/models/enums';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 interface DraftAnswer {
   selectedOptionIndex?: number;
@@ -107,10 +108,7 @@ export class ExamAttemptComponent implements OnInit {
         this.initFormState();
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('QUEST_LOG.NOT_FOUND'));
-        this.router.navigate(['/dashboard']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -170,7 +168,7 @@ export class ExamAttemptComponent implements OnInit {
       },
       error: (err: any) => {
         this.submitting = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('EXAM.SUBMIT_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('EXAM.SUBMIT_FAILED'));
       },
     });
   }
@@ -192,7 +190,7 @@ export class ExamAttemptComponent implements OnInit {
       },
       error: (err: any) => {
         this.grading = false;
-        this.toast.error(err?.error?.message ?? this.translate.instant('EXAM.GRADE_FAILED'));
+        this.toast.error(apiErrorMessage(err) ?? this.translate.instant('EXAM.GRADE_FAILED'));
       },
     });
   }

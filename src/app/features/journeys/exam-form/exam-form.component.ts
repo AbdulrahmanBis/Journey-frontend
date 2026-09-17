@@ -12,6 +12,7 @@ import { QuestionTypeCode, codeOf, optionCodeFor } from '../../../core/models/en
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { QuestionEditorComponent, QuestionRow, blankQuestion, toQuestionDraft } from '../../../shared/components/question-editor/question-editor.component';
 import { forkJoin } from 'rxjs';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 @Component({
   selector: 'app-exam-form',
@@ -66,10 +67,7 @@ export class ExamFormComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: () => {
-        this.toast.error(this.translate.instant('JOURNEY.NOT_FOUND'));
-        this.router.navigate(['/journeys']);
-      },
+      error: (err) => openErrorPage(this.router, err),
     });
   }
 
@@ -100,7 +98,7 @@ export class ExamFormComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED');
       },
     });
   }
@@ -113,7 +111,7 @@ export class ExamFormComponent implements OnInit {
         this.toast.success(this.translate.instant('EXAM.REMOVED'));
         this.router.navigate(['/journeys']);
       },
-      error: (err: any) => this.toast.error(err?.error?.message ?? this.translate.instant('COMMON.DELETE_FAILED')),
+      error: (err: any) => this.toast.error(apiErrorMessage(err) ?? this.translate.instant('COMMON.DELETE_FAILED')),
     });
   }
 }

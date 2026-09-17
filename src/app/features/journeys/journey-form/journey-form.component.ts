@@ -24,6 +24,7 @@ import { Journey, JourneyItem, JourneyUnit } from '../../../core/models/models';
 import { QuestionEditorComponent, QuestionRow, blankQuestion, toQuestionDraft } from '../../../shared/components/question-editor/question-editor.component';
 import { QuestionTypeCode, optionCodeFor } from '../../../core/models/enums';
 import { forkJoin } from 'rxjs';
+import { apiErrorMessage, openErrorPage } from '../../../core/services/api-error';
 
 interface AttachmentDraft {
   id?: string;
@@ -148,10 +149,7 @@ export class JourneyFormComponent implements OnInit {
           }));
           this.loading = false;
         },
-        error: () => {
-          this.toast.error(this.translate.instant('JOURNEY.NOT_FOUND'));
-          this.router.navigate(['/journeys']);
-        },
+        error: (err) => openErrorPage(this.router, err),
       });
     } else {
       this.units = [this.blankUnit(1)];
@@ -269,7 +267,7 @@ export class JourneyFormComponent implements OnInit {
         a.uploading = false;
         a.progress = 0;
         // The backend explains type/size rejections precisely — surface that, not a generic failure.
-        a.error = err?.error?.message ?? this.translate.instant('ATTACHMENT.UPLOAD_FAILED');
+        a.error = apiErrorMessage(err) ?? this.translate.instant('ATTACHMENT.UPLOAD_FAILED');
       },
     });
 
@@ -378,7 +376,7 @@ export class JourneyFormComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving = false;
-        this.error = err?.error?.message ?? this.translate.instant('COMMON.SAVE_FAILED');
+        this.error = apiErrorMessage(err) ?? this.translate.instant('COMMON.SAVE_FAILED');
       },
     });
   }
