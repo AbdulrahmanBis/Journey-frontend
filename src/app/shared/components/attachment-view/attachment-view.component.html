@@ -1,5 +1,5 @@
-<div class="d-flex flex-column gap-3 mt-3 mb-1" *ngIf="attachments?.length">
-  <ng-container *ngFor="let a of attachments">
+<div class="d-flex flex-column gap-3 mt-3 mb-1" *ngIf="items.length">
+  <ng-container *ngFor="let a of items; trackBy: trackAttachment">
 
     <!-- Image -->
     <figure class="mb-0" *ngIf="is(a, K.Image)">

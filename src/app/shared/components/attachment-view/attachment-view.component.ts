@@ -27,7 +27,21 @@ export class AttachmentViewComponent {
   private files = inject(FileService);
   private lang = inject(LanguageService);
 
-  @Input() attachments: Attachment[] | null | undefined = [];
+  /**
+   * Frame addresses, worked out once per attachment.
+   *
+   * <p>A sanitized URL is a new object every time it is built, so calling the sanitizer from the template made
+   * every change detection pass look like a new {@code src} — and each click re-loaded the PDF viewer, fetching
+   * the file again. These are kept until the attachments themselves change.
+   */
+  private frames = new Map<string, SafeResourceUrl>();
+
+  @Input() set attachments(value: Attachment[] | null | undefined) {
+    this.items = value ?? [];
+    this.frames.clear();
+  }
+
+  items: Attachment[] = [];
 
   K = AttachmentKindCode;
 
@@ -44,6 +58,10 @@ export class AttachmentViewComponent {
     'sharepoint.com',
     '1drv.ms',
   ];
+
+  trackAttachment(_index: number, a: Attachment): string {
+    return a.id ?? a.storageKey ?? a.url ?? String(_index);
+  }
 
   is(a: Attachment, kind: number): boolean {
     return codeOf(a.kind) === kind;
@@ -87,12 +105,21 @@ export class AttachmentViewComponent {
 
   /** Angular blocks iframe srcs unless explicitly trusted; only called after canEmbed() passes. */
   embedUrl(a: Attachment): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(toEmbedUrl(a.url));
+    return this.frame('embed:' + (a.url ?? ''), () => toEmbedUrl(a.url));
   }
 
   /** PDFs are served from our own origin, so framing them is safe. */
   pdfUrl(a: Attachment): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.mediaUrl(a));
+    return this.frame('pdf:' + (a.storageKey ?? a.id ?? ''), () => this.mediaUrl(a));
+  }
+
+  /** The same object for the same attachment, so the frame is never reloaded by a redraw. */
+  private frame(key: string, build: () => string): SafeResourceUrl {
+    const existing = this.frames.get(key);
+    if (existing) return existing;
+    const url = this.sanitizer.bypassSecurityTrustResourceUrl(build());
+    this.frames.set(key, url);
+    return url;
   }
 
   externalUrl(a: Attachment): string {

@@ -709,7 +709,8 @@
     "SET_UNIT_STATUS": "حالة الوحدة",
     "SEND_BACK_HINT": "لإعادتها، اجعلها قيد التنفيذ واكتب المطلوب تعديله أدناه.",
     "UNIT_STATUS_SAVED": "تم تغيير حالة الوحدة إلى {{status}}.",
-    "UNIT_DISCUSSION": "نقاش الوحدة"
+    "UNIT_DISCUSSION": "نقاش الوحدة",
+    "OPEN_UNIT": "فتح الوحدة"
   },
   "ANNOUNCEMENTS": {
     "EYEBROW": "الإعلانات",

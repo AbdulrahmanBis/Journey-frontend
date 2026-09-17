@@ -26,6 +26,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { NoteThreadComponent } from '../../../shared/components/note-thread/note-thread.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AttachmentViewComponent } from '../../../shared/components/attachment-view/attachment-view.component';
+import { RichHtmlPipe } from '../../../shared/pipes/rich-html.pipe';
 import { DueBadgeComponent, todayIso } from '../../../shared/components/due-badge/due-badge.component';
 import { SidePanelComponent } from '../../../shared/components/side-panel/side-panel.component';
 import { JourneyOutlineComponent, LogStep, stepKey } from './journey-outline.component';
@@ -56,7 +57,7 @@ const IDLE_AFTER_MS = 60_000;
     RichLinksDirective,
     CommonModule, FormsModule, RouterLink, TranslatePipe,
     StatusBadgeComponent, NoteThreadComponent, ConfirmDialogComponent, AttachmentViewComponent, DueBadgeComponent,
-    SidePanelComponent, JourneyOutlineComponent, UnitQuizComponent, UnitReviewComponent,
+    SidePanelComponent, JourneyOutlineComponent, UnitQuizComponent, UnitReviewComponent, RichHtmlPipe,
   ],
   templateUrl: './journey-log.component.html',
 })
@@ -198,6 +199,11 @@ export class JourneyLogComponent implements OnInit, OnDestroy {
       this.loadPackages();
       this.loadCertificate();
     });
+  }
+
+  /** Opens the unit this step belongs to — where its status, review and notes live. */
+  openUnit(unit: OutlineUnit): void {
+    this.select({ kind: 'unit', unit });
   }
 
   select(step: LogStep): void {

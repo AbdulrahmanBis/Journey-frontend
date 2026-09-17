@@ -709,7 +709,8 @@
     "SET_UNIT_STATUS": "Unit status",
     "SEND_BACK_HINT": "To send it back, set it to in progress and say what to change below.",
     "UNIT_STATUS_SAVED": "Unit marked {{status}}.",
-    "UNIT_DISCUSSION": "Unit discussion"
+    "UNIT_DISCUSSION": "Unit discussion",
+    "OPEN_UNIT": "Open unit"
   },
   "ANNOUNCEMENTS": {
     "EYEBROW": "Announcements",

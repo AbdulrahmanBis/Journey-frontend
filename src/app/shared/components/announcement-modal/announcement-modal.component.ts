@@ -5,6 +5,7 @@ import { Announcement } from '../../../core/models/models';
 import { LanguageService } from '../../../core/services/language.service';
 import { ModalComponent } from '../modal/modal.component';
 import { RichLinksDirective } from '../../directives/rich-links.directive';
+import { RichHtmlPipe } from '../../pipes/rich-html.pipe';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 
 /**
@@ -15,7 +16,7 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 @Component({
   selector: 'app-announcement-modal',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, ModalComponent, RichLinksDirective, TimeAgoPipe],
+  imports: [CommonModule, TranslatePipe, ModalComponent, RichLinksDirective, TimeAgoPipe, RichHtmlPipe],
   template: `
     <app-modal [open]="!!announcement" (dismissed)="closed.emit()">
       <ng-container *ngIf="announcement as a">
@@ -28,7 +29,7 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
           <span aria-hidden="true">·</span>
           <span>{{ audience(a) }}</span>
         </div>
-        <div class="rich-content user-content announcement-body" appRichLinks [innerHTML]="a.body" (navigated)="followedLink.emit()"></div>
+        <div class="rich-content user-content announcement-body" appRichLinks [innerHTML]="a.body | richHtml" (navigated)="followedLink.emit()"></div>
       </ng-container>
       <div modal-actions>
         <button type="button" class="btn btn-outline-secondary flex-fill" *ngIf="canDismiss" (click)="dismissed.emit()">

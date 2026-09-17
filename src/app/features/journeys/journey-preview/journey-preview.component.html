@@ -56,7 +56,7 @@
           </ng-container>
           <ng-template #itemContent>
             <ng-container *ngIf="itemOf(step) as item">
-              <div class="rich-content user-content" appRichLinks *ngIf="isRichText(item.description)" [innerHTML]="item.description"></div>
+              <div class="rich-content user-content" appRichLinks *ngIf="isRichText(item.description)" [innerHTML]="item.description | richHtml"></div>
               <ul class="quest-desc user-content" *ngIf="!isRichText(item.description)">
                 <li *ngFor="let line of plainLines(item.description)">{{ line }}</li>
               </ul>

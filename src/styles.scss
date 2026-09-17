@@ -272,10 +272,17 @@ h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
   ul, ol { margin: 0 0 0.75rem; padding-inline-start: 1.375rem; }
   li { margin-bottom: 0.25rem; }
 
+  /* A sub-list is lettered, then roman, so a step and its sub-steps cannot be confused. */
+  ol ol { list-style-type: lower-alpha; }
+  ol ol ol { list-style-type: lower-roman; }
+  ul ul { list-style-type: circle; }
+  ul ul ul { list-style-type: square; }
+
   h2 { font-size: 1.25rem; margin: 1rem 0 0.5rem; }
   h3 { font-size: 1.0625rem; margin: 0.875rem 0 0.5rem; }
 
-  a { text-decoration: underline; }
+  /* A pasted address can be longer than the column; break it rather than push the page sideways. */
+  a { text-decoration: underline; overflow-wrap: anywhere; }
 
   blockquote {
     margin: 0.75rem 0;

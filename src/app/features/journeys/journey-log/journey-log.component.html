@@ -77,7 +77,12 @@
       <!-- Item -->
       <ng-container *ngIf="step.kind === 'item'">
         <article class="card card-body">
-          <span class="page-eyebrow user-content">{{ 'LOG.UNIT_N' | translate: { n: step.unit.order } }} · {{ step.unit.title }}</span>
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <span class="page-eyebrow user-content">{{ 'LOG.UNIT_N' | translate: { n: step.unit.order } }} · {{ step.unit.title }}</span>
+            <button type="button" class="btn btn-link btn-sm px-0 fw-semibold text-decoration-none" *ngIf="isReviewer" (click)="openUnit(step.unit)">
+              {{ 'LOG.OPEN_UNIT' | translate }}
+            </button>
+          </div>
           <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
             <h2 class="h3 mb-0 user-content">{{ step.item.title }}</h2>
             <app-status-badge [status]="step.item.status"></app-status-badge>
@@ -87,7 +92,7 @@
 
           <ng-container *ngIf="content && content.progressId === step.item.progressId">
             <!-- Rich HTML from the editor; Angular sanitizes it on the way in. -->
-            <div class="rich-content user-content" appRichLinks *ngIf="isRichText(content.description)" [innerHTML]="content.description"></div>
+            <div class="rich-content user-content" appRichLinks *ngIf="isRichText(content.description)" [innerHTML]="content.description | richHtml"></div>
             <ul class="quest-desc user-content" *ngIf="!isRichText(content.description)">
               <li *ngFor="let line of plainLines(content.description)">{{ line }}</li>
             </ul>
@@ -110,16 +115,6 @@
         </article>
 
         <ng-container *ngTemplateOutlet="stepNav"></ng-container>
-
-        <!-- Reviewers act on the unit without leaving the item. -->
-        <app-unit-review
-          *ngIf="isReviewer"
-          [unit]="step.unit"
-          [isReviewer]="true"
-          [compact]="true"
-          [currentUserId]="currentUser.id"
-          (changed)="reloadOutline()"
-        ></app-unit-review>
       </ng-container>
 
       <!-- Quiz -->
@@ -132,14 +127,6 @@
           (submitted)="onQuizSubmitted()"
         ></app-unit-quiz>
         <ng-container *ngTemplateOutlet="stepNav"></ng-container>
-        <app-unit-review
-          *ngIf="isReviewer"
-          [unit]="step.unit"
-          [isReviewer]="true"
-          [compact]="true"
-          [currentUserId]="currentUser.id"
-          (changed)="reloadOutline()"
-        ></app-unit-review>
       </ng-container>
 
       <!-- Unit overview and review -->

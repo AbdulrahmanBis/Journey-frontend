@@ -13,6 +13,7 @@ import { SidePanelComponent } from '../../../shared/components/side-panel/side-p
 import { RichLinksDirective } from '../../../shared/directives/rich-links.directive';
 import { JourneyOutlineComponent, LogStep } from '../journey-log/journey-outline.component';
 import { PreviewQuestionsComponent } from './preview-questions.component';
+import { RichHtmlPipe } from '../../../shared/pipes/rich-html.pipe';
 import { openErrorPage } from '../../../core/services/api-error';
 
 type PreviewStep = LogStep | { kind: 'exam' };
@@ -30,7 +31,7 @@ type PreviewUnit = JourneyPreview['units'][number];
   standalone: true,
   imports: [
     CommonModule, RouterLink, TranslatePipe,
-    AttachmentViewComponent, SidePanelComponent, RichLinksDirective, JourneyOutlineComponent, PreviewQuestionsComponent,
+    AttachmentViewComponent, SidePanelComponent, RichLinksDirective, JourneyOutlineComponent, PreviewQuestionsComponent, RichHtmlPipe,
   ],
   templateUrl: './journey-preview.component.html',
 })
